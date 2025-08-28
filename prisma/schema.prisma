@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(STAFF)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  createdTransactions Transaction[]
+  createdActivities   Activity[]
+  createdCourses      Course[]
+  createdVideos       Video[]
+
+  @@map("users")
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  type        TransactionType
+  category    String
+  amount      Float
+  description String
+  date        DateTime
+  createdBy   String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("transactions")
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String
+  date        DateTime
+  location    String?
+  photos      String[] // JSON array of photo URLs
+  status      String   @default("planned") // planned, ongoing, completed
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("activities")
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  level       String // beginner, intermediate, advanced
+  schedule    String
+  teacher     String
+  duration    String
+  capacity    Int
+  enrolled    Int      @default(0)
+  status      String   @default("active") // active, inactive, completed
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("courses")
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  url         String
+  thumbnail   String?
+  duration    String?
+  category    String
+  teacher     String
+  uploadDate  DateTime
+  views       Int      @default(0)
+  isPublic    Boolean  @default(true)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("videos")
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@map("settings")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  DONATION
+}
