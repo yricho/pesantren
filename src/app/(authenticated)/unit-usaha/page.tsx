@@ -116,7 +116,7 @@ export default function UnitUsahaDashboardPage() {
           title="Penjualan Hari Ini"
           value={formatCurrency(stats?.todaySales.revenue || 0)}
           subtitle={`${stats?.todaySales.count || 0} transaksi`}
-          icon={<DollarSign className="w-6 h-6" />}
+          icon={DollarSign}
           trend={{ value: 12, isPositive: true }}
           color="green"
         />
@@ -124,7 +124,7 @@ export default function UnitUsahaDashboardPage() {
           title="Penjualan Bulan Ini"
           value={formatCurrency(stats?.monthlySales.revenue || 0)}
           subtitle={`${stats?.monthlySales.count || 0} transaksi`}
-          icon={<Calendar className="w-6 h-6" />}
+          icon={Calendar}
           trend={{ value: 8, isPositive: true }}
           color="blue"
         />
@@ -132,15 +132,15 @@ export default function UnitUsahaDashboardPage() {
           title="Total Produk"
           value={stats?.totalProducts.toString() || '0'}
           subtitle={`${stats?.lowStockCount || 0} stok menipis`}
-          icon={<Package className="w-6 h-6" />}
+          icon={Package}
           color="purple"
         />
         <StatsCard
           title="Supplier Aktif"
           value={stats?.totalSuppliers.toString() || '0'}
           subtitle={`${stats?.pendingOrders || 0} order pending`}
-          icon={<Users className="w-6 h-6" />}
-          color="orange"
+          icon={Users}
+          color="yellow"
         />
       </div>
 

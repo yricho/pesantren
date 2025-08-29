@@ -213,7 +213,7 @@ class PaymentGateway {
    */
   async createPayment(paymentData: PaymentRequest): Promise<MidtransResponse> {
     try {
-      const payload = {
+      const payload: any = {
         transaction_details: {
           order_id: paymentData.orderId,
           gross_amount: paymentData.amount
@@ -322,7 +322,7 @@ class PaymentGateway {
    */
   async createEwalletPayment(paymentData: PaymentRequest, ewalletType: string): Promise<MidtransResponse> {
     try {
-      const payload = {
+      const payload: any = {
         payment_type: ewalletType,
         transaction_details: {
           order_id: paymentData.orderId,

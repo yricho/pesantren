@@ -9,23 +9,20 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { StatsCard } from '@/components/ui/stats-card'
 import { 
-  HeartIcon, 
-  CurrencyDollarIcon,
-  UserGroupIcon,
-  ChartBarIcon,
-  PlusIcon,
-  EyeIcon,
-  PencilIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ClockIcon,
-  DocumentTextIcon,
-  FunnelIcon
-} from '@heroicons/react/24/outline'
-import { 
-  HeartIcon as HeartSolidIcon,
-  FireIcon 
-} from '@heroicons/react/24/solid'
+  Heart,
+  DollarSign,
+  Users,
+  BarChart3,
+  Plus,
+  Eye,
+  Pencil,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText,
+  Filter,
+  Flame
+} from 'lucide-react'
 
 interface DonasiAdminPageProps {}
 
@@ -176,13 +173,13 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
             <div className="mt-4 sm:mt-0 flex space-x-3">
               <Link href="/donasi-admin/campaigns/new">
                 <Button>
-                  <PlusIcon className="w-4 h-4 mr-2" />
+                  <Plus className="w-4 h-4 mr-2" />
                   Buat Campaign
                 </Button>
               </Link>
               <Link href="/donasi-admin/categories">
                 <Button variant="outline">
-                  <DocumentTextIcon className="w-4 h-4 mr-2" />
+                  <FileText className="w-4 h-4 mr-2" />
                   Kelola Kategori
                 </Button>
               </Link>
@@ -196,27 +193,27 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
             <StatsCard
               title="Total Donasi"
               value={formatCurrency(summary.totalAmount)}
-              icon={<HeartSolidIcon className="w-6 h-6" />}
+              icon={Heart}
               trend={{ value: 12, isPositive: true }}
               className="bg-gradient-to-r from-green-500 to-green-600 text-white"
             />
             <StatsCard
               title="Jumlah Donatur"
               value={summary.totalDonations.toString()}
-              icon={<UserGroupIcon className="w-6 h-6" />}
+              icon={Users}
               trend={{ value: 8, isPositive: true }}
               className="bg-gradient-to-r from-blue-500 to-blue-600 text-white"
             />
             <StatsCard
               title="Campaign Aktif"
               value={summary.campaignStats.active.toString()}
-              icon={<ChartBarIcon className="w-6 h-6" />}
+              icon={BarChart3}
               className="bg-gradient-to-r from-purple-500 to-purple-600 text-white"
             />
             <StatsCard
               title="Campaign Selesai"
               value={summary.campaignStats.completed.toString()}
-              icon={<CheckCircleIcon className="w-6 h-6" />}
+              icon={CheckCircle}
               className="bg-gradient-to-r from-amber-500 to-amber-600 text-white"
             />
           </div>
@@ -226,10 +223,10 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
         <div className="border-b border-gray-200 mb-6">
           <nav className="flex space-x-8">
             {[
-              { key: 'overview', label: 'Overview', icon: ChartBarIcon },
-              { key: 'campaigns', label: 'Campaigns', icon: HeartIcon },
-              { key: 'donations', label: 'Donasi', icon: CurrencyDollarIcon },
-              { key: 'reports', label: 'Laporan', icon: DocumentTextIcon }
+              { key: 'overview', label: 'Overview', icon: BarChart3 },
+              { key: 'campaigns', label: 'Campaigns', icon: Heart },
+              { key: 'donations', label: 'Donasi', icon: DollarSign },
+              { key: 'reports', label: 'Laporan', icon: FileText }
             ].map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
@@ -333,7 +330,7 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
               {/* Filter */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                  <FunnelIcon className="w-5 h-5 text-gray-500" />
+                  <Filter className="w-5 h-5 text-gray-500" />
                   <select
                     value={campaignFilter}
                     onChange={(e) => setCampaignFilter(e.target.value as any)}
@@ -347,7 +344,7 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
                 </div>
                 <Link href="/donasi-admin/campaigns/new">
                   <Button>
-                    <PlusIcon className="w-4 h-4 mr-2" />
+                    <Plus className="w-4 h-4 mr-2" />
                     Buat Campaign Baru
                   </Button>
                 </Link>
@@ -368,7 +365,7 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
                         />
                       ) : (
                         <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                          <HeartIcon className="w-16 h-16 text-gray-400" />
+                          <Heart className="w-16 h-16 text-gray-400" />
                         </div>
                       )}
                       
@@ -381,7 +378,7 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
                       {campaign.isUrgent && (
                         <div className="absolute top-3 right-3">
                           <Badge className="bg-red-500 text-white">
-                            <FireIcon className="w-3 h-3 mr-1" />
+                            <Flame className="w-3 h-3 mr-1" />
                             Mendesak
                           </Badge>
                         </div>
@@ -421,13 +418,13 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
                         <div className="flex space-x-2">
                           <Link href={`/donasi/campaign/${campaign.slug}`}>
                             <Button variant="outline" size="sm">
-                              <EyeIcon className="w-4 h-4 mr-1" />
+                              <Eye className="w-4 h-4 mr-1" />
                               Lihat
                             </Button>
                           </Link>
                           <Link href={`/donasi-admin/campaigns/${campaign.id}/edit`}>
                             <Button size="sm">
-                              <PencilIcon className="w-4 h-4 mr-1" />
+                              <Pencil className="w-4 h-4 mr-1" />
                               Edit
                             </Button>
                           </Link>
@@ -440,12 +437,12 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
 
               {filteredCampaigns.length === 0 && (
                 <div className="text-center py-12">
-                  <HeartIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Belum Ada Campaign</h3>
                   <p className="text-gray-500 mb-6">Buat campaign pertama Anda untuk mulai mengumpulkan donasi.</p>
                   <Link href="/donasi-admin/campaigns/new">
                     <Button>
-                      <PlusIcon className="w-4 h-4 mr-2" />
+                      <Plus className="w-4 h-4 mr-2" />
                       Buat Campaign
                     </Button>
                   </Link>
@@ -459,7 +456,7 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
               {/* Filter */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
-                  <FunnelIcon className="w-5 h-5 text-gray-500" />
+                  <Filter className="w-5 h-5 text-gray-500" />
                   <select
                     value={donationFilter}
                     onChange={(e) => setDonationFilter(e.target.value as any)}
@@ -545,7 +542,7 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
                             <div className="flex space-x-2">
                               <Link href={`/donasi-admin/donations/${donation.id}`}>
                                 <Button variant="outline" size="sm">
-                                  <EyeIcon className="w-4 h-4 mr-1" />
+                                  <Eye className="w-4 h-4 mr-1" />
                                   Detail
                                 </Button>
                               </Link>
@@ -555,7 +552,7 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
                                   onClick={() => handleVerifyDonation(donation.id)}
                                   className="bg-green-600 hover:bg-green-700"
                                 >
-                                  <CheckCircleIcon className="w-4 h-4 mr-1" />
+                                  <CheckCircle className="w-4 h-4 mr-1" />
                                   Verifikasi
                                 </Button>
                               )}
@@ -569,7 +566,7 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
 
                 {filteredDonations.length === 0 && (
                   <div className="text-center py-12">
-                    <CurrencyDollarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Belum Ada Donasi</h3>
                     <p className="text-gray-500">Donasi akan muncul di sini setelah ada yang berdonasi.</p>
                   </div>
@@ -614,15 +611,15 @@ export default function DonasiAdminPage({}: DonasiAdminPageProps) {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Export Laporan</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button variant="outline" className="justify-start">
-                    <DocumentTextIcon className="w-4 h-4 mr-2" />
+                    <FileText className="w-4 h-4 mr-2" />
                     Export CSV
                   </Button>
                   <Button variant="outline" className="justify-start">
-                    <DocumentTextIcon className="w-4 h-4 mr-2" />
+                    <FileText className="w-4 h-4 mr-2" />
                     Export Excel
                   </Button>
                   <Button variant="outline" className="justify-start">
-                    <DocumentTextIcon className="w-4 h-4 mr-2" />
+                    <FileText className="w-4 h-4 mr-2" />
                     Export PDF
                   </Button>
                 </div>

@@ -145,11 +145,7 @@ export default function PaymentPage() {
     } catch (err: any) {
       console.error('Error fetching payment:', err)
       setError(err.message)
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch payment status',
-        variant: 'destructive'
-      })
+      toast.error("Error: Failed to fetch payment status")
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -160,17 +156,10 @@ export default function PaymentPage() {
     try {
       setCopying(type)
       await navigator.clipboard.writeText(text)
-      toast({
-        title: 'Copied!',
-        description: `${type} copied to clipboard`
-      })
+      toast.success(`${type} copied to clipboard`)
     } catch (err) {
       console.error('Failed to copy:', err)
-      toast({
-        title: 'Error',
-        description: 'Failed to copy to clipboard',
-        variant: 'destructive'
-      })
+      toast.error("Error: Failed to copy to clipboard")
     } finally {
       setTimeout(() => setCopying(null), 1000)
     }
@@ -199,20 +188,13 @@ export default function PaymentPage() {
         throw new Error(data.error || 'Failed to cancel payment')
       }
 
-      toast({
-        title: 'Payment Cancelled',
-        description: 'Payment has been cancelled successfully'
-      })
+      toast.info("Payment Cancelled: Payment has been cancelled successfully")
 
       // Refresh payment status
       checkPaymentStatus()
     } catch (err: any) {
       console.error('Error cancelling payment:', err)
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive'
-      })
+      toast.error("Error")
     } finally {
       setLoading(false)
     }

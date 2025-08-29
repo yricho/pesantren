@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
           productId_location_batchNo: {
             productId: data.productId,
             location: data.location,
-            batchNo: data.batchNo || null,
+            batchNo: data.batchNo || undefined,
           },
         },
         update: {
@@ -404,7 +404,7 @@ export async function PUT(request: NextRequest) {
           productId_location_batchNo: {
             productId: data.productId,
             location: data.toLocation,
-            batchNo: null,
+            batchNo: undefined,
           },
         },
         update: {

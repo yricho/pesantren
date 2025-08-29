@@ -293,8 +293,8 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             fitrah: {
-                              ...inputs.fitrah,
-                              personCount: parseInt(e.target.value) || 0
+                              personCount: parseInt(e.target.value) || 0,
+                              ricePrice: inputs.fitrah?.ricePrice || 15000
                             }
                           })}
                         />
@@ -313,7 +313,7 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             fitrah: {
-                              ...inputs.fitrah,
+                              personCount: inputs.fitrah?.personCount || 1,
                               ricePrice: parseInt(e.target.value) || 15000
                             }
                           })}
@@ -339,8 +339,10 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             mal: {
-                              ...inputs.mal,
-                              totalWealth: parseInt(e.target.value) || 0
+                              totalWealth: parseInt(e.target.value) || 0,
+                              debt: inputs.mal?.debt || 0,
+                              savings: inputs.mal?.savings || 0,
+                              investments: inputs.mal?.investments || 0
                             }
                           })}
                         />
@@ -356,8 +358,10 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             mal: {
-                              ...inputs.mal,
-                              savings: parseInt(e.target.value) || 0
+                              totalWealth: inputs.mal?.totalWealth || 0,
+                              debt: inputs.mal?.debt || 0,
+                              savings: parseInt(e.target.value) || 0,
+                              investments: inputs.mal?.investments || 0
                             }
                           })}
                         />
@@ -373,7 +377,9 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             mal: {
-                              ...inputs.mal,
+                              totalWealth: inputs.mal?.totalWealth || 0,
+                              debt: inputs.mal?.debt || 0,
+                              savings: inputs.mal?.savings || 0,
                               investments: parseInt(e.target.value) || 0
                             }
                           })}
@@ -390,8 +396,10 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             mal: {
-                              ...inputs.mal,
-                              debt: parseInt(e.target.value) || 0
+                              totalWealth: inputs.mal?.totalWealth || 0,
+                              debt: parseInt(e.target.value) || 0,
+                              savings: inputs.mal?.savings || 0,
+                              investments: inputs.mal?.investments || 0
                             }
                           })}
                         />
@@ -413,8 +421,8 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             emas: {
-                              ...inputs.emas,
-                              goldWeight: parseFloat(e.target.value) || 0
+                              goldWeight: parseFloat(e.target.value) || 0,
+                              goldPrice: inputs.emas?.goldPrice || 1000000
                             }
                           })}
                         />
@@ -433,7 +441,7 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             emas: {
-                              ...inputs.emas,
+                              goldWeight: inputs.emas?.goldWeight || 0,
                               goldPrice: parseInt(e.target.value) || 1000000
                             }
                           })}
@@ -456,8 +464,8 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             perak: {
-                              ...inputs.perak,
-                              silverWeight: parseFloat(e.target.value) || 0
+                              silverWeight: parseFloat(e.target.value) || 0,
+                              silverPrice: inputs.perak?.silverPrice || 15000
                             }
                           })}
                         />
@@ -476,7 +484,7 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             perak: {
-                              ...inputs.perak,
+                              silverWeight: inputs.perak?.silverWeight || 0,
                               silverPrice: parseInt(e.target.value) || 15000
                             }
                           })}
@@ -499,8 +507,10 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             perdagangan: {
-                              ...inputs.perdagangan,
-                              inventory: parseInt(e.target.value) || 0
+                              inventory: parseInt(e.target.value) || 0,
+                              receivables: inputs.perdagangan?.receivables || 0,
+                              cash: inputs.perdagangan?.cash || 0,
+                              debt: inputs.perdagangan?.debt || 0
                             }
                           })}
                         />
@@ -516,8 +526,10 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             perdagangan: {
-                              ...inputs.perdagangan,
-                              receivables: parseInt(e.target.value) || 0
+                              inventory: inputs.perdagangan?.inventory || 0,
+                              receivables: parseInt(e.target.value) || 0,
+                              cash: inputs.perdagangan?.cash || 0,
+                              debt: inputs.perdagangan?.debt || 0
                             }
                           })}
                         />
@@ -533,8 +545,10 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             perdagangan: {
-                              ...inputs.perdagangan,
-                              cash: parseInt(e.target.value) || 0
+                              inventory: inputs.perdagangan?.inventory || 0,
+                              receivables: inputs.perdagangan?.receivables || 0,
+                              cash: parseInt(e.target.value) || 0,
+                              debt: inputs.perdagangan?.debt || 0
                             }
                           })}
                         />
@@ -550,7 +564,9 @@ export default function ZakatCalculatorPage({}: ZakatCalculatorPageProps) {
                           onChange={(e) => setInputs({
                             ...inputs,
                             perdagangan: {
-                              ...inputs.perdagangan,
+                              inventory: inputs.perdagangan?.inventory || 0,
+                              receivables: inputs.perdagangan?.receivables || 0,
+                              cash: inputs.perdagangan?.cash || 0,
                               debt: parseInt(e.target.value) || 0
                             }
                           })}

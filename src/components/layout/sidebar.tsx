@@ -28,7 +28,10 @@ import {
   Receipt,
   Truck,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  FileText,
+  Award,
+  Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -77,6 +80,53 @@ const menuItems: MenuItem[] = [
     title: 'Kurikulum',
     href: '/kurikulum',
     icon: BookOpen
+  },
+  {
+    title: 'Akademik',
+    href: '/akademik',
+    icon: GraduationCap,
+    children: [
+      {
+        title: 'Dashboard',
+        href: '/akademik',
+        icon: BarChart3
+      },
+      {
+        title: 'Kelas',
+        href: '/akademik/classes',
+        icon: Users
+      },
+      {
+        title: 'Mata Pelajaran',
+        href: '/akademik/subjects',
+        icon: BookOpen
+      },
+      {
+        title: 'Input Nilai',
+        href: '/akademik/grades',
+        icon: Award
+      },
+      {
+        title: 'Absensi',
+        href: '/akademik/attendance',
+        icon: UserCheck
+      },
+      {
+        title: 'Jadwal Pelajaran',
+        href: '/akademik/schedules',
+        icon: Clock
+      },
+      {
+        title: 'Raport',
+        href: '/akademik/report-cards',
+        icon: FileText
+      },
+      {
+        title: 'Ujian',
+        href: '/akademik/exams',
+        icon: ClipboardCheck
+      }
+    ]
   },
   {
     title: 'Video Kajian',
@@ -181,7 +231,7 @@ export function Sidebar() {
           const isActive = pathname === item.href
           const hasChildren = item.children && item.children.length > 0
           const isExpanded = expandedItems.includes(item.href)
-          const isChildActive = hasChildren && item.children.some(child => pathname === child.href)
+          const isChildActive = hasChildren && item.children?.some(child => pathname === child.href)
           
           return (
             <div key={item.href}>
@@ -223,7 +273,7 @@ export function Sidebar() {
               
               {hasChildren && isExpanded && (
                 <div className="ml-6 mt-1 space-y-1">
-                  {item.children.map((child) => {
+                  {item.children?.map((child) => {
                     const ChildIcon = child.icon
                     const isChildActiveItem = pathname === child.href
                     

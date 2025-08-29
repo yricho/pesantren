@@ -100,6 +100,22 @@ type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
 
+// Simple toast function for notifications
+const toast = {
+  success: (message: string) => {
+    console.log('✅', message)
+  },
+  error: (message: string) => {
+    console.error('❌', message)
+  },
+  info: (message: string) => {
+    console.info('ℹ️', message)
+  },
+  warning: (message: string) => {
+    console.warn('⚠️', message)
+  }
+}
+
 export {
   type ToastProps,
   type ToastActionElement,
@@ -108,4 +124,5 @@ export {
   ToastClose,
   ToastTitle,
   ToastDescription,
+  toast,
 }

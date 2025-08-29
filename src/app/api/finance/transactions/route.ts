@@ -254,7 +254,7 @@ export async function GET(request: NextRequest) {
         const key = `${item.type.toLowerCase()}${item.status !== 'POSTED' ? '_' + item.status.toLowerCase() : ''}`
         acc[key] = {
           count: item._count,
-          total: item._sum.amount || 0,
+          total: item._sum?.amount || 0,
         }
         return acc
       }, {} as any),

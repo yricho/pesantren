@@ -208,7 +208,7 @@ export async function PUT(
               quantity: stockDiff,
               location: data.location || existingProduct.location,
               unitCost: data.cost || existingProduct.cost,
-              totalCost: (data.cost || existingProduct.cost) * Math.abs(stockDiff),
+              totalCost: Number(data.cost || existingProduct.cost) * Math.abs(stockDiff),
               reference: 'Stock Adjustment',
               reason: 'Manual stock update',
             },
@@ -220,7 +220,7 @@ export async function PUT(
               productId_location_batchNo: {
                 productId: params.id,
                 location: data.location || existingProduct.location,
-                batchNo: null,
+                batchNo: undefined,
               },
             },
             update: {

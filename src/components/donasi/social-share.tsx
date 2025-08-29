@@ -174,7 +174,7 @@ export function SocialShare({ shareData, size = 'md', showLabel = true, classNam
 export function QuickShareButton({ shareData, variant = 'default', size = 'sm' }: {
   shareData: ShareData
   variant?: 'default' | 'outline' | 'ghost'
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'lg'
 }) {
   const shareViaWebAPI = async () => {
     if (navigator.share) {

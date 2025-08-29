@@ -37,6 +37,13 @@ model User {
   createdCampaigns    DonationCampaign[]
   createdPurchaseOrders PurchaseOrder[]
 
+  // Academic Relations
+  homeroom_classes    Class[] @relation("ClassTeacher")
+  teacherSubjects     TeacherSubject[] @relation("TeacherSubject")
+  attendancesMarked   Attendance[] @relation("AttendanceMarker")
+  schedules           Schedule[] @relation("ScheduleTeacher")
+  exams               Exam[] @relation("ExamTeacher")
+
   @@map("users")
 }
 
@@ -419,6 +426,13 @@ model Student {
   registrationId  String?   @unique
   registration    Registration? @relation(fields: [registrationId], references: [id])
   payments        Payment[]
+
+  // Academic Relations
+  studentClasses  StudentClass[]
+  grades          Grade[]
+  attendances     Attendance[]
+  reportCards     ReportCard[]
+  examResults     ExamResult[]
   
   @@index([institutionType, status])
   @@index([enrollmentYear])
@@ -1138,4 +1152,419 @@ model SaleItem {
 
   @@unique([saleId, productId])
   @@map("sale_items")
+}
+
+// ==========================================
+// ACADEMIC MANAGEMENT MODELS
+// ==========================================
+
+model AcademicYear {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g., "2024/2025"
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(false) // Only one can be active at a time
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  semesters   Semester[]
+  classes     Class[]
+  studentClasses StudentClass[]
+
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@map("academic_years")
+}
+
+model Semester {
+  id              String   @id @default(cuid())
+  academicYearId  String
+  name            String   // "Semester 1", "Semester 2"
+  shortName       String?  // "S1", "S2"
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean  @default(false)
+  gradingDeadline DateTime? // Deadline for grade input
+  reportDeadline  DateTime? // Deadline for report card generation
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  academicYear    AcademicYear @relation(fields: [academicYearId], references: [id])
+  teacherSubjects TeacherSubject[]
+  grades          Grade[]
+  attendances     Attendance[]
+  reportCards     ReportCard[]
+  exams           Exam[]
+
+  @@unique([academicYearId, name])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@map("semesters")
+}
+
+model Class {
+  id             String   @id @default(cuid())
+  name           String   // "1A", "2B", "VII-A", "VIII-B"
+  grade          String   // "1", "2", "3", "VII", "VIII", "IX", "X", "XI", "XII"
+  section        String?  // "A", "B", "C"
+  academicYearId String
+  teacherId      String?  // Homeroom teacher
+  capacity       Int      @default(30)
+  room           String?  // Classroom location
+  level          String   // "TK", "SD", "SMP", "PONDOK"
+  program        String?  // "REGULER", "TAHFIDZ", "KITAB"
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  academicYear    AcademicYear @relation(fields: [academicYearId], references: [id])
+  teacher         User? @relation("ClassTeacher", fields: [teacherId], references: [id])
+  studentClasses  StudentClass[]
+  teacherSubjects TeacherSubject[]
+  attendances     Attendance[]
+  schedules       Schedule[]
+  exams           Exam[]
+  reportCards     ReportCard[] @relation("ReportCardClass")
+
+  @@unique([academicYearId, name])
+  @@index([grade, level])
+  @@index([isActive])
+  @@map("classes")
+}
+
+model Subject {
+  id          String   @id @default(cuid())
+  code        String   @unique // "MTK01", "BIN01", "QUR01"
+  name        String   // "Matematika", "Bahasa Indonesia", "Al-Quran"
+  nameArabic  String?  // Arabic name for Islamic subjects
+  description String?
+  credits     Int      @default(2) // SKS/Credit hours
+  type        String   @default("WAJIB") // "WAJIB", "PILIHAN"
+  category    String   @default("UMUM") // "UMUM", "AGAMA", "MUATAN_LOKAL"
+  level       String   // "TK", "SD", "SMP", "PONDOK"
+  minGrade    String?  // Minimum grade this subject is taught
+  maxGrade    String?  // Maximum grade this subject is taught
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  teacherSubjects TeacherSubject[]
+  curriculumSubjects CurriculumSubject[]
+  grades          Grade[]
+  schedules       Schedule[]
+  exams           Exam[]
+
+  @@index([level, category])
+  @@index([isActive])
+  @@map("subjects")
+}
+
+model TeacherSubject {
+  id         String @id @default(cuid())
+  teacherId  String
+  subjectId  String
+  classId    String
+  semesterId String
+  isActive   Boolean @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  teacher    User @relation("TeacherSubject", fields: [teacherId], references: [id])
+  subject    Subject @relation(fields: [subjectId], references: [id])
+  class      Class @relation(fields: [classId], references: [id])
+  semester   Semester @relation(fields: [semesterId], references: [id])
+
+  @@unique([teacherId, subjectId, classId, semesterId])
+  @@index([teacherId, semesterId])
+  @@index([subjectId, classId])
+  @@map("teacher_subjects")
+}
+
+model StudentClass {
+  id             String @id @default(cuid())
+  studentId      String
+  classId        String
+  academicYearId String
+  rollNumber     String? // Student number in class
+  status         String @default("ACTIVE") // "ACTIVE", "TRANSFERRED", "GRADUATED"
+  joinDate       DateTime @default(now())
+  leaveDate      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  student        Student @relation(fields: [studentId], references: [id])
+  class          Class @relation(fields: [classId], references: [id])
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  @@unique([studentId, classId, academicYearId])
+  @@index([classId, status])
+  @@index([academicYearId])
+  @@map("student_classes")
+}
+
+model Curriculum {
+  id          String   @id @default(cuid())
+  name        String   // "Kurikulum 2013", "Kurikulum Merdeka", "Kurikulum Pondok"
+  code        String   @unique
+  level       String   // "TK", "SD", "SMP", "PONDOK"
+  description String?
+  isActive    Boolean  @default(true)
+  validFrom   DateTime
+  validUntil  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  subjects    CurriculumSubject[]
+
+  @@index([level, isActive])
+  @@map("curriculums")
+}
+
+model CurriculumSubject {
+  id            String @id @default(cuid())
+  curriculumId  String
+  subjectId     String
+  grade         String   // Which grade this subject is taught
+  semester      Int?     // Which semester (1 or 2, null for full year)
+  credits       Int      @default(2)
+  isRequired    Boolean  @default(true)
+  minScore      Int      @default(60) // Minimum passing score
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  // Relations
+  curriculum    Curriculum @relation(fields: [curriculumId], references: [id])
+  subject       Subject @relation(fields: [subjectId], references: [id])
+
+  @@unique([curriculumId, subjectId, grade])
+  @@index([curriculumId, grade])
+  @@map("curriculum_subjects")
+}
+
+model Grade {
+  id           String   @id @default(cuid())
+  studentId    String
+  subjectId    String
+  semesterId   String
+  classId      String?  // For reference
+  
+  // Grade components
+  midterm      Decimal?  // Mid-semester exam
+  final        Decimal?  // Final exam
+  assignment   Decimal?  // Assignment/homework average
+  quiz         Decimal?  // Quiz average
+  participation Decimal? // Class participation
+  project      Decimal?  // Project score
+  daily        Decimal?  // Daily assessment
+  
+  // Final calculations
+  total        Decimal?  // Calculated total score
+  grade        String?   // Letter grade (A, B+, B, C+, C, D, E)
+  point        Decimal?  // Grade point (4.0, 3.7, 3.0, etc.)
+  
+  // Islamic character assessment
+  akhlak       String?   // "A", "B", "C" for behavior
+  quranMemory  String?   // Quran memorization progress
+  
+  notes        String?
+  isLocked     Boolean  @default(false) // Lock grades after report card generation
+  enteredBy    String?  // Teacher who entered the grade
+  enteredAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  student      Student @relation(fields: [studentId], references: [id])
+  subject      Subject @relation(fields: [subjectId], references: [id])
+  semester     Semester @relation(fields: [semesterId], references: [id])
+
+  @@unique([studentId, subjectId, semesterId])
+  @@index([semesterId, subjectId])
+  @@index([studentId, semesterId])
+  @@map("grades")
+}
+
+model Attendance {
+  id         String   @id @default(cuid())
+  studentId  String
+  classId    String
+  semesterId String
+  date       DateTime @db.Date
+  status     String   // "HADIR", "IZIN", "SAKIT", "ALPHA", "TERLAMBAT"
+  timeIn     DateTime?
+  notes      String?
+  markedBy   String   // Teacher who marked attendance
+  markedAt   DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  student    Student @relation(fields: [studentId], references: [id])
+  class      Class @relation(fields: [classId], references: [id])
+  semester   Semester @relation(fields: [semesterId], references: [id])
+  marker     User @relation("AttendanceMarker", fields: [markedBy], references: [id])
+
+  @@unique([studentId, classId, date])
+  @@index([date, classId])
+  @@index([studentId, semesterId])
+  @@map("attendances")
+}
+
+model ReportCard {
+  id           String   @id @default(cuid())
+  studentId    String
+  semesterId   String
+  classId      String
+  
+  // Academic performance
+  totalScore   Decimal?  // Overall average
+  rank         Int?      // Class rank
+  totalSubjects Int     @default(0)
+  
+  // Attendance summary
+  totalDays    Int      @default(0)
+  presentDays  Int      @default(0)
+  sickDays     Int      @default(0)
+  permittedDays Int     @default(0)
+  absentDays   Int      @default(0)
+  lateDays     Int      @default(0)
+  attendancePercentage Decimal? // Calculated percentage
+  
+  // Character assessment
+  behavior     String?  // Overall behavior assessment
+  personality  String   @default("{}") // JSON: {religious, honest, discipline, responsible, etc.}
+  extracurricular String @default("[]") // JSON array of activities
+  achievements String   @default("[]") // JSON array of achievements
+  
+  // Notes and recommendations
+  notes        String?  // Teacher's notes
+  recommendations String? // Recommendations for improvement
+  parentNotes  String?  // Notes from parents
+  
+  // Report generation
+  generatedAt  DateTime?
+  generatedBy  String?  // Teacher who generated the report
+  printedAt    DateTime?
+  signedAt     DateTime?
+  signedBy     String?  // Principal/head teacher signature
+  
+  // File URLs
+  pdfUrl       String?  // Generated PDF URL
+  
+  status       String   @default("DRAFT") // "DRAFT", "FINAL", "SIGNED", "DISTRIBUTED"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  student      Student @relation(fields: [studentId], references: [id])
+  semester     Semester @relation(fields: [semesterId], references: [id])
+  class        Class @relation("ReportCardClass", fields: [classId], references: [id])
+
+  @@unique([studentId, semesterId])
+  @@index([semesterId, status])
+  @@map("report_cards")
+}
+
+model Schedule {
+  id         String   @id @default(cuid())
+  classId    String
+  subjectId  String
+  teacherId  String
+  day        String   // "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"
+  startTime  String   // "07:00"
+  endTime    String   // "08:30"
+  room       String?  // Classroom or location
+  period     Int?     // Period number (1st period, 2nd period, etc.)
+  isActive   Boolean  @default(true)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  class      Class @relation(fields: [classId], references: [id])
+  subject    Subject @relation(fields: [subjectId], references: [id])
+  teacher    User @relation("ScheduleTeacher", fields: [teacherId], references: [id])
+
+  @@unique([classId, day, startTime])
+  @@index([teacherId, day])
+  @@index([classId, day])
+  @@map("schedules")
+}
+
+model Exam {
+  id          String   @id @default(cuid())
+  name        String   // "Ujian Tengah Semester 1"
+  code        String?  // "UTS1-2024"
+  type        String   // "UTS", "UAS", "QUIZ", "PRAKTIK"
+  subjectId   String
+  classId     String
+  semesterId  String
+  teacherId   String
+  
+  // Exam schedule
+  date        DateTime
+  startTime   String   // "08:00"
+  endTime     String   // "10:00"
+  duration    Int      // Duration in minutes
+  room        String?
+  
+  // Exam settings
+  maxScore    Decimal  @default(100)
+  minScore    Decimal  @default(0)
+  passingScore Decimal @default(60)
+  
+  // Instructions and materials
+  instructions String?
+  materials   String   @default("[]") // JSON array of required materials
+  
+  status      String   @default("SCHEDULED") // "SCHEDULED", "ONGOING", "COMPLETED", "CANCELLED"
+  isPublished Boolean  @default(false) // Whether results are published
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  subject     Subject @relation(fields: [subjectId], references: [id])
+  class       Class @relation(fields: [classId], references: [id])
+  semester    Semester @relation(fields: [semesterId], references: [id])
+  teacher     User @relation("ExamTeacher", fields: [teacherId], references: [id])
+  results     ExamResult[]
+
+  @@index([date, classId])
+  @@index([subjectId, semesterId])
+  @@map("exams")
+}
+
+model ExamResult {
+  id         String   @id @default(cuid())
+  examId     String
+  studentId  String
+  score      Decimal
+  grade      String?  // Letter grade
+  point      Decimal? // Grade point
+  status     String   @default("COMPLETED") // "ABSENT", "COMPLETED", "CHEATING"
+  notes      String?
+  enteredBy  String?  // Teacher who entered the result
+  enteredAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  exam       Exam @relation(fields: [examId], references: [id])
+  student    Student @relation(fields: [studentId], references: [id])
+
+  @@unique([examId, studentId])
+  @@index([examId])
+  @@index([studentId])
+  @@map("exam_results")
 }

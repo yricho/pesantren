@@ -319,7 +319,7 @@ export async function POST(request: NextRequest) {
             quantity: -itemData.quantity,
             location: data.location,
             unitCost: product.cost,
-            totalCost: product.cost * itemData.quantity,
+            totalCost: Number(product.cost) * itemData.quantity,
             reference: sale.saleNo,
             referenceId: sale.id,
             reason: 'Sale transaction',

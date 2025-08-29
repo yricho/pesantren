@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       // Update payment with gateway response data
       const updateData: any = {}
 
-      if (paymentResponse.va_numbers?.length > 0) {
+      if (paymentResponse.va_numbers && paymentResponse.va_numbers.length > 0) {
         updateData.vaNumber = paymentResponse.va_numbers[0].va_number
       } else if (paymentResponse.permata_va_number) {
         updateData.vaNumber = paymentResponse.permata_va_number

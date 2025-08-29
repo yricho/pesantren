@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { StatsCard } from '@/components/ui/stats-card'
+import { BarChart3, CheckCircle, CreditCard, GraduationCap, FileText, Clock, XCircle, Baby, BookOpen, Home } from 'lucide-react'
 
 interface Registration {
   id: string
@@ -294,25 +295,25 @@ export default function PPDBAdminPage() {
             <StatsCard
               title="Total Pendaftaran"
               value={stats.total}
-              icon="📊"
+              icon={BarChart3}
               className="bg-blue-50 border-blue-200"
             />
             <StatsCard
               title="Sudah Verifikasi"
               value={stats.byStatus.VERIFIED || 0}
-              icon="✅"
+              icon={CheckCircle}
               className="bg-green-50 border-green-200"
             />
             <StatsCard
               title="Menunggu Pembayaran"
               value={stats.byPaymentStatus.UNPAID || 0}
-              icon="💳"
+              icon={CreditCard}
               className="bg-yellow-50 border-yellow-200"
             />
             <StatsCard
               title="Lulus Tes"
               value={stats.byStatus.PASSED || 0}
-              icon="🎓"
+              icon={GraduationCap}
               className="bg-purple-50 border-purple-200"
             />
           </div>
@@ -324,19 +325,19 @@ export default function PPDBAdminPage() {
             <StatsCard
               title="Pendaftar TK"
               value={stats.byLevel.TK || 0}
-              icon="🧸"
+              icon={Baby}
               className="bg-pink-50 border-pink-200"
             />
             <StatsCard
               title="Pendaftar SD"
               value={stats.byLevel.SD || 0}
-              icon="📚"
+              icon={BookOpen}
               className="bg-orange-50 border-orange-200"
             />
             <StatsCard
               title="Pendaftar Pondok"
               value={stats.byLevel.PONDOK || 0}
-              icon="🕌"
+              icon={Home}
               className="bg-teal-50 border-teal-200"
             />
           </div>

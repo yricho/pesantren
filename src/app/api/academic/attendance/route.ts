@@ -1,0 +1,416 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const classId = searchParams.get('classId');
+    const studentId = searchParams.get('studentId');
+    const semesterId = searchParams.get('semesterId');
+    const date = searchParams.get('date');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+
+    const whereConditions: any = {};
+    
+    if (classId) {
+      whereConditions.classId = classId;
+    }
+    
+    if (studentId) {
+      whereConditions.studentId = studentId;
+    }
+    
+    if (semesterId) {
+      whereConditions.semesterId = semesterId;
+    }
+
+    if (date) {
+      whereConditions.date = new Date(date);
+    } else if (startDate && endDate) {
+      whereConditions.date = {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      };
+    }
+
+    const attendances = await prisma.attendance.findMany({
+      where: whereConditions,
+      include: {
+        student: {
+          select: {
+            id: true,
+            nis: true,
+            fullName: true,
+            photo: true,
+          },
+        },
+        class: {
+          select: {
+            id: true,
+            name: true,
+            grade: true,
+            level: true,
+          },
+        },
+        semester: {
+          select: {
+            id: true,
+            name: true,
+            academicYear: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        marker: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: [
+        { date: 'desc' },
+        { student: { fullName: 'asc' } },
+      ],
+    });
+
+    return NextResponse.json(attendances);
+  } catch (error) {
+    console.error('Error fetching attendances:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const {
+      studentId,
+      classId,
+      semesterId,
+      date,
+      status,
+      timeIn,
+      notes
+    } = body;
+
+    // Validate required fields
+    if (!studentId || !classId || !semesterId || !date || !status) {
+      return NextResponse.json(
+        { error: 'Student, class, semester, date, and status are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate status
+    const validStatuses = ['HADIR', 'IZIN', 'SAKIT', 'ALPHA', 'TERLAMBAT'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json(
+        { error: 'Invalid attendance status' },
+        { status: 400 }
+      );
+    }
+
+    const attendance = await prisma.attendance.create({
+      data: {
+        studentId,
+        classId,
+        semesterId,
+        date: new Date(date),
+        status,
+        timeIn: timeIn ? new Date(timeIn) : null,
+        notes,
+        markedBy: session.user?.id,
+      },
+      include: {
+        student: {
+          select: {
+            id: true,
+            nis: true,
+            fullName: true,
+            photo: true,
+          },
+        },
+        class: {
+          select: {
+            id: true,
+            name: true,
+            grade: true,
+            level: true,
+          },
+        },
+        semester: {
+          select: {
+            id: true,
+            name: true,
+            academicYear: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        marker: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(attendance, { status: 201 });
+  } catch (error) {
+    console.error('Error creating attendance:', error);
+    
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'Attendance already recorded for this student, class, and date' },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const {
+      id,
+      status,
+      timeIn,
+      notes
+    } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Attendance ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate status if provided
+    if (status) {
+      const validStatuses = ['HADIR', 'IZIN', 'SAKIT', 'ALPHA', 'TERLAMBAT'];
+      if (!validStatuses.includes(status)) {
+        return NextResponse.json(
+          { error: 'Invalid attendance status' },
+          { status: 400 }
+        );
+      }
+    }
+
+    const attendance = await prisma.attendance.update({
+      where: { id },
+      data: {
+        status,
+        timeIn: timeIn ? new Date(timeIn) : null,
+        notes,
+        markedBy: session.user?.id,
+        markedAt: new Date(),
+      },
+      include: {
+        student: {
+          select: {
+            id: true,
+            nis: true,
+            fullName: true,
+            photo: true,
+          },
+        },
+        class: {
+          select: {
+            id: true,
+            name: true,
+            grade: true,
+            level: true,
+          },
+        },
+        semester: {
+          select: {
+            id: true,
+            name: true,
+            academicYear: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        marker: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(attendance);
+  } catch (error) {
+    console.error('Error updating attendance:', error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Attendance not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// Bulk attendance marking
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const {
+      classId,
+      semesterId,
+      date,
+      attendances // Array of { studentId, status, timeIn?, notes? }
+    } = body;
+
+    // Validate required fields
+    if (!classId || !semesterId || !date || !attendances || !Array.isArray(attendances)) {
+      return NextResponse.json(
+        { error: 'Class, semester, date, and attendances array are required' },
+        { status: 400 }
+      );
+    }
+
+    const results = [];
+
+    for (const attendance of attendances) {
+      try {
+        const result = await prisma.attendance.upsert({
+          where: {
+            studentId_classId_date: {
+              studentId: attendance.studentId,
+              classId,
+              date: new Date(date),
+            },
+          },
+          update: {
+            status: attendance.status,
+            timeIn: attendance.timeIn ? new Date(attendance.timeIn) : null,
+            notes: attendance.notes,
+            markedBy: session.user?.id,
+            markedAt: new Date(),
+          },
+          create: {
+            studentId: attendance.studentId,
+            classId,
+            semesterId,
+            date: new Date(date),
+            status: attendance.status,
+            timeIn: attendance.timeIn ? new Date(attendance.timeIn) : null,
+            notes: attendance.notes,
+            markedBy: session.user?.id,
+          },
+          include: {
+            student: {
+              select: {
+                id: true,
+                nis: true,
+                fullName: true,
+              },
+            },
+          },
+        });
+
+        results.push(result);
+      } catch (error) {
+        console.error(`Error processing attendance for student ${attendance.studentId}:`, error);
+        // Continue with other students
+      }
+    }
+
+    return NextResponse.json({
+      message: `${results.length} attendance records processed`,
+      attendances: results,
+    });
+  } catch (error) {
+    console.error('Error bulk updating attendance:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Attendance ID is required' },
+        { status: 400 }
+      );
+    }
+
+    await prisma.attendance.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: 'Attendance deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting attendance:', error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Attendance not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
