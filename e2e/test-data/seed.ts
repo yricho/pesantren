@@ -92,7 +92,7 @@ export async function seedTestData() {
         type: 'education',
         date: new Date(Date.now() + 86400000), // Tomorrow
         location: 'Main Hall',
-        photos: ['https://example.com/photo1.jpg'],
+        photos: JSON.stringify(['https://example.com/photo1.jpg']),
         status: 'planned',
         createdBy: adminUser.id,
       },
