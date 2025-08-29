@@ -24,31 +24,233 @@ model User {
 
   // Relations
   createdTransactions Transaction[]
+  createdJournalEntries JournalEntry[]
+  createdBudgets      Budget[]
+  createdReports      FinancialReport[]
+  auditTrails         AuditTrail[]
   createdActivities   Activity[]
   createdCourses      Course[]
   createdVideos       Video[]
   createdEbooks       Ebook[]
   createdStudents     Student[]
   createdAlumni       Alumni[]
+  createdCampaigns    DonationCampaign[]
 
   @@map("users")
 }
 
-model Transaction {
+// Financial Management Models with Double-Entry Bookkeeping Support
+
+model FinancialAccount {
   id          String   @id @default(cuid())
-  type        String   // INCOME, EXPENSE, or DONATION
-  category    String
-  amount      Float
-  description String
-  date        DateTime
+  code        String   @unique // Account code like "1001", "2001", etc.
+  name        String
+  type        String   // ASSET, LIABILITY, EQUITY, INCOME, EXPENSE
+  subtype     String?  // CASH, BANK, AR, AP, etc.
+  parentId    String?
+  isActive    Boolean  @default(true)
+  balance     Float    @default(0)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  parent      FinancialAccount? @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children    FinancialAccount[] @relation("AccountHierarchy")
+  entryLines  JournalEntryLine[] @relation("AccountEntries")
+  categories  FinancialCategory[]
+
+  @@index([type, isActive])
+  @@map("financial_accounts")
+}
+
+model FinancialCategory {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // INCOME, EXPENSE, DONATION
+  code        String?  // Category code
+  accountId   String   // Link to chart of accounts
+  color       String?  // UI color for charts
+  icon        String?  // UI icon
+  isActive    Boolean  @default(true)
+  description String?
+  parentId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  account      FinancialAccount @relation(fields: [accountId], references: [id])
+  parent       FinancialCategory? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children     FinancialCategory[] @relation("CategoryHierarchy")
+  transactions Transaction[]
+  budgetItems  BudgetItem[]
+
+  @@unique([name, type])
+  @@index([type, isActive])
+  @@map("financial_categories")
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  transactionNo String   @unique // Format: TRX-2024-001
+  type          String   // INCOME, EXPENSE, DONATION
+  categoryId    String
+  amount        Float
+  description   String
+  reference     String?  // Invoice no, receipt no, etc.
+  date          DateTime
+  dueDate       DateTime? // For receivables/payables
+  status        String   @default("POSTED") // DRAFT, POSTED, CANCELLED, REVERSED
+  tags          String   @default("[]") // JSON array of tags
+  attachments   String   @default("[]") // JSON array of attachment URLs
+  notes         String?
+  createdBy     String
+  approvedBy    String?
+  approvedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  category      FinancialCategory @relation(fields: [categoryId], references: [id])
+  creator       User @relation(fields: [createdBy], references: [id])
+  journalEntry  JournalEntry?
+
+  @@index([type, status, date])
+  @@index([categoryId])
+  @@map("transactions")
+}
+
+model JournalEntry {
+  id            String   @id @default(cuid())
+  entryNo       String   @unique // Format: JE-2024-001
+  transactionId String?  @unique
+  description   String
+  date          DateTime
+  reference     String?
+  status        String   @default("POSTED") // DRAFT, POSTED, REVERSED
+  totalDebit    Float    @default(0)
+  totalCredit   Float    @default(0)
+  isBalanced    Boolean  @default(false)
+  createdBy     String
+  approvedBy    String?
+  approvedAt    DateTime?
+  reversedBy    String?
+  reversedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  creator       User @relation(fields: [createdBy], references: [id])
+  entries       JournalEntryLine[]
+
+  @@index([status, date])
+  @@map("journal_entries")
+}
+
+model JournalEntryLine {
+  id            String   @id @default(cuid())
+  journalId     String
+  accountId     String
+  debitAmount   Float    @default(0)
+  creditAmount  Float    @default(0)
+  description   String?
+  lineOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  // Relations
+  journal       JournalEntry @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  account       FinancialAccount @relation("AccountEntries", fields: [accountId], references: [id])
+
+  @@index([journalId, lineOrder])
+  @@map("journal_entry_lines")
+}
+
+model Budget {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   @default("ANNUAL") // MONTHLY, QUARTERLY, ANNUAL
+  startDate   DateTime
+  endDate     DateTime
+  totalBudget Float    @default(0)
+  status      String   @default("DRAFT") // DRAFT, ACTIVE, CLOSED
+  description String?
+  createdBy   String
+  approvedBy  String?
+  approvedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator     User @relation(fields: [createdBy], references: [id])
+  items       BudgetItem[]
+  reports     FinancialReport[]
+
+  @@index([status, startDate])
+  @@map("budgets")
+}
+
+model BudgetItem {
+  id           String   @id @default(cuid())
+  budgetId     String
+  categoryId   String
+  budgetAmount Float
+  actualAmount Float    @default(0)
+  variance     Float    @default(0)
+  percentage   Float    @default(0)
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  budget       Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category     FinancialCategory @relation(fields: [categoryId], references: [id])
+
+  @@unique([budgetId, categoryId])
+  @@map("budget_items")
+}
+
+model FinancialReport {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // INCOME_STATEMENT, BALANCE_SHEET, CASH_FLOW, BUDGET_VARIANCE
+  period      String   // MONTHLY, QUARTERLY, ANNUAL
+  startDate   DateTime
+  endDate     DateTime
+  budgetId    String?
+  data        String   // JSON data of the report
+  fileUrl     String?  // Generated PDF/Excel file
+  status      String   @default("GENERATED") // DRAFT, GENERATED, EXPORTED
   createdBy   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relations
-  creator User @relation(fields: [createdBy], references: [id])
+  creator     User @relation(fields: [createdBy], references: [id])
+  budget      Budget? @relation(fields: [budgetId], references: [id])
 
-  @@map("transactions")
+  @@index([type, period, startDate])
+  @@map("financial_reports")
+}
+
+model AuditTrail {
+  id          String   @id @default(cuid())
+  tableName   String   // Table that was modified
+  recordId    String   // ID of the modified record
+  action      String   // CREATE, UPDATE, DELETE
+  oldValues   String?  // JSON of old values
+  newValues   String?  // JSON of new values
+  userId      String
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+
+  // Relations
+  user        User @relation(fields: [userId], references: [id])
+
+  @@index([tableName, recordId])
+  @@index([userId, timestamp])
+  @@map("audit_trails")
 }
 
 model Activity {
@@ -450,4 +652,207 @@ model Payment {
   @@index([status])
   @@index([paymentType])
   @@map("payments")
+}
+
+// ==========================================
+// DONATION SYSTEM
+// ==========================================
+
+model DonationCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique // Infaq, Sedekah, Wakaf, Zakat
+  description String?
+  icon        String?  // Icon name for UI
+  color       String?  // Color code for UI
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  campaigns   DonationCampaign[]
+  donations   Donation[]
+  
+  @@map("donation_categories")
+}
+
+model DonationCampaign {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  description     String
+  story           String?  // Detailed campaign story
+  categoryId      String
+  
+  // Financial targets
+  targetAmount    Decimal
+  currentAmount   Decimal  @default(0)
+  
+  // Campaign period
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+  
+  // Media
+  mainImage       String?  // Main campaign image
+  images          String   @default("[]") // JSON array of additional images
+  video           String?  // Video URL
+  
+  // Status and settings
+  status          String   @default("DRAFT") // DRAFT, ACTIVE, PAUSED, COMPLETED, CANCELLED
+  isFeatured      Boolean  @default(false)
+  isUrgent        Boolean  @default(false)
+  allowAnonymous  Boolean  @default(true)
+  
+  // Social sharing
+  shareCount      Int      @default(0)
+  
+  // Admin fields
+  createdBy       String
+  approvedBy      String?
+  approvedAt      DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  category        DonationCategory @relation(fields: [categoryId], references: [id])
+  creator         User @relation(fields: [createdBy], references: [id])
+  donations       Donation[]
+  updates         CampaignUpdate[]
+  
+  @@index([status, isFeatured])
+  @@index([categoryId])
+  @@index([endDate])
+  @@map("donation_campaigns")
+}
+
+model CampaignUpdate {
+  id          String   @id @default(cuid())
+  campaignId  String
+  title       String
+  content     String
+  images      String   @default("[]") // JSON array of image URLs
+  isPublic    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  campaign    DonationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  @@index([campaignId, createdAt])
+  @@map("campaign_updates")
+}
+
+model Donation {
+  id              String   @id @default(cuid())
+  donationNo      String   @unique // Format: DON-2024-001
+  
+  // Basic donation info
+  campaignId      String?
+  categoryId      String
+  amount          Decimal
+  message         String?  // Message to beneficiaries
+  
+  // Donor information
+  donorName       String?
+  donorEmail      String?
+  donorPhone      String?
+  isAnonymous     Boolean  @default(false)
+  
+  // Payment details
+  paymentMethod   String?  // TRANSFER, VA, EWALLET, QRIS, CASH
+  paymentChannel  String?  // BCA, MANDIRI, GOPAY, etc.
+  paymentStatus   String   @default("PENDING") // PENDING, PAID, VERIFIED, FAILED
+  
+  // External payment gateway
+  externalId      String?  // Payment gateway transaction ID
+  vaNumber        String?  // Virtual account number
+  qrisCode        String?  // QRIS payment code
+  paymentUrl      String?  // Payment URL from gateway
+  expiredAt       DateTime?
+  paidAt          DateTime?
+  
+  // Verification (for manual payments)
+  proofUrl        String?  // Payment proof image
+  verifiedBy      String?
+  verifiedAt      DateTime?
+  
+  // Certificate
+  certificateNo   String?  // Generated certificate number
+  certificateUrl  String?  // Generated certificate PDF URL
+  
+  // Metadata
+  source          String   @default("WEB") // WEB, MOBILE, WHATSAPP, MANUAL
+  ipAddress       String?
+  userAgent       String?
+  referrer        String?  // UTM tracking
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  campaign        DonationCampaign? @relation(fields: [campaignId], references: [id])
+  category        DonationCategory @relation(fields: [categoryId], references: [id])
+  
+  @@index([paymentStatus, createdAt])
+  @@index([campaignId])
+  @@index([categoryId])
+  @@index([donorEmail])
+  @@map("donations")
+}
+
+model ZakatCalculation {
+  id              String   @id @default(cuid())
+  calculationType String   // FITRAH, MAL, EMAS, PERAK, PERDAGANGAN
+  
+  // Input values (stored as JSON for flexibility)
+  inputs          String   // JSON object with calculation inputs
+  
+  // Results
+  zakatAmount     Decimal
+  nisabAmount     Decimal?
+  
+  // Optional donor info
+  donorName       String?
+  donorEmail      String?
+  donorPhone      String?
+  
+  // Did they proceed to donate?
+  donationId      String?  // Link to actual donation if they proceeded
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([calculationType, createdAt])
+  @@map("zakat_calculations")
+}
+
+model DonorProfile {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String
+  phone           String?
+  
+  // Preferences
+  preferredCategories String @default("[]") // JSON array of preferred category IDs
+  allowMarketing  Boolean  @default(true)
+  allowNewsletter Boolean  @default(true)
+  
+  // Stats
+  totalDonated    Decimal  @default(0)
+  donationCount   Int      @default(0)
+  lastDonationAt  DateTime?
+  
+  // Verification
+  isVerified      Boolean  @default(false)
+  verificationToken String?
+  verifiedAt      DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([email])
+  @@index([isVerified])
+  @@map("donor_profiles")
 }

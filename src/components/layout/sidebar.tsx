@@ -17,7 +17,8 @@ import {
   LogOut,
   Library,
   UserCheck,
-  GraduationCap
+  GraduationCap,
+  ClipboardCheck
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -37,6 +38,12 @@ const menuItems = [
     title: 'Data Alumni',
     href: '/alumni',
     icon: GraduationCap
+  },
+  {
+    title: 'Admin PPDB',
+    href: '/ppdb-admin',
+    icon: ClipboardCheck,
+    adminOnly: true
   },
   {
     title: 'Keuangan',
