@@ -1,7 +1,6 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
-import { prisma } from './prisma'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,31 +15,39 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            username: credentials.username
+        try {
+          // Dynamically import prisma to avoid build-time initialization
+          const { prisma } = await import('./prisma')
+          
+          const user = await prisma.user.findUnique({
+            where: {
+              username: credentials.username
+            }
+          })
+
+          if (!user || !user.isActive) {
+            return null
           }
-        })
 
-        if (!user || !user.isActive) {
+          const passwordMatch = await bcrypt.compare(
+            credentials.password,
+            user.password
+          )
+
+          if (!passwordMatch) {
+            return null
+          }
+
+          return {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          }
+        } catch (error) {
+          console.error('Auth error:', error)
           return null
-        }
-
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
-
-        if (!passwordMatch) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          name: user.name,
-          role: user.role,
         }
       }
     })

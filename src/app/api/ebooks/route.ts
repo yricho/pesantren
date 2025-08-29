@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
+    const { default: prisma } = await import('@/lib/prisma');
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
@@ -40,6 +44,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { default: prisma } = await import('@/lib/prisma');
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
