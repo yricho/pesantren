@@ -24,13 +24,11 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Remove 'export' for development - only use for static build
+  // output: 'export',
   trailingSlash: true,
   images: {
     unoptimized: true,
-  },
-  experimental: {
-    appDir: true,
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
