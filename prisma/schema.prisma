@@ -28,6 +28,8 @@ model User {
   createdCourses      Course[]
   createdVideos       Video[]
   createdEbooks       Ebook[]
+  createdStudents     Student[]
+  createdAlumni       Alumni[]
 
   @@map("users")
 }
@@ -147,4 +149,145 @@ model Setting {
   value String
 
   @@map("settings")
+}
+
+model Student {
+  id              String    @id @default(cuid())
+  nisn            String?   @unique // Nomor Induk Siswa Nasional
+  nis             String    @unique // Nomor Induk Siswa
+  fullName        String
+  nickname        String?
+  birthPlace      String
+  birthDate       DateTime
+  gender          String    // MALE or FEMALE
+  bloodType       String?   // A, B, AB, O
+  religion        String    @default("Islam")
+  nationality     String    @default("Indonesia")
+  
+  // Contact Information
+  address         String
+  village         String?   // Desa/Kelurahan
+  district        String?   // Kecamatan
+  city            String    // Kota/Kabupaten
+  province        String    @default("Jawa Timur")
+  postalCode      String?
+  phone           String?
+  email           String?
+  
+  // Parent Information
+  fatherName      String
+  fatherJob       String?
+  fatherPhone     String?
+  fatherEducation String?
+  motherName      String
+  motherJob       String?
+  motherPhone     String?
+  motherEducation String?
+  guardianName    String?   // Wali if different from parents
+  guardianJob     String?
+  guardianPhone   String?
+  guardianRelation String?  // Hubungan dengan wali
+  
+  // Academic Information
+  institutionType String    // TK, SD, PONDOK
+  grade           String?   // Kelas
+  enrollmentDate  DateTime
+  enrollmentYear  String    // Tahun ajaran
+  previousSchool  String?
+  
+  // Additional Information
+  specialNeeds    String?   // Kebutuhan khusus
+  achievements    String    @default("[]") // JSON array of achievements
+  notes           String?
+  photo           String?   // URL to photo
+  documents       String    @default("[]") // JSON array of document URLs
+  
+  // Status
+  status          String    @default("ACTIVE") // ACTIVE, GRADUATED, TRANSFERRED, DROPPED
+  isActive        Boolean   @default(true)
+  graduationDate  DateTime?
+  
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  creator         User      @relation(fields: [createdBy], references: [id])
+  
+  @@index([institutionType, status])
+  @@index([enrollmentYear])
+  @@map("students")
+}
+
+model Alumni {
+  id              String    @id @default(cuid())
+  nisn            String?   // Nomor Induk Siswa Nasional
+  nis             String?   // Nomor Induk Siswa (lama)
+  fullName        String
+  nickname        String?
+  birthPlace      String
+  birthDate       DateTime
+  gender          String    // MALE or FEMALE
+  bloodType       String?
+  religion        String    @default("Islam")
+  nationality     String    @default("Indonesia")
+  
+  // Contact Information (Current)
+  currentAddress  String
+  currentCity     String
+  currentProvince String?
+  currentCountry  String    @default("Indonesia")
+  phone           String?
+  whatsapp        String?   // WhatsApp number for easy contact
+  email           String?
+  facebook        String?   // Facebook profile
+  instagram       String?   // Instagram handle
+  linkedin        String?   // LinkedIn profile
+  
+  // Parent Information
+  fatherName      String?
+  motherName      String?
+  
+  // Alumni Information
+  institutionType String    // TK, SD, PONDOK
+  graduationYear  String    // Tahun lulus
+  generation      String?   // Angkatan
+  
+  // Current Status
+  currentJob      String?   // Pekerjaan sekarang
+  jobPosition     String?   // Jabatan
+  company         String?   // Perusahaan/Institusi
+  furtherEducation String?  // Pendidikan lanjutan
+  university      String?   // Universitas
+  major           String?   // Jurusan
+  
+  // Achievements After Graduation
+  achievements    String    @default("[]") // JSON array of achievements
+  
+  // Family Information
+  maritalStatus   String?   // SINGLE, MARRIED, DIVORCED
+  spouseName      String?
+  childrenCount   Int       @default(0)
+  
+  // Additional Information
+  notes           String?
+  photo           String?   // Recent photo URL
+  memories        String?   // Kenangan di sekolah/pondok
+  message         String?   // Pesan untuk juniors
+  
+  // Availability for Events
+  availableForEvents Boolean @default(true) // Bisa diundang acara
+  lastContactDate DateTime?
+  
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  creator         User      @relation(fields: [createdBy], references: [id])
+  
+  @@index([institutionType, graduationYear])
+  @@index([generation])
+  @@index([availableForEvents])
+  @@map("alumni")
 }

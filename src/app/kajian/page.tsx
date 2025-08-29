@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/layout/header'
-import { Plus, Play, Eye, Clock, Filter, Search } from 'lucide-react'
+import { Plus, Play, Eye, Clock, Filter, Search, Copy, CheckCircle, MapPin, Calendar, User } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { Video } from '@/types'
 import { VideoForm } from '@/components/kajian/video-form'
@@ -17,6 +17,7 @@ export default function Kajian() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null)
   const [filter, setFilter] = useState<'all' | string>('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   useEffect(() => {
     // Simulate loading videos
@@ -116,6 +117,34 @@ export default function Kajian() {
                          video.teacher.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && matchesSearch
   })
+
+  const copyKajianInfo = (video: Video & { location?: string; streamDate?: Date }) => {
+    const kajianInfo = `
+🕌 *KAJIAN ISLAM*
+📚 *${video.title}*
+
+👤 *Pemateri:* ${video.teacher}
+📅 *Tanggal:* ${formatDate(video.streamDate || video.uploadDate)}
+⏰ *Waktu:* ${video.duration || 'Setelah Maghrib'}
+📍 *Lokasi:* ${video.location || 'Masjid Baiturrahman, Pondok Imam Syafi\'i Blitar'}
+📖 *Kategori:* ${video.category}
+
+📝 *Deskripsi:*
+${video.description}
+
+🔴 *Live Streaming:* ${video.url || 'Link akan diinformasikan'}
+
+_Mari hadiri dan raih keberkahan ilmu_
+✨ Barakallahu fiikum
+
+#KajianIslam #PondokImamSyafii #Blitar
+    `.trim()
+
+    navigator.clipboard.writeText(kajianInfo).then(() => {
+      setCopiedId(video.id)
+      setTimeout(() => setCopiedId(null), 2000)
+    })
+  }
 
   const totalViews = videos.reduce((sum, video) => sum + video.views, 0)
   const totalDuration = videos.reduce((sum, video) => {
@@ -290,15 +319,35 @@ export default function Kajian() {
                     </div>
                   </div>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedVideo(video)}
-                    className="w-full mt-4"
-                  >
-                    <Play className="w-4 h-4 mr-2" />
-                    Putar Video
-                  </Button>
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedVideo(video)}
+                      className="flex-1"
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      Putar Video
+                    </Button>
+                    <Button
+                      variant={copiedId === video.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => copyKajianInfo(video)}
+                      className="flex-1"
+                    >
+                      {copiedId === video.id ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Tersalin!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Salin Info
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))

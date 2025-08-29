@@ -1,0 +1,55 @@
+===================================
+COPY-PASTE INI KE VERCEL ENVIRONMENT VARIABLES
+===================================
+
+DATABASE_URL
+postgres://2611db3bbb65fe80f1c4e538c1ec0c39ec61b79a50f9d9bcfc91e4875c035d54:sk_kN0xh9-VBciXaJapJE77h@db.prisma.io:5432/postgres?sslmode=require
+
+POSTGRES_URL
+postgres://2611db3bbb65fe80f1c4e538c1ec0c39ec61b79a50f9d9bcfc91e4875c035d54:sk_kN0xh9-VBciXaJapJE77h@db.prisma.io:5432/postgres?sslmode=require
+
+PRISMA_DATABASE_URL
+prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza19rTjB4aDktVkJjaVhhSmFwSkU3N2giLCJhcGlfa2V5IjoiMDFLM1RHUFNBOTJBRTVGWk5XTlFIQlNUUTAiLCJ0ZW5hbnRfaWQiOiIyNjExZGIzYmJiNjVmZTgwZjFjNGU1MzhjMWVjMGMzOWVjNjFiNzlhNTBmOWQ5YmNmYzkxZTQ4NzVjMDM1ZDU0IiwiaW50ZXJuYWxfc2VjcmV0IjoiYWFkZmE0OTYtNTVmZC00MjY4LWE2NTktODQ3ZTVkNGFhNTNkIn0.OZomtqNuLogzyvjJPWp_Jzl0XhAyNu33Rd61dWgZdZE
+
+NEXTAUTH_URL
+https://imam-syafii-blitar-ilpnd0xs2-pendtiumprazs-projects.vercel.app
+
+NEXTAUTH_SECRET
+uanFT5205gKeqayTqfDb/28VoHw26fgpXaYNirCKBcs=
+
+===================================
+CARA PAKAI:
+===================================
+
+1. Login Vercel Dashboard
+2. Pilih Project kamu
+3. Settings → Environment Variables
+4. Add satu-satu:
+   - Name: DATABASE_URL → Value: [copy dari atas]
+   - Name: POSTGRES_URL → Value: [copy dari atas]
+   - Name: PRISMA_DATABASE_URL → Value: [copy dari atas]
+   - Name: NEXTAUTH_URL → Value: [copy dari atas]
+   - Name: NEXTAUTH_SECRET → Value: [copy dari atas]
+5. Save
+6. Redeploy (Deployments → ... → Redeploy)
+
+===================================
+OPTIONAL: GOOGLE OAUTH
+===================================
+
+Kalau mau pakai Google Login, tambahkan:
+
+GOOGLE_CLIENT_ID
+[isi dengan Google Client ID kamu]
+
+GOOGLE_CLIENT_SECRET
+[isi dengan Google Client Secret kamu]
+
+Cara dapat Google OAuth:
+1. console.cloud.google.com
+2. Create Project
+3. Enable Google+ API
+4. Create OAuth 2.0 Client ID
+5. Authorized redirect URIs:
+   - https://imam-syafii-blitar-ilpnd0xs2-pendtiumprazs-projects.vercel.app/api/auth/callback/google
+   - http://localhost:3000/api/auth/callback/google

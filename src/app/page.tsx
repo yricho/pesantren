@@ -20,6 +20,7 @@ import {
   BuildingLibraryIcon,
   CheckCircleIcon,
   ArrowRightIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import {
   StarIcon,
@@ -73,6 +74,20 @@ export default function HomePage() {
       description: 'Koleksi video kajian ustadz untuk pembelajaran online dan offline',
       color: 'from-orange-400 to-red-600',
       href: '/kajian',
+    },
+    {
+      icon: UsersIcon,
+      title: 'Manajemen Siswa',
+      description: 'Data lengkap siswa TK, SD, dan santri pondok dengan informasi akademik',
+      color: 'from-indigo-400 to-blue-600',
+      href: '/siswa',
+    },
+    {
+      icon: UserGroupIcon,
+      title: 'Manajemen Alumni',
+      description: 'Database alumni untuk networking dan undangan acara pondok',
+      color: 'from-pink-400 to-rose-600',
+      href: '/alumni',
     },
     {
       icon: BuildingLibraryIcon,
@@ -565,6 +580,8 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Layanan</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><Link href="/dashboard" className="hover:text-green-400 transition-colors">Dashboard</Link></li>
+                <li><Link href="/siswa" className="hover:text-green-400 transition-colors">Data Siswa</Link></li>
+                <li><Link href="/alumni" className="hover:text-green-400 transition-colors">Data Alumni</Link></li>
                 <li><Link href="/perpustakaan" className="hover:text-green-400 transition-colors">Perpustakaan</Link></li>
                 <li><Link href="/kajian" className="hover:text-green-400 transition-colors">Video Kajian</Link></li>
                 <li><Link href="/keuangan" className="hover:text-green-400 transition-colors">Laporan Keuangan</Link></li>
