@@ -18,12 +18,30 @@ import {
   Library,
   UserCheck,
   GraduationCap,
-  ClipboardCheck
+  ClipboardCheck,
+  Store,
+  Package,
+  ShoppingCart,
+  Warehouse,
+  TruckIcon,
+  BarChart3,
+  Receipt,
+  Truck,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-const menuItems = [
+interface MenuItem {
+  title: string
+  href: string
+  icon: any
+  adminOnly?: boolean
+  children?: MenuItem[]
+}
+
+const menuItems: MenuItem[] = [
   {
     title: 'Dashboard',
     href: '/dashboard',
@@ -71,6 +89,48 @@ const menuItems = [
     icon: Library
   },
   {
+    title: 'Unit Usaha',
+    href: '/unit-usaha',
+    icon: Store,
+    children: [
+      {
+        title: 'Dashboard',
+        href: '/unit-usaha',
+        icon: BarChart3
+      },
+      {
+        title: 'POS Kasir',
+        href: '/unit-usaha/pos',
+        icon: Receipt
+      },
+      {
+        title: 'Produk',
+        href: '/unit-usaha/products',
+        icon: Package
+      },
+      {
+        title: 'Inventory',
+        href: '/unit-usaha/inventory',
+        icon: Warehouse
+      },
+      {
+        title: 'Suppliers',
+        href: '/unit-usaha/suppliers',
+        icon: Truck
+      },
+      {
+        title: 'Purchase Orders',
+        href: '/unit-usaha/purchases',
+        icon: ShoppingCart
+      },
+      {
+        title: 'Laporan',
+        href: '/unit-usaha/reports',
+        icon: BarChart3
+      }
+    ]
+  },
+  {
     title: 'Pengguna',
     href: '/users',
     icon: Users,
@@ -85,12 +145,21 @@ const menuItems = [
 
 export function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [expandedItems, setExpandedItems] = useState<string[]>([])
   const pathname = usePathname()
   const { data: session } = useSession()
 
   const filteredMenuItems = menuItems.filter(item => 
     !item.adminOnly || session?.user?.role === 'ADMIN'
   )
+
+  const toggleExpanded = (href: string) => {
+    setExpandedItems(prev => 
+      prev.includes(href) 
+        ? prev.filter(item => item !== href)
+        : [...prev, href]
+    )
+  }
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -110,22 +179,74 @@ export function Sidebar() {
         {filteredMenuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
+          const hasChildren = item.children && item.children.length > 0
+          const isExpanded = expandedItems.includes(item.href)
+          const isChildActive = hasChildren && item.children.some(child => pathname === child.href)
           
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setIsMobileOpen(false)}
-              className={cn(
-                'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary-100 text-primary-800'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            <div key={item.href}>
+              {hasChildren ? (
+                <button
+                  onClick={() => toggleExpanded(item.href)}
+                  className={cn(
+                    'flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    isChildActive
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  )}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Icon className="w-5 h-5" />
+                    <span>{item.title}</span>
+                  </div>
+                  {isExpanded ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </button>
+              ) : (
+                <Link
+                  href={item.href}
+                  onClick={() => setIsMobileOpen(false)}
+                  className={cn(
+                    'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary-100 text-primary-800'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  )}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.title}</span>
+                </Link>
               )}
-            >
-              <Icon className="w-5 h-5" />
-              <span>{item.title}</span>
-            </Link>
+              
+              {hasChildren && isExpanded && (
+                <div className="ml-6 mt-1 space-y-1">
+                  {item.children.map((child) => {
+                    const ChildIcon = child.icon
+                    const isChildActiveItem = pathname === child.href
+                    
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={() => setIsMobileOpen(false)}
+                        className={cn(
+                          'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                          isChildActiveItem
+                            ? 'bg-primary-100 text-primary-800'
+                            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                        )}
+                      >
+                        <ChildIcon className="w-4 h-4" />
+                        <span>{child.title}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           )
         })}
       </nav>

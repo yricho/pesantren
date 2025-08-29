@@ -35,6 +35,7 @@ model User {
   createdStudents     Student[]
   createdAlumni       Alumni[]
   createdCampaigns    DonationCampaign[]
+  createdPurchaseOrders PurchaseOrder[]
 
   @@map("users")
 }
@@ -855,4 +856,286 @@ model DonorProfile {
   @@index([email])
   @@index([isVerified])
   @@map("donor_profiles")
+}
+
+// ==========================================
+// BUSINESS UNIT / UNIT USAHA MODELS
+// ==========================================
+
+model ProductCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  icon        String?  // Icon name for UI
+  color       String?  // Color for UI
+  isActive    Boolean  @default(true)
+  parentId    String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  parent      ProductCategory? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    ProductCategory[] @relation("CategoryHierarchy")
+  products    Product[]
+
+  @@index([isActive, sortOrder])
+  @@map("product_categories")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique // SKU/Barcode
+  description String?
+  categoryId  String
+  price       Decimal
+  cost        Decimal  @default(0) // Cost price for profit calculation
+  stock       Int      @default(0) // Current stock level
+  minStock    Int      @default(5) // Minimum stock alert level
+  unit        String   @default("pcs") // Unit of measurement (pcs, kg, liter, etc.)
+  image       String?  // Product image URL
+  isActive    Boolean  @default(true)
+  
+  // Additional product info
+  brand       String?
+  supplier    String? // Default supplier name
+  location    String  @default("UMUM") // Storage location (KOPERASI, KANTIN, KATERING)
+  tags        String  @default("[]") // JSON array of tags
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  category            ProductCategory @relation(fields: [categoryId], references: [id])
+  inventoryRecords    Inventory[]
+  inventoryTransactions InventoryTransaction[]
+  saleItems           SaleItem[]
+  purchaseItems       PurchaseOrderItem[]
+
+  @@index([code])
+  @@index([categoryId, isActive])
+  @@index([location, isActive])
+  @@index([stock]) // For low stock queries
+  @@map("products")
+}
+
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String
+  code        String?  @unique // Supplier code
+  contact     String?  // Contact person name
+  address     String?
+  phone       String?
+  email       String?
+  whatsapp    String?  // WhatsApp number
+  
+  // Business info
+  taxId       String?  // NPWP
+  bankAccount String?  // Bank account info
+  paymentTerms String? // Payment terms (e.g., "NET 30")
+  
+  // Status
+  isActive    Boolean  @default(true)
+  rating      Int      @default(5) // Supplier rating 1-5
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  purchaseOrders PurchaseOrder[]
+
+  @@index([isActive])
+  @@map("suppliers")
+}
+
+model Inventory {
+  id          String   @id @default(cuid())
+  productId   String
+  quantity    Int
+  location    String   // KOPERASI, KANTIN, KATERING, GUDANG
+  
+  // FIFO tracking
+  unitCost    Decimal  @default(0) // Cost per unit for this batch
+  batchNo     String?  // Batch number for tracking
+  expiryDate  DateTime? // For perishable items
+  
+  lastUpdated DateTime @default(now())
+  updatedBy   String?
+  notes       String?
+
+  // Relations
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, location, batchNo])
+  @@index([productId, location])
+  @@index([expiryDate])
+  @@map("inventory")
+}
+
+model InventoryTransaction {
+  id          String   @id @default(cuid())
+  productId   String
+  type        String   // IN, OUT, ADJUSTMENT, TRANSFER
+  quantity    Int      // Positive for IN, negative for OUT
+  location    String   // Where the transaction happened
+  
+  // Cost tracking
+  unitCost    Decimal  @default(0)
+  totalCost   Decimal  @default(0)
+  
+  // Reference information
+  reference   String?  // Reference to sale, purchase, etc.
+  referenceId String?  // ID of related transaction
+  batchNo     String?  // Batch number
+  
+  reason      String?  // Reason for adjustment/transfer
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  createdBy   String?
+
+  // Relations
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@index([productId, type, createdAt])
+  @@index([type, createdAt])
+  @@index([referenceId])
+  @@map("inventory_transactions")
+}
+
+model PurchaseOrder {
+  id          String   @id @default(cuid())
+  orderNo     String   @unique // Format: PO-2024-001
+  supplierId  String
+  
+  // Order details
+  status      String   @default("DRAFT") // DRAFT, SENT, CONFIRMED, PARTIALLY_RECEIVED, RECEIVED, CANCELLED
+  orderDate   DateTime @default(now())
+  expectedDate DateTime? // Expected delivery date
+  receivedDate DateTime? // Actual received date
+  
+  // Totals
+  subtotal    Decimal  @default(0)
+  taxAmount   Decimal  @default(0)
+  discountAmount Decimal @default(0)
+  shippingCost Decimal @default(0)
+  totalAmount Decimal  @default(0)
+  
+  // Payment
+  paymentStatus String @default("UNPAID") // UNPAID, PARTIALLY_PAID, PAID
+  paidAmount   Decimal @default(0)
+  
+  // Additional info
+  notes       String?
+  terms       String?  // Payment terms
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String
+
+  // Relations
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  items       PurchaseOrderItem[]
+  creator     User @relation(fields: [createdBy], references: [id])
+  
+  @@index([status, orderDate])
+  @@index([supplierId])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String   @id @default(cuid())
+  purchaseOrderId String
+  productId       String
+  
+  quantity        Int
+  unitCost        Decimal
+  totalCost       Decimal
+  
+  // Receiving tracking
+  receivedQty     Int      @default(0)
+  remainingQty    Int      // Calculated field: quantity - receivedQty
+  
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+
+  // Relations
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  product         Product @relation(fields: [productId], references: [id])
+
+  @@unique([purchaseOrderId, productId])
+  @@map("purchase_order_items")
+}
+
+model Sale {
+  id          String   @id @default(cuid())
+  saleNo      String   @unique // Format: SAL-2024-001
+  
+  // Customer info (optional for cash sales)
+  customerName String?
+  customerPhone String?
+  customerEmail String?
+  
+  // Sale details
+  location    String   @default("KOPERASI") // KOPERASI, KANTIN, KATERING
+  saleDate    DateTime @default(now())
+  
+  // Totals
+  subtotal    Decimal
+  taxAmount   Decimal  @default(0)
+  discountAmount Decimal @default(0)
+  totalAmount Decimal
+  
+  // Payment
+  paymentMethod String @default("CASH") // CASH, CARD, TRANSFER, QRIS
+  paidAmount   Decimal
+  changeAmount Decimal @default(0)
+  paymentReference String? // For non-cash payments
+  
+  // Staff info
+  cashier     String   // User ID of cashier
+  
+  // Status
+  status      String   @default("COMPLETED") // DRAFT, COMPLETED, CANCELLED, REFUNDED
+  
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  items       SaleItem[]
+  
+  @@index([saleDate, location])
+  @@index([status])
+  @@index([cashier])
+  @@map("sales")
+}
+
+model SaleItem {
+  id          String   @id @default(cuid())
+  saleId      String
+  productId   String
+  
+  quantity    Int
+  unitPrice   Decimal  // Price at time of sale
+  unitCost    Decimal  // Cost at time of sale (for profit calculation)
+  subtotal    Decimal  // quantity * unitPrice
+  
+  // Discount if applied to specific item
+  discountAmount Decimal @default(0)
+  finalAmount    Decimal // subtotal - discountAmount
+  
+  createdAt   DateTime @default(now())
+
+  // Relations
+  sale        Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@unique([saleId, productId])
+  @@map("sale_items")
 }

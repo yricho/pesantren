@@ -29,7 +29,8 @@ export default function SignIn() {
       })
 
       if (result?.error) {
-        setError('Username atau password salah')
+        setError('Username atau password salah. Default: admin/admin123')
+        console.error('Login error:', result.error)
       } else {
         router.push('/dashboard')
       }
