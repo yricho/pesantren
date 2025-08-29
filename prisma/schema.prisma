@@ -17,7 +17,7 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   @default("STAFF") // ADMIN or STAFF
+  role      String   @default("STAFF") // ADMIN, STAFF, PARENT
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -43,6 +43,18 @@ model User {
   attendancesMarked   Attendance[] @relation("AttendanceMarker")
   schedules           Schedule[] @relation("ScheduleTeacher")
   exams               Exam[] @relation("ExamTeacher")
+
+  // Parent Portal Relations
+  parentAccount       ParentAccount?
+  sentMessages        Message[] @relation("MessageSender")
+  receivedMessages    Message[] @relation("MessageReceiver")
+  notifications       Notification[]
+
+  // Hafalan Relations
+  hafalanRecordsAsTeacher    HafalanRecord[] @relation("HafalanTeacher")
+  setoranSchedulesAsTeacher  SetoranSchedule[] @relation("SetoranTeacher")
+  hafalanTargetsCreated      HafalanTarget[] @relation("HafalanTargetCreator")
+  hafalanSessionsAsTeacher   HafalanSession[] @relation("HafalanSessionTeacher")
 
   @@map("users")
 }
@@ -433,6 +445,17 @@ model Student {
   attendances     Attendance[]
   reportCards     ReportCard[]
   examResults     ExamResult[]
+
+  // Parent Portal Relations
+  parentStudents  ParentStudent[]
+
+  // Hafalan Relations
+  hafalanRecords     HafalanRecord[]
+  hafalanProgress    HafalanProgress?
+  hafalanTargets     HafalanTarget[]
+  setoranSchedules   SetoranSchedule[]
+  hafalanAchievements HafalanAchievement[]
+  hafalanSessions    HafalanSession[]
   
   @@index([institutionType, status])
   @@index([enrollmentYear])
@@ -1567,4 +1590,491 @@ model ExamResult {
   @@index([examId])
   @@index([studentId])
   @@map("exam_results")
+}
+
+// ==========================================
+// PARENT PORTAL MODELS
+// ==========================================
+
+model ParentAccount {
+  id                  String   @id @default(cuid())
+  userId              String   @unique // Links to User with role="PARENT"
+  phoneNumber         String?
+  whatsapp            String?
+  emergencyContact    String?
+  
+  // Notification Settings (JSON)
+  notificationSettings String @default("{\"grades\": true, \"attendance\": true, \"payments\": true, \"announcements\": true, \"messages\": true, \"pushNotifications\": true, \"emailNotifications\": true}")
+  
+  // Profile Settings
+  preferredLanguage   String   @default("id") // "id", "ar", "en"
+  timezone            String   @default("Asia/Jakarta")
+  
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  // Relations
+  user                User @relation(fields: [userId], references: [id])
+  parentStudents      ParentStudent[]
+  
+  @@index([userId])
+  @@map("parent_accounts")
+}
+
+model ParentStudent {
+  id           String   @id @default(cuid())
+  parentId     String
+  studentId    String
+  relationship String   // "FATHER", "MOTHER", "GUARDIAN", "GRANDPARENT", "OTHER"
+  isPrimary    Boolean  @default(false) // Primary contact for this student
+  canViewGrades Boolean @default(true)
+  canViewAttendance Boolean @default(true)
+  canViewPayments Boolean @default(true)
+  canReceiveMessages Boolean @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  parent       ParentAccount @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student      Student @relation(fields: [studentId], references: [id])
+  
+  @@unique([parentId, studentId])
+  @@index([studentId])
+  @@map("parent_students")
+}
+
+model Announcement {
+  id             String   @id @default(cuid())
+  title          String
+  content        String
+  summary        String?  // Short summary for notifications
+  
+  // Targeting
+  targetAudience String   @default("ALL") // "ALL", "PARENTS", "TEACHERS", "STUDENTS", "SPECIFIC_CLASS", "SPECIFIC_GRADE"
+  targetClasses  String   @default("[]") // JSON array of class IDs for specific targeting
+  targetGrades   String   @default("[]") // JSON array of grades for specific targeting
+  
+  // Priority and Classification
+  priority       String   @default("NORMAL") // "LOW", "NORMAL", "HIGH", "URGENT"
+  category       String   @default("GENERAL") // "GENERAL", "ACADEMIC", "EVENT", "PAYMENT", "EMERGENCY"
+  tags           String   @default("[]") // JSON array of tags
+  
+  // Media attachments
+  attachments    String   @default("[]") // JSON array of {type, url, fileName, size}
+  featuredImage  String?  // Main image URL
+  
+  // Publishing
+  status         String   @default("DRAFT") // "DRAFT", "PUBLISHED", "ARCHIVED"
+  publishDate    DateTime @default(now())
+  expiryDate     DateTime?
+  isPinned       Boolean  @default(false)
+  
+  // Analytics
+  viewCount      Int      @default(0)
+  
+  // Metadata
+  createdBy      String
+  approvedBy     String?
+  approvedAt     DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relations - Note: createdBy references User but we don't add the relation here to avoid conflicts
+  
+  @@index([status, publishDate])
+  @@index([targetAudience, priority])
+  @@index([category, createdAt])
+  @@index([expiryDate])
+  @@map("announcements")
+}
+
+model Message {
+  id              String   @id @default(cuid())
+  senderId        String
+  receiverId      String
+  subject         String
+  content         String
+  
+  // Threading support
+  parentMessageId String?  // For reply threads
+  threadId        String?  // All messages in same thread share this ID
+  
+  // Message type and priority
+  type            String   @default("NORMAL") // "NORMAL", "APPOINTMENT", "COMPLAINT", "URGENT"
+  priority        String   @default("NORMAL") // "LOW", "NORMAL", "HIGH", "URGENT"
+  
+  // Attachments
+  attachments     String   @default("[]") // JSON array of {type, url, fileName, size}
+  
+  // Status tracking
+  status          String   @default("SENT") // "DRAFT", "SENT", "DELIVERED", "READ", "REPLIED", "ARCHIVED"
+  isRead          Boolean  @default(false)
+  readAt          DateTime?
+  repliedAt       DateTime?
+  
+  // Auto-reply and scheduling
+  isAutoReply     Boolean  @default(false)
+  scheduledFor    DateTime? // For scheduled messages
+  
+  // Metadata
+  sentAt          DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  sender          User @relation("MessageSender", fields: [senderId], references: [id])
+  receiver        User @relation("MessageReceiver", fields: [receiverId], references: [id])
+  parentMessage   Message? @relation("MessageThread", fields: [parentMessageId], references: [id])
+  replies         Message[] @relation("MessageThread")
+  
+  @@index([senderId, sentAt])
+  @@index([receiverId, isRead])
+  @@index([threadId])
+  @@index([parentMessageId])
+  @@index([status, priority])
+  @@map("messages")
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String   // Recipient user ID
+  type        String   // "GRADE_UPDATE", "ATTENDANCE_ALERT", "PAYMENT_DUE", "ANNOUNCEMENT", "MESSAGE", "APPOINTMENT"
+  title       String
+  message     String
+  
+  // Additional data (JSON)
+  data        String   @default("{}") // Context-specific data like studentId, gradeId, etc.
+  
+  // Action URLs
+  actionUrl   String?  // URL to navigate when notification is clicked
+  actionText  String?  // Text for action button
+  
+  // Status
+  isRead      Boolean  @default(false)
+  readAt      DateTime?
+  
+  // Delivery channels
+  channels    String   @default("[\"in_app\"]") // JSON array: ["in_app", "email", "push", "sms"]
+  emailSent   Boolean  @default(false)
+  emailSentAt DateTime?
+  pushSent    Boolean  @default(false)
+  pushSentAt  DateTime?
+  smsSent     Boolean  @default(false)
+  smsSentAt   DateTime?
+  
+  // Scheduling and expiry
+  scheduledFor DateTime? // For scheduled notifications
+  expiresAt   DateTime? // When notification becomes irrelevant
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User @relation(fields: [userId], references: [id])
+  
+  @@index([userId, isRead])
+  @@index([type, createdAt])
+  @@index([scheduledFor])
+  @@index([expiresAt])
+  @@map("notifications")
+}
+
+// ==========================================
+// QURAN MEMORIZATION TRACKING SYSTEM
+// ==========================================
+
+model QuranSurah {
+  id            String   @id @default(cuid())
+  number        Int      @unique // 1-114
+  name          String   // Al-Fatihah, Al-Baqarah, etc.
+  nameArabic    String   // الفاتحة، البقرة، etc.
+  nameTransliteration String? // Al-Faatihah alternative spelling
+  totalAyat     Int      // Total verses in this surah
+  juz           Int      // Juz number (1-30)
+  page          Int?     // Starting page in Mushaf
+  type          String   // MAKKIYAH, MADANIYAH
+  revelation    Int?     // Revelation order
+  meaningId     String?  // Indonesian meaning/theme
+  meaningAr     String?  // Arabic meaning/theme
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  hafalanRecords     HafalanRecord[]
+  hafalanTargets     HafalanTarget[]
+
+  @@index([juz, number])
+  @@index([type])
+  @@map("quran_surahs")
+}
+
+model HafalanRecord {
+  id          String   @id @default(cuid())
+  studentId   String
+  surahNumber Int      // Reference to surah (1-114)
+  startAyat   Int      @default(1) // Starting verse
+  endAyat     Int      // Ending verse
+  status      String   // BARU, MURAJA'AH, LANCAR, MUTQIN
+  quality     String   @default("B") // A=Excellent, B=Good, C=Needs Improvement
+  teacherId   String
+  date        DateTime @default(now())
+  
+  // Additional assessment details
+  fluency     String?  // LANCAR, TERBATA, TERPUTUS
+  tajweed     String?  // SANGAT_BAIK, BAIK, CUKUP, KURANG
+  makharijul  String?  // SANGAT_BAIK, BAIK, CUKUP, KURANG (pronunciation)
+  
+  // Voice recording and notes
+  voiceNoteUrl String? // URL to voice recording
+  notes       String?
+  corrections String? // Notes about corrections needed
+  
+  // Timing and method
+  duration    Int?     // Duration in minutes for this session
+  method      String   @default("INDIVIDUAL") // INDIVIDUAL, GROUP, PEER_TO_PEER
+  
+  // Progress tracking
+  previousRecord String? // ID of previous record for this surah section
+  nextTarget     String? // What to memorize next
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  student     Student @relation(fields: [studentId], references: [id])
+  surah       QuranSurah @relation(fields: [surahNumber], references: [number])
+  teacher     User @relation("HafalanTeacher", fields: [teacherId], references: [id])
+
+  @@index([studentId, date])
+  @@index([surahNumber, status])
+  @@index([teacherId, date])
+  @@index([status, quality])
+  @@map("hafalan_records")
+}
+
+model HafalanProgress {
+  id            String   @id @default(cuid())
+  studentId     String   @unique
+  
+  // Overall statistics
+  totalSurah    Int      @default(0) // Number of surahs completed (MUTQIN status)
+  totalAyat     Int      @default(0) // Total verses memorized (all MUTQIN)
+  totalJuz      Decimal  @default(0) // Calculated juz completion (can be partial)
+  
+  // Current focus
+  currentSurah  Int?     // Current surah being memorized
+  currentAyat   Int      @default(1) // Current verse position
+  currentTarget String?  // Current memorization target description
+  
+  // Achievement levels
+  level         String   @default("PEMULA") // PEMULA, MENENGAH, LANJUT, HAFIDZ
+  badge         String   @default("[]") // JSON array of earned badges
+  
+  // Progress percentages
+  juz30Progress Decimal  @default(0) // Juz Amma (most common starting point)
+  overallProgress Decimal @default(0) // Overall Quran completion percentage
+  
+  // Last activity
+  lastSetoranDate DateTime? // Last memorization session
+  lastMurajaahDate DateTime? // Last review session
+  lastUpdated   DateTime   @default(now())
+  
+  // Streaks and consistency
+  currentStreak Int      @default(0) // Days of consecutive activity
+  longestStreak Int      @default(0) // Best streak achieved
+  totalSessions Int      @default(0) // Total memorization sessions
+  
+  // Quality metrics (averages)
+  avgQuality    Decimal  @default(0) // Average quality score
+  avgFluency    Decimal  @default(0) // Average fluency score
+  avgTajweed    Decimal  @default(0) // Average tajweed score
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  student       Student @relation(fields: [studentId], references: [id])
+
+  @@index([level])
+  @@index([totalSurah, totalAyat])
+  @@map("hafalan_progress")
+}
+
+model SetoranSchedule {
+  id          String   @id @default(cuid())
+  studentId   String
+  teacherId   String
+  dayOfWeek   String   // SENIN, SELASA, RABU, KAMIS, JUMAT, SABTU, MINGGU
+  time        String   // "07:00", "13:30", etc.
+  type        String   @default("SETORAN_BARU") // SETORAN_BARU, MURAJA'AH, MIXED
+  
+  // Schedule details
+  duration    Int      @default(15) // Duration in minutes
+  location    String?  // Classroom, mosque, etc.
+  maxStudents Int      @default(1) // For group sessions
+  
+  // Settings
+  isActive    Boolean  @default(true)
+  startDate   DateTime @default(now())
+  endDate     DateTime? // If temporary schedule
+  
+  // Recurrence
+  isRecurring Boolean  @default(true)
+  frequency   String   @default("WEEKLY") // DAILY, WEEKLY, BIWEEKLY
+  
+  // Notifications
+  reminderMinutes Int  @default(60) // Remind X minutes before
+  notifyParent Boolean @default(true)
+  
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  student     Student @relation(fields: [studentId], references: [id])
+  teacher     User @relation("SetoranTeacher", fields: [teacherId], references: [id])
+
+  @@unique([studentId, teacherId, dayOfWeek, time])
+  @@index([teacherId, dayOfWeek])
+  @@index([dayOfWeek, time])
+  @@map("setoran_schedules")
+}
+
+model HafalanTarget {
+  id            String   @id @default(cuid())
+  studentId     String
+  targetSurah   Int      // Surah number to complete
+  startAyat     Int      @default(1)
+  endAyat       Int?     // If null, means entire surah
+  targetDate    DateTime
+  
+  // Target details
+  priority      String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  difficulty    String   @default("MEDIUM") // EASY, MEDIUM, HARD
+  estimatedDays Int?     // Estimated days to complete
+  
+  // Progress tracking
+  status        String   @default("ACTIVE") // ACTIVE, COMPLETED, PAUSED, CANCELLED
+  progress      Decimal  @default(0) // Percentage completed
+  startedAt     DateTime?
+  completedAt   DateTime?
+  
+  // Motivation and rewards
+  reward        String?  // What student gets upon completion
+  motivation    String?  // Motivational note
+  parentInformed Boolean @default(false) // Has parent been notified?
+  
+  // Assignment details
+  createdBy     String   // Teacher who set the target
+  approvedBy    String?  // Principal/supervisor approval if needed
+  notes         String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  student       Student @relation(fields: [studentId], references: [id])
+  surah         QuranSurah @relation(fields: [targetSurah], references: [number])
+  creator       User @relation("HafalanTargetCreator", fields: [createdBy], references: [id])
+
+  @@index([studentId, status])
+  @@index([targetDate, status])
+  @@index([createdBy])
+  @@map("hafalan_targets")
+}
+
+model HafalanAchievement {
+  id            String   @id @default(cuid())
+  studentId     String
+  type          String   // SURAH_COMPLETE, JUZ_COMPLETE, STREAK, QUALITY_EXCELLENCE, etc.
+  title         String   // "Completed Surah Al-Mulk"
+  description   String   // Detailed description
+  
+  // Achievement data
+  data          String   @default("{}") // JSON data specific to achievement type
+  level         String   @default("BRONZE") // BRONZE, SILVER, GOLD, PLATINUM
+  points        Int      @default(0) // Points earned
+  
+  // Visual representation
+  icon          String?  // Icon for the achievement
+  color         String   @default("#10B981") // Color code
+  badge         String?  // Badge image URL
+  
+  // Verification
+  verifiedBy    String?  // Teacher who verified the achievement
+  verifiedAt    DateTime?
+  isPublic      Boolean  @default(true) // Can be shared publicly
+  
+  // Celebration
+  celebrated    Boolean  @default(false) // Has been celebrated/announced
+  shareCount    Int      @default(0) // How many times shared
+  
+  earnedAt      DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  // Relations
+  student       Student @relation(fields: [studentId], references: [id])
+
+  @@index([studentId, type])
+  @@index([earnedAt])
+  @@index([level, points])
+  @@map("hafalan_achievements")
+}
+
+model HafalanSession {
+  id            String   @id @default(cuid())
+  studentId     String
+  teacherId     String
+  sessionDate   DateTime @default(now())
+  
+  // Session type and method
+  type          String   // SETORAN_BARU, MURAJA'AH, TES_HAFALAN, TALAQQI
+  method        String   @default("INDIVIDUAL") // INDIVIDUAL, GROUP, PEER_REVIEW
+  duration      Int      // Duration in minutes
+  
+  // Location and setup
+  location      String   @default("KELAS") // KELAS, MASJID, OUTDOOR, ONLINE
+  atmosphere    String   @default("FORMAL") // FORMAL, CASUAL, COMPETITIVE
+  
+  // Content covered
+  content       String   // JSON array of {surahNumber, startAyat, endAyat, status}
+  totalAyat     Int      @default(0) // Total verses covered
+  
+  // Assessment summary
+  overallQuality String  // A, B, C overall session quality
+  overallFluency String  // LANCAR, CUKUP, KURANG
+  improvements  String?  // Areas that improved this session
+  challenges    String?  // Challenges encountered
+  
+  // Next steps
+  homework      String?  // What to practice before next session
+  nextTarget    String?  // Next memorization target
+  reminderNote  String?  // Reminder for next session
+  
+  // Engagement and mood
+  studentMood   String   @default("NORMAL") // ENTHUSIASTIC, NORMAL, TIRED, STRUGGLING
+  engagement    String   @default("GOOD") // EXCELLENT, GOOD, AVERAGE, POOR
+  confidence    String   @default("MEDIUM") // HIGH, MEDIUM, LOW
+  
+  // Parent communication
+  reportSent    Boolean  @default(false) // Has report been sent to parents?
+  parentFeedback String? // Feedback from parents if any
+  
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  student       Student @relation(fields: [studentId], references: [id])
+  teacher       User @relation("HafalanSessionTeacher", fields: [teacherId], references: [id])
+
+  @@index([studentId, sessionDate])
+  @@index([teacherId, sessionDate])
+  @@index([type, sessionDate])
+  @@map("hafalan_sessions")
 }

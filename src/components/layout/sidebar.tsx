@@ -31,7 +31,8 @@ import {
   ChevronRight,
   FileText,
   Award,
-  Clock
+  Clock,
+  BookMarked
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -125,6 +126,23 @@ const menuItems: MenuItem[] = [
         title: 'Ujian',
         href: '/akademik/exams',
         icon: ClipboardCheck
+      }
+    ]
+  },
+  {
+    title: 'Hafalan Al-Quran',
+    href: '/hafalan',
+    icon: BookMarked,
+    children: [
+      {
+        title: 'Setoran Hafalan',
+        href: '/hafalan/setoran',
+        icon: BookMarked
+      },
+      {
+        title: 'Progress Siswa',
+        href: '/hafalan/kelas',
+        icon: Users
       }
     ]
   },
