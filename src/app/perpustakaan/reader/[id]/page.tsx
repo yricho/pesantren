@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Download, ZoomIn, ZoomOut, Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { saveAs } from 'file-saver';
+import '@/styles/pdf-viewer.css';
 
 // Dynamic import for react-pdf to avoid SSR issues
 const Document = dynamic(
@@ -17,13 +18,11 @@ const Page = dynamic(
   { ssr: false }
 );
 
-// Set worker path for PDF.js and import styles
+// Set worker path for PDF.js
 if (typeof window !== 'undefined') {
   import('react-pdf').then((pdf) => {
     pdf.pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdf.pdfjs.version}/build/pdf.worker.min.js`;
   });
-  import('react-pdf/dist/esm/Page/AnnotationLayer.css');
-  import('react-pdf/dist/esm/Page/TextLayer.css');
 }
 
 interface EbookReaderProps {

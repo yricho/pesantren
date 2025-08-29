@@ -1,0 +1,41 @@
+/* PDF.js Text Layer */
+.react-pdf__Page__textContent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0.2;
+  line-height: 1;
+}
+
+.react-pdf__Page__textContent span {
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+/* PDF.js Annotation Layer */
+.react-pdf__Page__annotations {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.react-pdf__Page__annotations a {
+  position: absolute;
+  display: block;
+}
+
+/* Custom PDF viewer styles */
+.pdf-viewer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}

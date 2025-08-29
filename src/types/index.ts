@@ -1,4 +1,6 @@
-import { Role, TransactionType } from '@prisma/client'
+// Define enums as string unions since we removed them from schema
+export type Role = 'ADMIN' | 'STAFF'
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'DONATION'
 
 export interface User {
   id: string
