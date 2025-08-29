@@ -14,25 +14,139 @@
 - [x] Video Kajian dengan copy-paste feature
 - [x] Layout dengan Sidebar
 
-## 🔄 PHASE 3: FINANCIAL MANAGEMENT (IN PROGRESS)
-### Manajemen Keuangan
+## 🔄 PHASE 3: REGISTRATION & ADMISSION (HIGH PRIORITY)
+### PPDB Online (Penerimaan Peserta Didik Baru)
+- [ ] **Pendaftaran Online**
+  - [ ] Form pendaftaran TK/SD/Pondok
+  - [ ] Upload dokumen (Akta, KK, Foto, dll)
+  - [ ] Nomor pendaftaran otomatis
+  - [ ] Status tracking (Daftar → Verifikasi → Test → Diterima)
+- [ ] **Seleksi & Test**
+  - [ ] Jadwal test online/offline
+  - [ ] Input nilai test
+  - [ ] Ranking otomatis
+  - [ ] Pengumuman kelulusan
+- [ ] **Daftar Ulang**
+  - [ ] Konfirmasi diterima
+  - [ ] Pembayaran biaya masuk
+  - [ ] Pemilihan asrama/kelas
+  - [ ] Cetak kartu siswa
+- [ ] **Administrasi**
+  - [ ] Biaya pendaftaran
+  - [ ] Biaya seragam & buku
+  - [ ] Biaya asrama (santri mondok)
+  - [ ] Generate virtual account
+
+## 🔄 PHASE 4: PAYMENT SYSTEM (HIGH PRIORITY)
+### Sistem Pembayaran
+- [ ] **SPP & Iuran**
+  - [ ] SPP bulanan per jenjang
+  - [ ] Iuran asrama
+  - [ ] Iuran makan
+  - [ ] Iuran kegiatan
+- [ ] **Payment Gateway**
+  - [ ] Virtual Account (BCA, Mandiri, BNI, BRI)
+  - [ ] E-Wallet (GoPay, OVO, Dana)
+  - [ ] QRIS
+  - [ ] Transfer manual + konfirmasi
+- [ ] **Billing System**
+  - [ ] Generate tagihan bulanan otomatis
+  - [ ] Reminder WhatsApp/Email
+  - [ ] Denda keterlambatan
+  - [ ] Diskon/beasiswa
+- [ ] **Laporan Pembayaran**
+  - [ ] History pembayaran per siswa
+  - [ ] Rekap tunggakan
+  - [ ] Laporan penerimaan harian/bulanan
+  - [ ] Export kwitansi PDF
+
+## 🔄 PHASE 5: FINANCIAL MANAGEMENT
+### Manajemen Keuangan Lengkap
 - [ ] **Pemasukan**
-  - [ ] SPP bulanan per siswa
-  - [ ] Donasi/infaq/sedekah
-  - [ ] Bantuan pemerintah
+  - [ ] SPP & pembayaran siswa (terintegrasi)
+  - [ ] Donasi/infaq/sedekah online
+  - [ ] Bantuan pemerintah (BOS, dll)
   - [ ] Hasil usaha pondok
+  - [ ] Wakaf & zakat
 - [ ] **Pengeluaran**
   - [ ] Gaji guru/ustadz
   - [ ] Operasional (listrik, air, internet)
   - [ ] Pemeliharaan gedung
   - [ ] Konsumsi santri
+  - [ ] Pembelian inventaris
+- [ ] **Cash Flow**
+  - [ ] Kas masuk/keluar harian
+  - [ ] Rekonsiliasi bank
+  - [ ] Budget planning
+  - [ ] Proyeksi keuangan
 - [ ] **Laporan**
-  - [ ] Laporan bulanan
-  - [ ] Laporan tahunan
-  - [ ] Export PDF/Excel
-  - [ ] Grafik trend keuangan
+  - [ ] Neraca keuangan
+  - [ ] Laba rugi
+  - [ ] Arus kas
+  - [ ] Audit trail
 
-## 📚 PHASE 4: ACADEMIC FEATURES
+## 💝 PHASE 6: DONATION & FUNDRAISING (HIGH PRIORITY)
+### Program Donasi
+- [ ] **Portal Donasi Online**
+  - [ ] Landing page khusus donasi
+  - [ ] Pilihan program donasi (Pembangunan, Yatim, Tahfidz, dll)
+  - [ ] Target & progress donasi real-time
+  - [ ] Donatur tetap (monthly subscription)
+- [ ] **Campaign & Crowdfunding**
+  - [ ] Buat campaign (Renovasi masjid, Beasiswa santri, dll)
+  - [ ] Share ke social media
+  - [ ] Update progress & dokumentasi
+  - [ ] Testimoni penerima manfaat
+- [ ] **Wakaf**
+  - [ ] Wakaf tunai
+  - [ ] Wakaf produktif
+  - [ ] Wakaf Al-Quran
+  - [ ] E-certificate wakaf
+- [ ] **Zakat**
+  - [ ] Kalkulator zakat
+  - [ ] Zakat mal
+  - [ ] Zakat fitrah
+  - [ ] Laporan penyaluran
+- [ ] **Laporan Donasi**
+  - [ ] Transparansi penggunaan dana
+  - [ ] Laporan per donatur
+  - [ ] Dokumentasi foto/video
+  - [ ] Sertifikat donasi
+
+## 🏢 PHASE 7: YAYASAN BUSINESS UNIT
+### Unit Usaha Yayasan
+- [ ] **Koperasi Pondok**
+  - [ ] Inventory management
+  - [ ] POS (Point of Sale)
+  - [ ] Member/anggota system
+  - [ ] Profit sharing
+- [ ] **Kantin & Katering**
+  - [ ] Menu management
+  - [ ] Order online (untuk wali santri)
+  - [ ] Subscription makan bulanan
+  - [ ] Snack box untuk event
+- [ ] **Pertanian & Peternakan**
+  - [ ] Management ternak (sapi, kambing, ayam)
+  - [ ] Tracking panen/produksi
+  - [ ] Qurban online
+  - [ ] Aqiqah online
+- [ ] **Jasa & Layanan**
+  - [ ] Rental gedung/aula
+  - [ ] Wisata religi
+  - [ ] Training center
+  - [ ] Penginapan tamu
+- [ ] **Produksi**
+  - [ ] Air minum pondok
+  - [ ] Bakery/roti
+  - [ ] Konveksi seragam
+  - [ ] Percetakan
+- [ ] **E-Commerce Integration**
+  - [ ] Online shop produk pondok
+  - [ ] Marketplace integration
+  - [ ] Affiliate program
+  - [ ] Dropship system
+
+## 📚 PHASE 8: ACADEMIC FEATURES
 ### Kurikulum & Pembelajaran
 - [ ] **Mata Pelajaran**
   - [ ] Kurikulum formal (TK, SD)
@@ -82,7 +196,7 @@
 - [ ] Peer learning groups
 - [ ] Reward system
 
-## 📱 PHASE 6: MOBILE & COMMUNICATION
+## 📱 PHASE 9: MOBILE & COMMUNICATION
 ### Mobile App (PWA)
 - [ ] Progressive Web App
 - [ ] Push notifications
@@ -95,7 +209,7 @@
 - [ ] Email notifications
 - [ ] In-app messaging
 
-## 📊 PHASE 7: ANALYTICS & REPORTING
+## 📊 PHASE 10: ANALYTICS & REPORTING
 ### Dashboard Analytics
 - [ ] Student performance trends
 - [ ] Financial analytics
@@ -108,7 +222,7 @@
 - [ ] Data visualization
 - [ ] Export capabilities
 
-## 🎯 PHASE 8: ACTIVITIES & EVENTS
+## 🎯 PHASE 11: ACTIVITIES & EVENTS
 ### Kegiatan
 - [ ] Event calendar
 - [ ] Photo/video gallery
@@ -121,7 +235,7 @@
 - [ ] Qiroah
 - [ ] Marawis/hadroh
 
-## 🏢 PHASE 9: FACILITIES MANAGEMENT
+## 🏢 PHASE 12: FACILITIES MANAGEMENT
 ### Asrama
 - [ ] Room management
 - [ ] Bed assignment
@@ -134,7 +248,7 @@
 - [ ] Sports facilities
 - [ ] Clinic/UKS management
 
-## 🔒 PHASE 10: SECURITY & COMPLIANCE
+## 🔒 PHASE 13: SECURITY & COMPLIANCE
 ### Security
 - [ ] Role-based access control
 - [ ] Audit logs
@@ -147,7 +261,7 @@
 - [ ] Accreditation documents
 - [ ] ISO compliance
 
-## 💡 PHASE 11: SMART FEATURES
+## 💡 PHASE 14: SMART FEATURES
 ### AI Integration
 - [ ] Chatbot for FAQ
 - [ ] Automated grading
@@ -160,7 +274,7 @@
 - [ ] Energy monitoring
 - [ ] Security cameras
 
-## 🌐 PHASE 12: EXPANSION
+## 🌐 PHASE 15: EXPANSION
 ### Multi-Branch
 - [ ] Multi-campus support
 - [ ] Centralized management
@@ -174,17 +288,19 @@
 
 ## 📈 PRIORITY ORDER
 
-### IMMEDIATE (Sprint 1-2)
+### IMMEDIATE (Sprint 1-2) 🔥
 1. Fix sidebar routing ✅
-2. Complete financial module
-3. Basic student grading
-4. Parent portal (view only)
+2. PPDB Online (Pendaftaran Santri Baru)
+3. Payment Gateway Integration
+4. SPP & Billing System
+5. Donation Portal
 
 ### SHORT TERM (Month 1-2)
-1. Full academic features
-2. Teacher management
-3. Digital library
-4. Basic reporting
+1. Complete Financial Management
+2. Unit Usaha Yayasan (Koperasi)
+3. Academic features (Nilai, Raport)
+4. Parent portal
+5. WhatsApp Integration
 
 ### MEDIUM TERM (Month 3-4)
 1. Mobile PWA
