@@ -37,7 +37,13 @@ const nextConfig = {
         fs: false,
         path: false,
         os: false,
+        canvas: false,
       }
+    }
+    // Handle canvas module for PDF.js
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
     }
     return config
   },

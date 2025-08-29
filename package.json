@@ -89,5 +89,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "optionalDependencies": {
+    "canvas": "^2.11.2"
   }
 }
