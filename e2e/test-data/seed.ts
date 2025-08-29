@@ -102,7 +102,7 @@ export async function seedTestData() {
         type: 'service',
         date: new Date(),
         location: 'Community Center',
-        photos: [],
+        photos: '[]',
         status: 'ongoing',
         createdBy: staffUser.id,
       },
@@ -112,7 +112,7 @@ export async function seedTestData() {
         type: 'seminar',
         date: new Date(Date.now() - 86400000), // Yesterday
         location: 'Conference Room',
-        photos: ['https://example.com/photo2.jpg', 'https://example.com/photo3.jpg'],
+        photos: JSON.stringify(['https://example.com/photo2.jpg', 'https://example.com/photo3.jpg']),
         status: 'completed',
         createdBy: adminUser.id,
       },
