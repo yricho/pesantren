@@ -213,6 +213,9 @@ model Student {
   
   // Relations
   creator         User      @relation(fields: [createdBy], references: [id])
+  registrationId  String?   @unique
+  registration    Registration? @relation(fields: [registrationId], references: [id])
+  payments        Payment[]
   
   @@index([institutionType, status])
   @@index([enrollmentYear])
@@ -290,4 +293,161 @@ model Alumni {
   @@index([generation])
   @@index([availableForEvents])
   @@map("alumni")
+}
+
+// ==========================================
+// PPDB (Penerimaan Peserta Didik Baru)
+// ==========================================
+
+model Registration {
+  id                String   @id @default(cuid())
+  registrationNo    String   @unique // Format: PPDB-2024-001
+  
+  // Personal Data
+  fullName          String
+  nickname          String?
+  gender            String   // L/P
+  birthPlace        String
+  birthDate         DateTime
+  nik               String?
+  nisn              String?
+  
+  // Address
+  address           String
+  rt                String?
+  rw                String?
+  village           String
+  district          String
+  city              String
+  province          String   @default("Jawa Timur")
+  postalCode        String?
+  
+  // Education
+  level             String   // TK, SD, PONDOK
+  previousSchool    String?
+  gradeTarget       String?  // Kelas yang dituju
+  programType       String?  // REGULER, TAHFIDZ, KITAB
+  boardingType      String?  // MONDOK, PULANG
+  
+  // Parent Data - Father
+  fatherName        String
+  fatherNik         String?
+  fatherJob         String?
+  fatherPhone       String?
+  fatherEducation   String?
+  fatherIncome      String?  // Range pendapatan
+  
+  // Parent Data - Mother
+  motherName        String
+  motherNik         String?
+  motherJob         String?
+  motherPhone       String?
+  motherEducation   String?
+  motherIncome      String?  // Range pendapatan
+  
+  // Guardian (if different from parents)
+  guardianName      String?
+  guardianRelation  String?
+  guardianPhone     String?
+  guardianAddress   String?
+  
+  // Contact
+  phoneNumber       String
+  whatsapp          String
+  email             String?
+  
+  // Health Information
+  bloodType         String?
+  height            Int?     // cm
+  weight            Int?     // kg
+  specialNeeds      String?  // Kebutuhan khusus
+  medicalHistory    String?  // Riwayat penyakit
+  
+  // Status Tracking
+  status            String   @default("DRAFT") // DRAFT, SUBMITTED, DOCUMENT_CHECK, VERIFIED, TEST_SCHEDULED, TEST_TAKEN, PASSED, FAILED, REGISTERED
+  paymentStatus     String   @default("UNPAID") // UNPAID, PAID, VERIFIED
+  
+  // Documents (JSON array of document info)
+  documents         String   @default("[]") // {type, fileName, url, status}
+  
+  // Test & Selection
+  testSchedule      DateTime?
+  testVenue         String?
+  testScore         String?  // JSON: {quran: 80, arabic: 75, interview: 85}
+  testResult        String?  // PASSED, FAILED, WAITING
+  ranking           Int?
+  
+  // Registration Fee
+  registrationFee   Decimal  @default(150000)
+  paymentMethod     String?
+  paymentDate       DateTime?
+  paymentProof      String?  // URL bukti transfer
+  
+  // Re-registration (Daftar Ulang)
+  reregStatus       String?  // WAITING, COMPLETED
+  reregDate         DateTime?
+  reregPayment      String?  // JSON payment details
+  
+  // Admin Notes
+  notes             String?
+  verifiedBy        String?
+  verifiedAt        DateTime?
+  rejectionReason   String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  submittedAt       DateTime?
+  
+  // Relations
+  payments          Payment[]
+  student           Student?
+  
+  @@index([status])
+  @@index([level])
+  @@index([paymentStatus])
+  @@index([testResult])
+  @@map("registrations")
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  paymentNo       String   @unique // Format: PAY-2024-12-0001
+  
+  // Relations
+  registrationId  String?
+  registration    Registration? @relation(fields: [registrationId], references: [id])
+  studentId       String?
+  student         Student? @relation(fields: [studentId], references: [id])
+  
+  // Payment Details
+  amount          Decimal
+  paymentType     String   // REGISTRATION, SPP, DAFTAR_ULANG, UNIFORM, etc
+  description     String?
+  
+  // Payment Method
+  method          String   // TRANSFER, CASH, VA, EWALLET, QRIS
+  channel         String?  // BCA, MANDIRI, GOPAY, OVO, etc
+  
+  // Status
+  status          String   @default("PENDING") // PENDING, SUCCESS, FAILED, EXPIRED, REFUNDED
+  
+  // Verification (for manual transfer)
+  proofUrl        String?  // Bukti transfer
+  verifiedBy      String?
+  verifiedAt      DateTime?
+  
+  // External Payment Gateway
+  externalId      String?  // ID from payment gateway
+  vaNumber        String?  // Virtual account number
+  expiredAt       DateTime?
+  
+  // Timestamps
+  paidAt          DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([status])
+  @@index([paymentType])
+  @@map("payments")
 }
