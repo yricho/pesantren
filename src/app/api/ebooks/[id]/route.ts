@@ -47,6 +47,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { default: prisma } = await import('@/lib/prisma');
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
@@ -80,6 +81,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { default: prisma } = await import('@/lib/prisma');
     const session = await getServerSession(authOptions);
     
     if (!session?.user || session.user.role !== 'ADMIN') {
