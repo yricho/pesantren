@@ -247,11 +247,7 @@ export default function DashboardPage() {
             whileHover={{ y: -5 }}
             className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-10 rounded-full -mr-16 -mt-16"
-              style={{
-                backgroundImage: `linear-gradient(135deg, ${stat.color.split(' ')[0].replace('from-', '')} 0%, ${stat.color.split(' ')[2].replace('to-', '')} 100%)`
-              }}
-            />
+            <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.color} opacity-10 rounded-full -mr-16 -mt-16`} />
             
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
