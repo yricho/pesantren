@@ -14,7 +14,8 @@ import {
   Settings,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Library
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -44,6 +45,11 @@ const menuItems = [
     title: 'Video Kajian',
     href: '/kajian',
     icon: Video
+  },
+  {
+    title: 'Perpustakaan',
+    href: '/perpustakaan',
+    icon: Library
   },
   {
     title: 'Pengguna',

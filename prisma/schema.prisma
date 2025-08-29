@@ -26,6 +26,7 @@ model User {
   createdActivities   Activity[]
   createdCourses      Course[]
   createdVideos       Video[]
+  createdEbooks       Ebook[]
 
   @@map("users")
 }
@@ -107,6 +108,36 @@ model Video {
   creator User @relation(fields: [createdBy], references: [id])
 
   @@map("videos")
+}
+
+model Ebook {
+  id           String    @id @default(cuid())
+  title        String
+  author       String
+  description  String
+  category     String    // Fiqh, Hadith, Tafsir, Akhlak, etc.
+  subcategory  String?   // More specific categorization
+  fileUrl      String    // URL to PDF file
+  coverImage   String?   // Cover image URL
+  fileSize     Int?      // File size in bytes
+  pageCount    Int?      // Number of pages
+  language     String    @default("id") // id, ar, en
+  publisher    String?
+  publishYear  String?
+  isbn         String?
+  tags         String[]  // JSON array of tags
+  downloadCount Int      @default(0)
+  viewCount    Int       @default(0)
+  isFeatured   Boolean   @default(false)
+  isPublic     Boolean   @default(true)
+  createdBy    String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("ebooks")
 }
 
 model Setting {
