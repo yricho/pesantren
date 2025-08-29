@@ -1,246 +1,229 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seeding...')
+  console.log('Starting database seed...');
 
   // Create admin user
-  const hashedPassword = await bcrypt.hash('admin123', 12)
+  const hashedPassword = await bcrypt.hash('admin123', 10);
   
-  const adminUser = await prisma.user.upsert({
+  const admin = await prisma.user.upsert({
     where: { username: 'admin' },
     update: {},
     create: {
       username: 'admin',
-      email: 'admin@ponimsy-blitar.id',
+      email: 'admin@pondokimamsyafii.com',
       password: hashedPassword,
       name: 'Administrator',
       role: 'ADMIN',
-      isActive: true
-    }
-  })
+      isActive: true,
+    },
+  });
+
+  console.log('Created admin user:', admin.username);
 
   // Create staff user
-  const staffPassword = await bcrypt.hash('staff123', 12)
+  const staffPassword = await bcrypt.hash('staff123', 10);
   
-  const staffUser = await prisma.user.upsert({
+  const staff = await prisma.user.upsert({
     where: { username: 'staff' },
     update: {},
     create: {
       username: 'staff',
-      email: 'staff@ponimsy-blitar.id',
+      email: 'staff@pondokimamsyafii.com',
       password: staffPassword,
-      name: 'Staff Pondok',
+      name: 'Staff User',
       role: 'STAFF',
-      isActive: true
-    }
-  })
-
-  // Sample transactions
-  const sampleTransactions = [
-    {
-      type: 'INCOME' as const,
-      category: 'SPP',
-      amount: 2500000,
-      description: 'Pembayaran SPP bulan Maret 2024',
-      date: new Date('2024-03-01'),
-      createdBy: adminUser.id
+      isActive: true,
     },
-    {
-      type: 'DONATION' as const,
-      category: 'Infaq',
-      amount: 5000000,
-      description: 'Donasi dari alumni untuk renovasi masjid',
-      date: new Date('2024-03-05'),
-      createdBy: adminUser.id
-    },
-    {
-      type: 'EXPENSE' as const,
-      category: 'Operasional',
-      amount: 500000,
-      description: 'Pembelian alat tulis dan perlengkapan kelas',
-      date: new Date('2024-03-08'),
-      createdBy: staffUser.id
-    },
-    {
-      type: 'EXPENSE' as const,
-      category: 'Maintenance',
-      amount: 1200000,
-      description: 'Perbaikan AC ruang kelas dan sound system masjid',
-      date: new Date('2024-03-10'),
-      createdBy: staffUser.id
-    }
-  ]
+  });
 
-  for (const transaction of sampleTransactions) {
-    await prisma.transaction.create({
-      data: transaction
-    })
-  }
+  console.log('Created staff user:', staff.username);
 
-  // Sample activities
-  const sampleActivities = [
-    {
-      title: 'Kajian Rutin Mingguan',
-      description: 'Kajian rutin setiap hari Jumat dengan tema Fiqih Muamalah dan Akhlaq Islami',
-      type: 'kajian',
-      date: new Date('2024-03-22'),
-      location: 'Masjid Pondok Imam Syafi\'i',
-      photos: '[]',
-      status: 'planned',
-      createdBy: adminUser.id
-    },
-    {
-      title: 'Pelatihan Komputer dan Internet Sehat',
-      description: 'Pelatihan komputer dasar dan edukasi penggunaan internet yang sehat untuk santri',
-      type: 'pelatihan',
-      date: new Date('2024-03-20'),
-      location: 'Lab Komputer Pondok',
-      photos: '[]',
-      status: 'completed',
-      createdBy: staffUser.id
-    },
-    {
-      title: 'Bakti Sosial ke Desa Sekitar',
-      description: 'Kegiatan bakti sosial membersihkan lingkungan dan berbagi dengan masyarakat',
-      type: 'sosial',
-      date: new Date('2024-03-18'),
-      location: 'Desa Sumberejo, Blitar',
-      photos: '[]',
-      status: 'completed',
-      createdBy: adminUser.id
-    }
-  ]
+  // Create sample transactions
+  const transactions = await Promise.all([
+    prisma.transaction.create({
+      data: {
+        type: 'INCOME',
+        category: 'SPP',
+        amount: 500000,
+        description: 'Pembayaran SPP Bulan Januari',
+        date: new Date('2024-01-15'),
+        createdBy: admin.id,
+      },
+    }),
+    prisma.transaction.create({
+      data: {
+        type: 'DONATION',
+        category: 'Infaq',
+        amount: 1000000,
+        description: 'Infaq dari Hamba Allah',
+        date: new Date('2024-01-20'),
+        createdBy: admin.id,
+      },
+    }),
+    prisma.transaction.create({
+      data: {
+        type: 'EXPENSE',
+        category: 'Operasional',
+        amount: 250000,
+        description: 'Pembelian Alat Tulis',
+        date: new Date('2024-01-22'),
+        createdBy: admin.id,
+      },
+    }),
+  ]);
 
-  for (const activity of sampleActivities) {
-    await prisma.activity.create({
-      data: activity
-    })
-  }
+  console.log(`Created ${transactions.length} sample transactions`);
 
-  // Sample courses
-  const sampleCourses = [
-    {
-      name: 'Tahfidz Al-Quran Tingkat Dasar',
-      description: 'Program menghafal Al-Quran untuk tingkat pemula dengan target hafalan 5 juz dalam 6 bulan',
-      level: 'beginner',
-      schedule: 'Senin-Kamis, 07:00-09:00',
-      teacher: 'Ustadz Ahmad Fauzi, S.Pd.I',
-      duration: '6 bulan',
-      capacity: 20,
-      enrolled: 18,
-      status: 'active',
-      createdBy: adminUser.id
-    },
-    {
-      name: 'Fiqih Muamalah dan Ekonomi Islam',
-      description: 'Pembelajaran mendalam tentang hukum Islam dalam bermuamalah dan sistem ekonomi Islam',
-      level: 'intermediate',
-      schedule: 'Selasa-Jumat, 13:00-15:00',
-      teacher: 'Ustadz Muhammad Yusuf, M.A',
-      duration: '4 bulan',
-      capacity: 25,
-      enrolled: 22,
-      status: 'active',
-      createdBy: adminUser.id
-    },
-    {
-      name: 'Bahasa Arab Praktis',
-      description: 'Pembelajaran bahasa Arab dengan fokus pada percakapan sehari-hari dan pemahaman teks keislaman',
-      level: 'beginner',
-      schedule: 'Senin-Rabu, 15:30-17:00',
-      teacher: 'Ustadzah Fatimah Az-Zahra, Lc',
-      duration: '8 bulan',
-      capacity: 15,
-      enrolled: 12,
-      status: 'active',
-      createdBy: staffUser.id
-    }
-  ]
+  // Create sample activities
+  const activities = await Promise.all([
+    prisma.activity.create({
+      data: {
+        title: 'Pengajian Rutin Mingguan',
+        description: 'Kajian kitab Riyadhus Shalihin bersama Ustadz Ahmad',
+        type: 'Pondok',
+        date: new Date('2024-02-01'),
+        location: 'Masjid Baiturrahman',
+        photos: JSON.stringify([]),
+        status: 'upcoming',
+        createdBy: admin.id,
+      },
+    }),
+    prisma.activity.create({
+      data: {
+        title: 'Lomba Tahfidz Antar Santri',
+        description: 'Lomba hafalan Al-Quran untuk santri tingkat SMP',
+        type: 'Pondok',
+        date: new Date('2024-01-25'),
+        location: 'Aula Pondok',
+        photos: JSON.stringify([]),
+        status: 'completed',
+        createdBy: admin.id,
+      },
+    }),
+  ]);
 
-  for (const course of sampleCourses) {
-    await prisma.course.create({
-      data: course
-    })
-  }
+  console.log(`Created ${activities.length} sample activities`);
 
-  // Sample videos
-  const sampleVideos = [
-    {
-      title: 'Adab Bermuamalah dalam Islam',
-      description: 'Kajian mendalam tentang etika dan adab dalam bermuamalah sesuai dengan ajaran Islam yang benar',
-      url: 'https://www.youtube.com/watch?v=example1',
-      duration: '45:32',
-      category: 'Fiqih',
-      teacher: 'Ustadz Muhammad Yusuf, M.A',
-      uploadDate: new Date('2024-03-15'),
-      views: 245,
-      isPublic: true,
-      createdBy: adminUser.id
-    },
-    {
-      title: 'Tahfidz Al-Quran: Tips dan Teknik Menghafal',
-      description: 'Metode efektif untuk menghafal Al-Quran dengan mudah dan lancar sesuai sunnah Rasulullah',
-      url: 'https://www.youtube.com/watch?v=example2',
-      duration: '32:15',
-      category: 'Tahfidz',
-      teacher: 'Ustadz Hafiz Rahman, S.Pd',
-      uploadDate: new Date('2024-03-12'),
-      views: 189,
-      isPublic: true,
-      createdBy: staffUser.id
-    },
-    {
-      title: 'Sejarah Peradaban Islam dan Pelajaran Hidup',
-      description: 'Perjalanan sejarah peradaban Islam dari masa Rasulullah hingga masa modern dan hikmah yang dapat diambil',
-      url: 'https://www.youtube.com/watch?v=example3',
-      duration: '58:47',
-      category: 'Sejarah',
-      teacher: 'Ustadz Dr. Abdullah Mansur',
-      uploadDate: new Date('2024-03-10'),
-      views: 156,
-      isPublic: true,
-      createdBy: adminUser.id
-    }
-  ]
+  // Create sample courses
+  const courses = await Promise.all([
+    prisma.course.create({
+      data: {
+        name: 'Tahfidz Al-Quran',
+        description: 'Program hafalan Al-Quran 30 Juz dengan metode mutqin',
+        level: 'Semua Tingkat',
+        schedule: 'Setiap hari ba\'da Subuh dan Maghrib',
+        teacher: 'Ustadz Abdullah',
+        duration: '2 tahun',
+        capacity: 50,
+        enrolled: 35,
+        status: 'active',
+        createdBy: admin.id,
+      },
+    }),
+    prisma.course.create({
+      data: {
+        name: 'Bahasa Arab Dasar',
+        description: 'Pembelajaran bahasa Arab untuk pemula',
+        level: 'Pemula',
+        schedule: 'Senin, Rabu, Jumat (15:00-17:00)',
+        teacher: 'Ustadz Mahmud',
+        duration: '6 bulan',
+        capacity: 30,
+        enrolled: 25,
+        status: 'active',
+        createdBy: admin.id,
+      },
+    }),
+  ]);
 
-  for (const video of sampleVideos) {
-    await prisma.video.create({
-      data: video
-    })
-  }
+  console.log(`Created ${courses.length} sample courses`);
 
-  // Sample settings
-  const settings = [
-    { key: 'pondok_name', value: 'Pondok Imam Syafi\'i Blitar' },
-    { key: 'pondok_address', value: 'Jl. Raya Pendidikan No. 123, Blitar, Jawa Timur 66137' },
-    { key: 'pondok_phone', value: '(0342) 123-456' },
-    { key: 'pondok_email', value: 'info@ponimsy-blitar.id' },
-    { key: 'pondok_website', value: 'https://ponimsy-blitar.id' },
-    { key: 'current_academic_year', value: '2024/2025' },
-    { key: 'registration_open', value: 'true' }
-  ]
+  // Create sample videos
+  const videos = await Promise.all([
+    prisma.video.create({
+      data: {
+        title: 'Kajian Tafsir Surat Al-Fatihah',
+        description: 'Pembahasan mendalam tentang makna dan kandungan Surat Al-Fatihah',
+        url: 'https://www.youtube.com/watch?v=example1',
+        thumbnail: '/images/kajian-thumb-1.jpg',
+        duration: '45:30',
+        category: 'Tafsir',
+        teacher: 'Ustadz Ahmad',
+        uploadDate: new Date('2024-01-10'),
+        views: 150,
+        isPublic: true,
+        createdBy: admin.id,
+      },
+    }),
+    prisma.video.create({
+      data: {
+        title: 'Adab Menuntut Ilmu',
+        description: 'Penjelasan tentang adab-adab dalam menuntut ilmu menurut Islam',
+        url: 'https://www.youtube.com/watch?v=example2',
+        thumbnail: '/images/kajian-thumb-2.jpg',
+        duration: '30:15',
+        category: 'Akhlak',
+        teacher: 'Ustadz Abdullah',
+        uploadDate: new Date('2024-01-15'),
+        views: 200,
+        isPublic: true,
+        createdBy: admin.id,
+      },
+    }),
+  ]);
 
-  for (const setting of settings) {
-    await prisma.setting.create({
-      data: setting
-    })
-  }
+  console.log(`Created ${videos.length} sample videos`);
 
-  console.log('✅ Database seeding completed!')
-  console.log('👤 Admin user created: admin / admin123')
-  console.log('👥 Staff user created: staff / staff123')
-  console.log('📊 Sample data created successfully')
+  // Create sample ebooks
+  const ebooks = await Promise.all([
+    prisma.ebook.create({
+      data: {
+        title: 'Riyadhus Shalihin',
+        author: 'Imam An-Nawawi',
+        description: 'Kumpulan hadits pilihan tentang akhlak dan adab',
+        category: 'Hadits',
+        fileUrl: '/ebooks/riyadhus-shalihin.pdf',
+        coverUrl: '/images/riyadhus-shalihin-cover.jpg',
+        publisher: 'Darul Haq',
+        publishYear: 2020,
+        pages: 850,
+        language: 'Indonesia',
+        isPublic: true,
+        createdBy: admin.id,
+      },
+    }),
+    prisma.ebook.create({
+      data: {
+        title: 'Fiqih Sunnah',
+        author: 'Sayyid Sabiq',
+        description: 'Pembahasan fiqih berdasarkan Al-Quran dan Sunnah',
+        category: 'Fiqih',
+        fileUrl: '/ebooks/fiqih-sunnah.pdf',
+        coverUrl: '/images/fiqih-sunnah-cover.jpg',
+        publisher: 'Pena Pundi Aksara',
+        publishYear: 2019,
+        pages: 1200,
+        language: 'Indonesia',
+        isPublic: true,
+        createdBy: admin.id,
+      },
+    }),
+  ]);
+
+  console.log(`Created ${ebooks.length} sample ebooks`);
+
+  console.log('Database seed completed successfully!');
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect()
+  .catch((e) => {
+    console.error('Error seeding database:', e);
+    process.exit(1);
   })
-  .catch(async (e) => {
-    console.error('❌ Seeding failed:', e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
