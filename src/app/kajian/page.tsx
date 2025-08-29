@@ -107,7 +107,7 @@ export default function Kajian() {
     }, 1000)
   }, [])
 
-  const categories = [...new Set(videos.map(v => v.category))]
+  const categories = Array.from(new Set(videos.map(v => v.category)))
 
   const filteredVideos = videos.filter(video => {
     const matchesCategory = filter === 'all' || video.category === filter
