@@ -1,17 +1,11 @@
 {
-  "buildCommand": "npx prisma generate && npm run build",
-  "installCommand": "npm install && npx prisma generate",
   "framework": "nextjs",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": ".next",
   "regions": ["sin1"],
   "env": {
     "DATABASE_URL": "@database_url",
     "NEXTAUTH_URL": "@nextauth_url", 
     "NEXTAUTH_SECRET": "@nextauth_secret"
-  },
-  "build": {
-    "env": {
-      "DATABASE_URL": "@database_url",
-      "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
-    }
   }
 }
