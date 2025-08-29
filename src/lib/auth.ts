@@ -1,6 +1,7 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
+import prisma from './prisma'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,9 +17,6 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // Dynamically import prisma to avoid build-time initialization
-          const { prisma } = await import('./prisma')
-          
           const user = await prisma.user.findUnique({
             where: {
               username: credentials.username
@@ -54,6 +52,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -64,10 +63,10 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      if (token && token.sub) {
-        session.user.id = token.sub
-        session.user.role = token.role
-        session.user.username = token.username
+      if (token && session.user) {
+        session.user.id = token.sub as string
+        session.user.role = token.role as string
+        session.user.username = token.username as string
       }
       return session
     },
@@ -75,4 +74,5 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/signin',
   },
+  secret: process.env.NEXTAUTH_SECRET,
 }

@@ -196,7 +196,7 @@ export default function ParentDashboard() {
               <div className="flex items-center text-red-700">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span className="text-sm">
-                  {quickStats.attendanceAlerts} anak dengan kehadiran < 80%
+                  {quickStats.attendanceAlerts} anak dengan kehadiran &lt; 80%
                 </span>
               </div>
             )}
@@ -204,7 +204,7 @@ export default function ParentDashboard() {
               <div className="flex items-center text-red-700">
                 <GraduationCap className="w-4 h-4 mr-2" />
                 <span className="text-sm">
-                  {quickStats.gradeAlerts} anak dengan nilai < 70
+                  {quickStats.gradeAlerts} anak dengan nilai &lt; 70
                 </span>
               </div>
             )}
