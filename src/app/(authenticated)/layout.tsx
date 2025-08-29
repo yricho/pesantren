@@ -4,7 +4,7 @@ import { useSession, signIn } from 'next-auth/react'
 import { useEffect } from 'react'
 import { Sidebar } from '@/components/layout/sidebar'
 
-export default function DashboardLayout({
+export default function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode

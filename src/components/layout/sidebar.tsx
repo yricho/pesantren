@@ -15,7 +15,9 @@ import {
   Menu,
   X,
   LogOut,
-  Library
+  Library,
+  UserCheck,
+  GraduationCap
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -25,6 +27,16 @@ const menuItems = [
     title: 'Dashboard',
     href: '/dashboard',
     icon: Home
+  },
+  {
+    title: 'Data Siswa',
+    href: '/siswa',
+    icon: UserCheck
+  },
+  {
+    title: 'Data Alumni',
+    href: '/alumni',
+    icon: GraduationCap
   },
   {
     title: 'Keuangan',
