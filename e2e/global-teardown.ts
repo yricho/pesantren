@@ -14,7 +14,7 @@ async function globalTeardown(config: FullConfig) {
       console.log('✅ Cleaned up auth files')
     }
   } catch (error) {
-    console.warn('⚠️ Could not clean up auth files:', error.message)
+    console.warn('⚠️ Could not clean up auth files:', error instanceof Error ? error.message : String(error))
   }
 
   // Clean up test database
@@ -25,7 +25,7 @@ async function globalTeardown(config: FullConfig) {
       console.log('✅ Cleaned up test database')
     }
   } catch (error) {
-    console.warn('⚠️ Could not clean up test database:', error.message)
+    console.warn('⚠️ Could not clean up test database:', error instanceof Error ? error.message : String(error))
   }
 
   // Clean up any other test artifacts
@@ -36,7 +36,7 @@ async function globalTeardown(config: FullConfig) {
     // Keep test results but clean up any temp files
     console.log('✅ Test artifacts preserved for review')
   } catch (error) {
-    console.warn('⚠️ Could not clean up test artifacts:', error.message)
+    console.warn('⚠️ Could not clean up test artifacts:', error instanceof Error ? error.message : String(error))
   }
 
   console.log('✅ Global teardown completed')
