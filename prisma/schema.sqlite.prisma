@@ -1,0 +1,125 @@
+// This is your Prisma schema file for local SQLite development
+// To use this schema locally, run: cp prisma/schema.sqlite.prisma prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("STAFF") // ADMIN or STAFF
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  transactions Transaction[]
+  activities   Activity[]
+  courses      Course[]
+  videos       Video[]
+  ebooks       Ebook[]
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  type        String   // INCOME, EXPENSE, DONATION
+  category    String
+  amount      Float
+  description String
+  date        DateTime
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String
+  date        DateTime
+  location    String?
+  photos      String   // JSON array stored as string
+  status      String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  level       String
+  schedule    String
+  teacher     String
+  duration    String
+  capacity    Int
+  enrolled    Int      @default(0)
+  status      String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+}
+
+model Video {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  url         String
+  thumbnail   String?
+  duration    String?
+  category    String
+  teacher     String
+  uploadDate  DateTime
+  views       Int       @default(0)
+  isPublic    Boolean   @default(true)
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+}
+
+model Ebook {
+  id            String    @id @default(cuid())
+  title         String
+  author        String
+  description   String
+  category      String
+  fileUrl       String
+  coverUrl      String?
+  isbn          String?
+  publisher     String?
+  publishYear   Int?
+  pages         Int?
+  language      String    @default("Indonesia")
+  downloadCount Int       @default(0)
+  viewCount     Int       @default(0)
+  isPublic      Boolean   @default(true)
+  createdBy     String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+}
