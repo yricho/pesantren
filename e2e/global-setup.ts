@@ -67,7 +67,7 @@ async function globalSetup(config: FullConfig) {
     await browser.close()
     console.log('✅ Authentication states saved')
   } catch (error) {
-    console.warn('⚠️ Could not pre-authenticate (app might not be running yet):', error.message)
+    console.warn('⚠️ Could not pre-authenticate (app might not be running yet):', error instanceof Error ? error.message : String(error))
     // This is not critical for setup, continue
   }
 
