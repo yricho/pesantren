@@ -88,7 +88,7 @@ async function main() {
       type: 'kajian',
       date: new Date('2024-03-22'),
       location: 'Masjid Pondok Imam Syafi\'i',
-      photos: [],
+      photos: '[]',
       status: 'planned',
       createdBy: adminUser.id
     },
@@ -98,7 +98,7 @@ async function main() {
       type: 'pelatihan',
       date: new Date('2024-03-20'),
       location: 'Lab Komputer Pondok',
-      photos: [],
+      photos: '[]',
       status: 'completed',
       createdBy: staffUser.id
     },
@@ -108,7 +108,7 @@ async function main() {
       type: 'sosial',
       date: new Date('2024-03-18'),
       location: 'Desa Sumberejo, Blitar',
-      photos: [],
+      photos: '[]',
       status: 'completed',
       createdBy: adminUser.id
     }

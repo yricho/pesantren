@@ -16,7 +16,7 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      Role     @default(STAFF)
+  role      String   @default("STAFF") // ADMIN or STAFF
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -32,15 +32,15 @@ model User {
 }
 
 model Transaction {
-  id          String          @id @default(cuid())
-  type        TransactionType
+  id          String   @id @default(cuid())
+  type        String   // INCOME, EXPENSE, or DONATION
   category    String
   amount      Float
   description String
   date        DateTime
   createdBy   String
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   creator User @relation(fields: [createdBy], references: [id])
@@ -55,7 +55,7 @@ model Activity {
   type        String
   date        DateTime
   location    String?
-  photos      String[] // JSON array of photo URLs
+  photos      String   @default("[]") // JSON string of photo URLs
   status      String   @default("planned") // planned, ongoing, completed
   createdBy   String
   createdAt   DateTime @default(now())
@@ -125,7 +125,7 @@ model Ebook {
   publisher    String?
   publishYear  String?
   isbn         String?
-  tags         String[]  // JSON array of tags
+  tags         String    @default("[]") // JSON string of tags
   downloadCount Int      @default(0)
   viewCount    Int       @default(0)
   isFeatured   Boolean   @default(false)
@@ -146,15 +146,4 @@ model Setting {
   value String
 
   @@map("settings")
-}
-
-enum Role {
-  ADMIN
-  STAFF
-}
-
-enum TransactionType {
-  INCOME
-  EXPENSE
-  DONATION
 }
