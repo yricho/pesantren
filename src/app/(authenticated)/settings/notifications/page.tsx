@@ -113,13 +113,17 @@ export default function NotificationSettingsPage() {
   const updatePreference = (key: string, value: any, nested?: string) => {
     setPreferences(prev => {
       if (nested) {
-        return {
-          ...prev,
-          [nested]: {
-            ...prev[nested as keyof NotificationPreferences],
-            [key]: value,
-          },
-        };
+        const nestedKey = nested as keyof NotificationPreferences;
+        const currentNested = prev[nestedKey];
+        if (typeof currentNested === 'object' && currentNested !== null) {
+          return {
+            ...prev,
+            [nested]: {
+              ...(currentNested as Record<string, any>),
+              [key]: value,
+            },
+          };
+        }
       }
       return { ...prev, [key]: value };
     });

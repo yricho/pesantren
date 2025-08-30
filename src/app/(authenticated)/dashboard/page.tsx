@@ -222,6 +222,17 @@ export default function DashboardPage() {
     },
   ];
 
+  // Activity data for weekly chart
+  const activityData = [
+    { day: 'Sen', kegiatan: 8 },
+    { day: 'Sel', kegiatan: 12 },
+    { day: 'Rab', kegiatan: 6 },
+    { day: 'Kam', kegiatan: 15 },
+    { day: 'Jum', kegiatan: 10 },
+    { day: 'Sab', kegiatan: 14 },
+    { day: 'Min', kegiatan: 4 },
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">

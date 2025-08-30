@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
       const dueDate = new Date(bill.dueDate);
       const daysPastDue = Math.max(0, Math.floor((currentDate.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)));
       const gracePeriodDays = bill.billType.gracePeriodDays || 0;
-      const isCurrentlyOverdue = daysPastDue > gracePeriodDays && bill.remainingAmount > 0;
+      const isCurrentlyOverdue = daysPastDue > gracePeriodDays && Number(bill.remainingAmount) > 0;
 
       // Update overdue status if it has changed
       if (bill.isOverdue !== isCurrentlyOverdue || bill.daysPastDue !== daysPastDue) {
@@ -183,9 +183,9 @@ export async function GET(request: NextRequest) {
       averageAmount: total > 0 ? processedBills.reduce((sum, bill) => sum + Number(bill.amount), 0) / total : 0,
       oldestOverdue: processedBills
         .filter(bill => bill.isCurrentlyOverdue)
-        .reduce((oldest, bill) => {
+        .reduce((oldest: any, bill) => {
           return !oldest || bill.daysPastDue > oldest.daysPastDue ? bill : oldest;
-        }, null),
+        }, null as any),
     };
 
     // Group by institution type for additional insights

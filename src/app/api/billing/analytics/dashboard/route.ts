@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check user permissions
-    if (!['SUPER_ADMIN', 'ADMIN', 'STAFF'].includes(session.user.role)) {
+    if (!session.user?.role || !['SUPER_ADMIN', 'ADMIN', 'STAFF'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 

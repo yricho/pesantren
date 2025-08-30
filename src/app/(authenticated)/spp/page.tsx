@@ -419,25 +419,18 @@ export default function SPPManagementPage() {
                 <StatsCard
                   title="Total Bills"
                   value={dashboardStats.totalBills}
-                  icon="📄"
                 />
                 <StatsCard
                   title="Outstanding Amount"
                   value={formatCurrency(dashboardStats.totalOutstanding)}
-                  icon="💰"
-                  variant="warning"
                 />
                 <StatsCard
                   title="Overdue Bills"
                   value={dashboardStats.totalOverdue}
-                  icon="⚠️"
-                  variant="destructive"
                 />
                 <StatsCard
                   title="Collection Rate"
                   value={`${dashboardStats.paymentRate.toFixed(1)}%`}
-                  icon="📈"
-                  variant="success"
                 />
               </div>
             )}

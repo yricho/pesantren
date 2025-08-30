@@ -166,17 +166,13 @@ export async function GET(request: NextRequest) {
     // Get upcoming exams
     const upcomingExams = await prisma.exam.findMany({
       where: {
-        examDate: {
+        date: {
           gte: new Date(),
           lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Next 30 days
         },
-        OR: children.map(child => ({
-          examClasses: {
-            some: {
-              classId: child.currentClass?.id || ''
-            }
-          }
-        }))
+        classId: {
+          in: children.map(child => child.currentClass?.id).filter((id): id is string => !!id)
+        }
       },
       include: {
         subject: {
@@ -187,7 +183,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        examDate: 'asc'
+        date: 'asc'
       },
       take: 10
     });
@@ -260,10 +256,10 @@ export async function GET(request: NextRequest) {
       },
       upcomingExams: upcomingExams.map(exam => ({
         id: exam.id,
-        subject: exam.subject.name,
-        date: exam.examDate.toISOString(),
+        subject: (exam as any).subject?.name || 'Unknown Subject',
+        date: exam.date.toISOString(),
         type: exam.type,
-        description: exam.description
+        description: exam.name
       })),
       recentGrades: recentGrades.map(grade => ({
         id: grade.id,

@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check user permissions
-    if (!['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
+    if (!session.user?.role || !['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check user permissions
-    if (!['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
+    if (!session.user?.role || !['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 

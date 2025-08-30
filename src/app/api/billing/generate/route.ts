@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check user permissions
-    if (!['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
+    if (!session.user?.role || !['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
@@ -185,16 +185,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate bills
-    const billsToCreate = [];
-    const billsMetadata = [];
+    const billsToCreate: any[] = [];
+    const billsMetadata: any[] = [];
 
     for (const student of studentsToProcess) {
       // Determine amount based on grade or default
-      let amount = billType.defaultAmount || 0;
+      let amount = Number(billType.defaultAmount) || 0;
       if (student.grade && priceByGrade[student.grade]) {
-        amount = priceByGrade[student.grade];
+        amount = Number(priceByGrade[student.grade]);
       } else if (priceByGrade[student.institutionType]) {
-        amount = priceByGrade[student.institutionType];
+        amount = Number(priceByGrade[student.institutionType]);
       }
 
       if (amount <= 0) {
@@ -206,12 +206,12 @@ export async function POST(request: NextRequest) {
       let totalDiscount = 0;
 
       // Apply sibling discount if enabled
-      if (validated.applyDiscounts && billType.allowSiblingDiscount && billType.siblingDiscountPercent > 0) {
+      if (validated.applyDiscounts && billType.allowSiblingDiscount && Number(billType.siblingDiscountPercent) > 0) {
         const { discount, siblingCount } = await calculateSiblingDiscount(
           prisma,
           student.id,
           amount,
-          billType.siblingDiscountPercent
+          Number(billType.siblingDiscountPercent)
         );
         
         if (discount > 0) {

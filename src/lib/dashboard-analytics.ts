@@ -467,7 +467,7 @@ class DashboardAnalyticsService {
           paymentHistory: {
             some: {
               action: 'PAYMENT_VERIFIED',
-              createdAt: { lte: prisma.bill.fields.dueDate },
+              createdAt: { lte: new Date() },
             },
           },
         },

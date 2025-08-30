@@ -437,19 +437,14 @@ export default function ParentPaymentsPage() {
                 <StatsCard
                   title="Outstanding Bills"
                   value={outstandingBills.length}
-                  icon="📄"
                 />
                 <StatsCard
                   title="Total Outstanding"
                   value={formatCurrency(totalOutstanding)}
-                  icon="💰"
-                  variant="warning"
                 />
                 <StatsCard
                   title="Overdue Bills"
                   value={outstandingBills.filter(b => b.isOverdue).length}
-                  icon="⚠️"
-                  variant="destructive"
                 />
               </div>
 

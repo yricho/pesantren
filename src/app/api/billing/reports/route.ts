@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check user permissions
-    if (!['SUPER_ADMIN', 'ADMIN', 'STAFF'].includes(session.user.role)) {
+    if (!session.user?.role || !['SUPER_ADMIN', 'ADMIN', 'STAFF'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
@@ -286,7 +286,7 @@ async function generateMonthlyCollectionReport(prisma: any, startDate: Date, end
   });
 
   // Group by month
-  const monthlyData = payments.reduce((acc: any, payment) => {
+  const monthlyData = payments.reduce((acc: any, payment: any) => {
     const monthKey = payment.paymentDate.toISOString().substring(0, 7); // YYYY-MM
     
     if (!acc[monthKey]) {
@@ -379,7 +379,7 @@ async function generateOutstandingBillsReport(prisma: any, startDate: Date, endD
     ],
   });
 
-  return bills.map(bill => ({
+  return bills.map((bill: any) => ({
     billNo: bill.billNo,
     studentName: bill.student.fullName,
     studentNis: bill.student.nis,

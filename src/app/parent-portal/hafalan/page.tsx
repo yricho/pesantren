@@ -659,7 +659,7 @@ export default function HafalanProgress() {
                         <h4 className="font-medium mb-3">Progress Terakhir</h4>
                         <div className="space-y-2">
                           {selectedChild.recentRecords
-                            .filter(record => record.surah.number === selectedChild.currentTarget?.surah.number)
+                            .filter(record => record.surah.name === selectedChild.currentTarget?.surah.name)
                             .slice(0, 5)
                             .map((record) => (
                               <div key={record.id} className="flex items-center p-3 bg-gray-50 rounded-lg">

@@ -125,10 +125,11 @@ class WhatsAppService {
         return { success: false, error: 'Invalid phone number format' };
       }
 
+      const { to: _, ...messageWithoutTo } = message as any;
       const payload = {
         messaging_product: 'whatsapp',
         to: cleanPhone,
-        ...message,
+        ...messageWithoutTo,
       };
 
       const response = await axios.post(

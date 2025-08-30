@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
         const statusDescriptions: { [key: string]: string } = {
           'VERIFIED': 'Dokumen Terverifikasi',
           'DOCUMENT_CHECK': 'Dokumen Perlu Diperbaiki',
-          'VERIFIED': 'Pembayaran Terverifikasi'
+          'PAYMENT_VERIFIED': 'Pembayaran Terverifikasi'
         };
         
         await emailService.sendStatusUpdate(updatedRegistration.email, {

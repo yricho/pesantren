@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has permission to send WhatsApp messages
-    if (!['SUPER_ADMIN', 'ADMIN', 'USTADZ'].includes(session.user.role)) {
+    if (!session.user?.role || !['SUPER_ADMIN', 'ADMIN', 'USTADZ'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

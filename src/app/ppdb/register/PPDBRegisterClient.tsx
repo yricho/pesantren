@@ -312,7 +312,7 @@ export default function PPDBRegisterClient() {
         };
 
         updateFormData('documents', [
-          ...formData.documents.filter(d => d.type !== documentType),
+          ...(formData as any).documents.filter((d: any) => d.type !== documentType),
           newDoc
         ]);
       } else {
@@ -1320,7 +1320,7 @@ export default function PPDBRegisterClient() {
                     
                     {uploadedDoc && (
                       <div className="text-xs text-gray-500 mb-2">
-                        {uploadedDoc.fileName} ({(uploadedDoc.fileSize / 1024).toFixed(1)} KB)
+                        {uploadedDoc.fileName} ({(uploadedDoc as any).fileSize ? ((uploadedDoc as any).fileSize / 1024).toFixed(1) : '0'} KB)
                       </div>
                     )}
                     

@@ -205,7 +205,7 @@ export async function importFromExcel(
         
         worksheet.eachRow((row, rowNumber) => {
           if (rowNumber === 1) return; // Skip header row
-          if (rowNumber === 2 && row.values?.every(cell => 
+          if (rowNumber === 2 && Array.isArray(row.values) && row.values.every((cell: any) => 
             typeof cell === 'string' && cell.includes('Contoh')
           )) return; // Skip example row
           

@@ -84,11 +84,11 @@ export async function POST(request: NextRequest) {
 
         for (const student of students) {
           // Determine amount based on grade or default
-          let amount = billType.defaultAmount || 0;
+          let amount = Number(billType.defaultAmount) || 0;
           if (student.grade && priceByGrade[student.grade]) {
-            amount = priceByGrade[student.grade];
+            amount = Number(priceByGrade[student.grade]);
           } else if (priceByGrade[student.institutionType]) {
-            amount = priceByGrade[student.institutionType];
+            amount = Number(priceByGrade[student.institutionType]);
           }
 
           if (amount <= 0) {
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
           let totalDiscount = 0;
 
           // Apply sibling discount if enabled
-          if (billType.allowSiblingDiscount && billType.siblingDiscountPercent > 0) {
+          if (billType.allowSiblingDiscount && Number(billType.siblingDiscountPercent) > 0) {
             // Find siblings (students with same parent phone numbers)
             if (student.fatherPhone || student.motherPhone) {
               const siblingWhere: any = {
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
 
               // Apply discount if there are siblings
               if (siblingCount > 0) {
-                const discount = (amount * billType.siblingDiscountPercent) / 100;
+                const discount = (amount * Number(billType.siblingDiscountPercent)) / 100;
                 discounts.push({
                   type: 'SIBLING_DISCOUNT',
                   description: `Sibling discount (${siblingCount} siblings)`,

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user has permission to view dashboard analytics
-    if (!['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
+    if (!session.user?.role || !['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
