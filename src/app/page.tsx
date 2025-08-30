@@ -27,10 +27,15 @@ import {
   HomeIcon,
   PhotoIcon,
   PlayCircleIcon,
+  BuildingStorefrontIcon,
+  TruckIcon,
+  CubeIcon,
 } from '@heroicons/react/24/outline';
 import {
   StarIcon,
   MoonIcon,
+  EyeIcon,
+  FlagIcon,
 } from '@heroicons/react/24/solid';
 
 export default function HomePage() {
@@ -119,24 +124,55 @@ export default function HomePage() {
     { label: 'Program Studi', value: 12, icon: BookOpenIcon },
   ];
 
-  const programs = [
+  const educationPrograms = [
     {
-      title: 'Tahfidz Al-Quran',
-      description: 'Program menghafal 30 juz dengan metode mutqin',
-      image: '/images/tahfidz.jpg',
-      students: 120,
+      icon: '👶',
+      title: 'PAUD & RA',
+      description: 'Pendidikan Anak Usia Dini dan Raudhatul Athfal dengan pendekatan Islami',
+      ageRange: '3-6 tahun',
+      color: 'from-pink-400 to-rose-500'
     },
     {
-      title: 'Kitab Kuning',
-      description: 'Kajian kitab klasik dengan sanad bersambung',
-      image: '/images/kitab.jpg',
-      students: 200,
+      icon: '📚',
+      title: 'MTQ setingkat SD',
+      description: 'Musabaqah Tilawatil Quran tingkat Sekolah Dasar',
+      ageRange: '7-12 tahun',
+      color: 'from-blue-400 to-indigo-500'
     },
     {
-      title: 'Bahasa Arab',
-      description: 'Pembelajaran bahasa Arab intensif',
-      image: '/images/arabic.jpg',
-      students: 150,
+      icon: '🏠',
+      title: 'Pondok Ikhwan Akhwat MSW setingkat SMP',
+      description: 'Pondok Pesantren untuk putra dan putri setingkat Sekolah Menengah Pertama',
+      ageRange: '13-15 tahun',
+      color: 'from-green-400 to-emerald-500'
+    },
+    {
+      icon: '🎓',
+      title: 'Pondok khusus Akhwat setingkat SMA',
+      description: 'Pondok Pesantren khusus putri setingkat Sekolah Menengah Atas',
+      ageRange: '16-18 tahun',
+      color: 'from-purple-400 to-violet-500'
+    },
+  ];
+
+  const businessUnits = [
+    {
+      icon: BuildingStorefrontIcon,
+      title: 'Koperasi Sekolah',
+      description: 'Unit usaha koperasi untuk kebutuhan sehari-hari warga pondok',
+      color: 'from-emerald-400 to-green-600'
+    },
+    {
+      icon: TruckIcon,
+      title: 'Pasar Barkas',
+      description: 'Pasar barang bekas layak pakai untuk mendukung ekonomi pondok',
+      color: 'from-orange-400 to-amber-600'
+    },
+    {
+      icon: CubeIcon,
+      title: 'Laundry Imam Syafi\'i',
+      description: 'Layanan laundry profesional untuk masyarakat sekitar',
+      color: 'from-cyan-400 to-blue-600'
     },
   ];
 
@@ -347,7 +383,7 @@ export default function HomePage() {
                 variants={fadeInUp}
                 className="text-5xl lg:text-7xl font-bold text-white mb-6"
               >
-                Pondok Pesantren
+                Yayasan
                 <span className="block text-yellow-300 mt-2">Imam Syafi'i</span>
                 <span className="block text-3xl lg:text-4xl font-normal text-green-100 mt-4">
                   Blitar, Jawa Timur
@@ -358,8 +394,7 @@ export default function HomePage() {
                 variants={fadeInUp}
                 className="text-xl text-green-50 mb-8 leading-relaxed"
               >
-                Memadukan tradisi kepesantrenan dengan teknologi modern untuk 
-                mencetak generasi Qurani yang berakhlak mulia dan berwawasan global.
+                Terwujudnya generasi Islam sesuai Al Qur'an dan As-Sunnah dengan manhaj Ahlussunnah Wal Jama'ah
               </motion.p>
               
               <motion.div
@@ -539,8 +574,73 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Programs Section */}
-      <section id="programs" className="py-20 bg-white">
+      {/* Vision & Mission Section */}
+      <section className="py-20 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23065f46' fill-opacity='0.3'%3E%3Cpath d='M40 40L0 0h80L40 40zm0 0L80 80H0L40 40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }} />
+        </div>
+        <div className="container mx-auto px-4 relative">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Vision */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl shadow-xl border border-green-100"
+            >
+              <div className="flex items-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mr-4">
+                  <EyeIcon className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900">VISI</h2>
+              </div>
+              <p className="text-lg text-gray-700 leading-relaxed italic font-medium">
+                "Terwujudnya generasi Islam sesuai Al Qur'an dan As-Sunnah dengan manhaj Ahlussunnah Wal Jama'ah"
+              </p>
+            </motion.div>
+
+            {/* Mission */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-3xl shadow-xl border border-blue-100"
+            >
+              <div className="flex items-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mr-4">
+                  <FlagIcon className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900">MISI</h2>
+              </div>
+              <ul className="space-y-4">
+                <li className="flex items-start">
+                  <CheckCircleIcon className="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700 leading-relaxed">
+                    Mengemban misi dakwah berdasarkan Al Qur'an As-Sunnah melalui kajian–kajian Islam ilmiyah
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircleIcon className="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700 leading-relaxed">
+                    Mengemban tugas pendidikan melalui lembaga pendidikan formal dan non-formal baik berupa madrasah maupun pondok pesantren dengan manhaj tashfiyah dan tarbiyah
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircleIcon className="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700 leading-relaxed">
+                    Mewujudkan kepedulian sosial terhadap sesama muslim terutama kepada fakir miskin, anak yatim dan anak terlantar
+                  </span>
+                </li>
+              </ul>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Education Programs Section */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -549,15 +649,62 @@ export default function HomePage() {
             className="text-center mb-12"
           >
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-              Program <span className="text-green-600">Unggulan</span>
+              Program <span className="text-green-600">Pendidikan</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Berbagai program pendidikan Islam yang dirancang untuk membentuk generasi Qurani
+              Yayasan Imam Syafi'i menyediakan berbagai jenjang pendidikan Islam terpadu
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {educationPrograms.map((program, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100"
+              >
+                <div className={`w-20 h-20 bg-gradient-to-br ${program.color} rounded-2xl flex items-center justify-center mb-6 mx-auto`}>
+                  <span className="text-4xl">{program.icon}</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">
+                  {program.title}
+                </h3>
+                <p className="text-gray-600 text-center mb-4">
+                  {program.description}
+                </p>
+                <div className="bg-gray-50 rounded-lg p-3 text-center">
+                  <span className="text-sm text-gray-500">Usia</span>
+                  <p className="font-semibold text-green-600">{program.ageRange}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Business Units Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+              Unit <span className="text-green-600">Usaha</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Berbagai unit usaha yang mendukung kemandirian ekonomi yayasan
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {programs.map((program, index) => (
+            {businessUnits.map((unit, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -565,34 +712,22 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
-                className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+                className="bg-gradient-to-br from-white to-gray-50 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200"
               >
-                <div className="h-48 bg-gradient-to-br from-green-400 to-emerald-600 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-black/20" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <BookOpenIcon className="w-24 h-24 text-white/30" />
-                  </div>
+                <div className={`p-8 bg-gradient-to-br ${unit.color}`}>
+                  <unit.icon className="w-16 h-16 text-white mb-4" />
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    {unit.title}
+                  </h3>
                 </div>
                 
                 <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                    {program.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    {program.description}
+                  <p className="text-gray-600 mb-4 leading-relaxed">
+                    {unit.description}
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-green-600">
-                      <UsersIcon className="w-5 h-5 mr-2" />
-                      <span className="font-medium">{program.students} Santri</span>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      Detail
-                    </motion.button>
+                  <div className="flex items-center text-green-600 font-semibold">
+                    <ArrowRightIcon className="w-4 h-4 mr-2" />
+                    <span>Selengkapnya</span>
                   </div>
                 </div>
               </motion.div>
@@ -686,20 +821,26 @@ export default function HomePage() {
               </p>
               
               <div className="flex flex-wrap gap-4 justify-center">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-white text-green-700 font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
-                >
-                  Daftar Sekarang
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-green-800/30 backdrop-blur-sm text-white font-bold rounded-xl border-2 border-white/30 hover:bg-green-800/50 transition-all duration-300"
-                >
-                  Hubungi Kami
-                </motion.button>
+                <Link href="/ppdb">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-8 py-4 bg-white text-green-700 font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2"
+                  >
+                    <AcademicCapIcon className="w-5 h-5" />
+                    Daftar PPDB
+                  </motion.button>
+                </Link>
+                <Link href="/donasi">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-8 py-4 bg-green-800/30 backdrop-blur-sm text-white font-bold rounded-xl border-2 border-white/30 hover:bg-green-800/50 transition-all duration-300 flex items-center gap-2"
+                  >
+                    <HeartIcon className="w-5 h-5" />
+                    Donasi
+                  </motion.button>
+                </Link>
               </div>
             </div>
           </motion.div>
