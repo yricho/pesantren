@@ -462,8 +462,17 @@ model Student {
   paymentHistory   PaymentHistory[]
   paymentReminders PaymentReminder[]
 
+  // OTA (Orang Tua Asuh) Relations
+  otaProgram OTAProgram?
+
+  // OTA Fields
+  isOrphan     Boolean @default(false)
+  monthlyNeeds Decimal? // Monthly financial needs amount
+  otaProfile   String? // Public profile text (anonymized)
+
   @@index([institutionType, status])
   @@index([enrollmentYear])
+  @@index([isOrphan])
   @@map("students")
 }
 
@@ -2380,4 +2389,153 @@ model BillingReport {
   @@index([generatedBy, createdAt])
   @@index([status])
   @@map("billing_reports")
+}
+
+// ==========================================
+// OTA (ORANG TUA ASUH) SYSTEM MODELS
+// ==========================================
+
+model OTAProgram {
+  id              String   @id @default(cuid())
+  studentId       String   @unique
+  monthlyTarget   Decimal // Monthly fundraising target for this orphan
+  currentMonth    String // Current month being funded (YYYY-MM format)
+  totalCollected  Decimal  @default(0) // Total amount collected all time
+  isActive        Boolean  @default(true)
+  
+  // Program details
+  programStart    DateTime @default(now()) // When this student joined OTA program
+  lastUpdate      DateTime @default(now()) // Last time donations were updated
+  
+  // Monthly tracking
+  monthlyProgress Decimal  @default(0) // Amount collected for current month
+  monthsCompleted Int      @default(0) // Number of months fully funded
+  
+  // Public display settings
+  displayOrder    Int      @default(0) // Order for public display
+  showProgress    Boolean  @default(true) // Show progress publicly
+  
+  // Admin notes
+  adminNotes      String? // Internal admin notes
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  student   Student      @relation(fields: [studentId], references: [id])
+  sponsors  OTASponsor[]
+  
+  @@index([isActive, displayOrder])
+  @@index([currentMonth])
+  @@index([monthlyProgress])
+  @@map("ota_programs")
+}
+
+model OTASponsor {
+  id         String   @id @default(cuid())
+  programId  String
+  
+  // Donor Information
+  donorName       String // Real name (admin sees this)
+  donorEmail      String?
+  donorPhone      String?
+  publicName      String  @default("Hamba Allah") // Public display name
+  
+  // Donation Details
+  amount          Decimal
+  month           String // Month this donation is for (YYYY-MM format)
+  isPaid          Boolean  @default(false)
+  
+  // Payment Information
+  paymentMethod   String? // TRANSFER, CASH, VA, EWALLET, QRIS
+  paymentProof    String? // URL to payment proof
+  paymentDate     DateTime?
+  verifiedBy      String? // Admin who verified payment
+  verifiedAt      DateTime?
+  
+  // External payment gateway (optional)
+  externalId      String? // Payment gateway transaction ID
+  paymentStatus   String   @default("PENDING") // PENDING, PAID, VERIFIED, FAILED
+  
+  // Donation Type
+  donationType    String   @default("REGULAR") // REGULAR, ANONYMOUS, CORPORATE, ZAKAT
+  isRecurring     Boolean  @default(false) // Is this a recurring monthly donation?
+  
+  // Privacy Settings
+  allowPublicDisplay Boolean @default(true) // Allow showing "Hamba Allah" publicly
+  allowContact       Boolean @default(false) // Allow admin to contact for future programs
+  
+  // Notes and Messages
+  donorMessage    String? // Message from donor to student/family
+  adminNotes      String? // Internal admin notes
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  program OTAProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  
+  @@index([programId, month])
+  @@index([donorEmail])
+  @@index([isPaid, verifiedAt])
+  @@index([paymentStatus])
+  @@index([month, isPaid])
+  @@map("ota_sponsors")
+}
+
+model OTAReport {
+  id                String   @id @default(cuid())
+  
+  // Report Period
+  month             String // YYYY-MM format
+  year              String // YYYY format
+  reportType        String // MONTHLY, YEARLY, QUARTERLY
+  
+  // Financial Summary
+  totalTarget       Decimal // Total monthly target for all orphans
+  totalCollected    Decimal // Total amount collected in this period
+  totalDistributed  Decimal // Total amount distributed to families
+  totalPending      Decimal @default(0) // Total pending verification
+  
+  // Student Statistics
+  totalOrphans      Int // Total number of orphans in program
+  fullyFundedCount  Int @default(0) // Number of orphans fully funded this month
+  partialFundedCount Int @default(0) // Number of orphans partially funded
+  unfundedCount     Int @default(0) // Number of orphans with no funding
+  
+  // Donor Statistics
+  totalDonors       Int @default(0) // Number of unique donors this period
+  newDonors         Int @default(0) // Number of new donors this period
+  recurringDonors   Int @default(0) // Number of recurring donors
+  
+  // Distribution Details (JSON)
+  details           String @default("{}") // Detailed breakdown by student
+  
+  // Carry-over from Previous Month
+  carryOverAmount   Decimal @default(0) // Amount carried over from previous month
+  surplusAmount     Decimal @default(0) // Surplus amount for next month
+  
+  // Report Status
+  status            String @default("DRAFT") // DRAFT, FINAL, DISTRIBUTED
+  generatedBy       String // Admin who generated the report
+  approvedBy        String? // Admin who approved the report
+  approvedAt        DateTime?
+  
+  // Distribution Status
+  distributedAt     DateTime? // When funds were distributed
+  distributedBy     String? // Admin who distributed funds
+  distributionNotes String? // Notes about distribution
+  
+  // File Attachments
+  reportFileUrl     String? // Generated report PDF URL
+  proofFileUrl      String? // Distribution proof/receipt URL
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([month, reportType])
+  @@index([year, month])
+  @@index([status, createdAt])
+  @@index([reportType])
+  @@map("ota_reports")
 }
