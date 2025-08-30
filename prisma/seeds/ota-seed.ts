@@ -182,7 +182,7 @@ async function seedOTAData() {
         data: {
           totalCollected: totalCollected._sum.amount || 0,
           monthlyProgress: monthlyCollected._sum.amount || 0,
-          monthsCompleted: (monthlyCollected._sum.amount || 0) >= parseFloat(program.monthlyTarget.toString()) ? 1 : 0,
+          monthsCompleted: parseFloat((monthlyCollected._sum.amount || 0).toString()) >= parseFloat(program.monthlyTarget.toString()) ? 1 : 0,
         }
       })
 

@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
         totalCollectedAllTime: overallStats._sum.totalCollected || 0,
         totalCollectedThisMonth: overallStats._sum.monthlyProgress || 0,
         averageCompletion: overallStats._count > 0 
-          ? Math.round(((overallStats._sum.monthlyProgress || 0) / (overallStats._sum.monthlyTarget || 1)) * 100)
+          ? Math.round((parseFloat((overallStats._sum.monthlyProgress || 0).toString()) / parseFloat((overallStats._sum.monthlyTarget || 1).toString())) * 100)
           : 0,
       }
     });
