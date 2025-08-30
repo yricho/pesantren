@@ -12,7 +12,9 @@ import {
   Settings,
   FileText,
   Calendar,
-  BarChart3
+  BarChart3,
+  BookOpen,
+  TrendingUp
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -34,9 +36,24 @@ const navigationItems: SidebarItem[] = [
     icon: Users,
   },
   {
+    name: 'Akademik',
+    href: '/parent-portal/academic',
+    icon: GraduationCap,
+  },
+  {
+    name: 'Progress Hafalan',
+    href: '/parent-portal/hafalan',
+    icon: BookOpen,
+  },
+  {
     name: 'Pembayaran',
     href: '/parent-portal/payments',
     icon: CreditCard,
+  },
+  {
+    name: 'Laporan & Analisis',
+    href: '/parent-portal/reports',
+    icon: TrendingUp,
   },
   {
     name: 'Pengumuman',

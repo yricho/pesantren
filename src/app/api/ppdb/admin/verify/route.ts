@@ -107,6 +107,32 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Send status update email
+    if (updatedRegistration.email) {
+      try {
+        const { getEmailService } = await import('@/lib/email-service');
+        const emailService = getEmailService();
+        
+        const statusDescriptions: { [key: string]: string } = {
+          'VERIFIED': 'Dokumen Terverifikasi',
+          'DOCUMENT_CHECK': 'Dokumen Perlu Diperbaiki',
+          'VERIFIED': 'Pembayaran Terverifikasi'
+        };
+        
+        await emailService.sendStatusUpdate(updatedRegistration.email, {
+          fullName: updatedRegistration.fullName,
+          registrationNo: updatedRegistration.registrationNo,
+          status: updateData.status || updatedRegistration.status,
+          statusDescription: statusDescriptions[updateData.status || updatedRegistration.status] || updateData.status,
+          message: action === 'REJECT' ? `Dokumen perlu diperbaiki. Alasan: ${reason}` : 
+                   action === 'VERIFY' ? 'Selamat! Dokumen Anda telah berhasil diverifikasi. Kami akan segera menghubungi Anda untuk jadwal tes.' :
+                   'Pembayaran Anda telah berhasil diverifikasi.'
+        });
+      } catch (emailError) {
+        console.error('Failed to send status update email:', emailError);
+      }
+    }
+
     // Log the action
     await logAction(
       session.user.id,

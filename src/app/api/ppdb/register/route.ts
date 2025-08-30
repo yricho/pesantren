@@ -32,9 +32,27 @@ export async function POST(request: NextRequest) {
         ...body,
         birthDate: new Date(body.birthDate),
         documents: JSON.stringify(body.documents || []),
-        status: 'DRAFT'
+        status: body.status || 'SUBMITTED'
       }
     });
+
+    // Send confirmation email if email is provided and status is SUBMITTED
+    if (body.email && registration.status === 'SUBMITTED') {
+      try {
+        const { getEmailService } = await import('@/lib/email-service');
+        const emailService = getEmailService();
+        
+        await emailService.sendRegistrationConfirmation(body.email, {
+          fullName: registration.fullName,
+          registrationNo: registration.registrationNo,
+          level: registration.level,
+          registrationFee: Number(registration.registrationFee)
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't fail the registration if email fails
+      }
+    }
     
     return NextResponse.json({
       success: true,

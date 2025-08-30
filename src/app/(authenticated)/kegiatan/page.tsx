@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/layout/header'
-import { Plus, Calendar, MapPin, Camera, Eye } from 'lucide-react'
+import { Plus, Calendar, MapPin, Camera, Eye, Edit } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { Activity } from '@/types'
 import { ActivityForm } from '@/components/kegiatan/activity-form'
@@ -16,6 +16,8 @@ export default function Kegiatan() {
   const [showForm, setShowForm] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
   const [filter, setFilter] = useState<'all' | 'planned' | 'ongoing' | 'completed'>('all')
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
+  const [showEditForm, setShowEditForm] = useState(false)
 
   useEffect(() => {
     // Simulate loading activities
@@ -251,15 +253,29 @@ export default function Kegiatan() {
                     )}
                   </div>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedActivity(activity)}
-                    className="w-full mt-4"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Lihat Detail
-                  </Button>
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditingActivity(activity)
+                        setShowEditForm(true)
+                      }}
+                      className="flex-1"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedActivity(activity)}
+                      className="flex-1"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Detail
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))
@@ -271,7 +287,10 @@ export default function Kegiatan() {
       {showForm && (
         <ActivityForm
           onClose={() => setShowForm(false)}
-          onSubmit={(data) => {
+          onSubmit={async (data) => {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            
             const newActivity: Activity = {
               id: Math.random().toString(),
               ...data,
@@ -282,6 +301,36 @@ export default function Kegiatan() {
             }
             setActivities([newActivity, ...activities])
             setShowForm(false)
+          }}
+        />
+      )}
+
+      {/* Edit Activity Form Modal */}
+      {showEditForm && editingActivity && (
+        <ActivityForm
+          activity={editingActivity}
+          onClose={() => {
+            setShowEditForm(false)
+            setEditingActivity(null)
+          }}
+          onSubmit={async (data) => {
+            const response = await fetch(`/api/activities/${editingActivity.id}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(data),
+            })
+
+            if (!response.ok) {
+              const errorData = await response.json()
+              throw new Error(errorData.error || 'Gagal memperbarui kegiatan')
+            }
+
+            const updatedActivity = await response.json()
+            setActivities(activities.map(a => a.id === editingActivity.id ? updatedActivity : a))
+            setShowEditForm(false)
+            setEditingActivity(null)
           }}
         />
       )}

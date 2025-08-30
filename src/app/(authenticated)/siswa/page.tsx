@@ -10,6 +10,9 @@ import {
   Calendar, Edit, Trash2, Eye, Download
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { StudentEditForm } from '@/components/siswa/student-edit-form'
+import BulkOperationsModal from '@/components/bulk-operations/bulk-operations-modal'
+import { ValidationRules } from '@/lib/bulk-operations'
 
 interface Student {
   id: string
@@ -41,10 +44,22 @@ export default function SiswaPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [showBulkModal, setShowBulkModal] = useState(false)
+  const [exportData, setExportData] = useState<any[]>([])
+  const [exportColumns, setExportColumns] = useState<any[]>([])
+  const [templateColumns, setTemplateColumns] = useState<any[]>([])
+  const [importValidationRules, setImportValidationRules] = useState<any[]>([])
 
   useEffect(() => {
     fetchStudents()
   }, [selectedType])
+
+  useEffect(() => {
+    // Load template and validation rules
+    fetchTemplateInfo()
+  }, [])
 
   const fetchStudents = async () => {
     try {
@@ -63,6 +78,78 @@ export default function SiswaPage() {
     }
   }
 
+  const fetchTemplateInfo = async () => {
+    try {
+      const response = await fetch('/api/import/students')
+      if (response.ok) {
+        const data = await response.json()
+        setTemplateColumns(data.templateColumns || [])
+        
+        // Convert to validation rules format
+        const rules = [
+          ValidationRules.required('nis'),
+          ValidationRules.required('fullName'),
+          ValidationRules.required('birthPlace'),
+          ValidationRules.date('birthDate', true),
+          ValidationRules.gender('gender'),
+          ValidationRules.required('address'),
+          ValidationRules.required('city'),
+          ValidationRules.email('email'),
+          ValidationRules.required('fatherName'),
+          ValidationRules.required('motherName'),
+          ValidationRules.institutionType('institutionType'),
+          ValidationRules.date('enrollmentDate', true),
+          ValidationRules.required('enrollmentYear')
+        ]
+        setImportValidationRules(rules)
+      }
+    } catch (error) {
+      console.error('Error fetching template info:', error)
+    }
+  }
+
+  const handleBulkExport = async () => {
+    try {
+      const params = new URLSearchParams()
+      if (selectedType !== 'all') params.set('institutionType', selectedType)
+      
+      const response = await fetch(`/api/export/students?${params}`)
+      if (response.ok) {
+        const data = await response.json()
+        setExportData(data.data || [])
+        setExportColumns(data.columns || [])
+        setShowBulkModal(true)
+      }
+    } catch (error) {
+      console.error('Error preparing export:', error)
+      alert('Gagal menyiapkan data export')
+    }
+  }
+
+  const handleImportComplete = async (importedData: any[]) => {
+    try {
+      const response = await fetch('/api/import/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: importedData })
+      })
+
+      const result = await response.json()
+      
+      if (result.success && result.validRows > 0) {
+        alert(`Import berhasil! ${result.validRows} siswa telah ditambahkan.`)
+        fetchStudents() // Refresh data
+      } else if (result.errors?.length > 0) {
+        alert(`Import gagal. Error: ${result.errors.slice(0, 3).join(', ')}${result.errors.length > 3 ? '...' : ''}`)
+      }
+    } catch (error) {
+      console.error('Error importing students:', error)
+      alert('Gagal mengimpor data siswa')
+    }
+  }
+
   const filteredStudents = students.filter(student => {
     const matchesSearch = 
       student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,36 +165,6 @@ export default function SiswaPage() {
     total: students.length
   }
 
-  const exportToCSV = () => {
-    const headers = ['NIS', 'NISN', 'Nama Lengkap', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Alamat', 'Kota', 'Nama Ayah', 'Nama Ibu', 'Institusi', 'Kelas', 'Status']
-    const csvData = filteredStudents.map(s => [
-      s.nis,
-      s.nisn || '',
-      s.fullName,
-      s.gender === 'MALE' ? 'Laki-laki' : 'Perempuan',
-      s.birthPlace,
-      formatDate(s.birthDate),
-      s.address,
-      s.city,
-      s.fatherName,
-      s.motherName,
-      s.institutionType,
-      s.grade || '',
-      s.status
-    ])
-    
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `data-siswa-${selectedType}-${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-  }
 
   if (loading) {
     return (
@@ -207,12 +264,12 @@ export default function SiswaPage() {
 
             <div className="flex gap-2">
               <Button
-                onClick={exportToCSV}
+                onClick={handleBulkExport}
                 variant="outline"
                 size="sm"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Export CSV
+                Export / Import
               </Button>
               <Button
                 onClick={() => setShowForm(true)}
@@ -344,6 +401,10 @@ export default function SiswaPage() {
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8"
+                            onClick={() => {
+                              setEditingStudent(student)
+                              setShowEditForm(true)
+                            }}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -499,6 +560,49 @@ export default function SiswaPage() {
             </div>
           </div>
         )}
+
+        {/* Edit Student Form Sidebar */}
+        {editingStudent && (
+          <StudentEditForm
+            student={editingStudent}
+            isOpen={showEditForm}
+            onClose={() => {
+              setShowEditForm(false)
+              setEditingStudent(null)
+            }}
+            onSubmit={async (updatedData) => {
+              const response = await fetch(`/api/students/${editingStudent.id}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+              })
+
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Gagal memperbarui data siswa')
+              }
+
+              const updatedStudent = await response.json()
+              setStudents(students.map(s => s.id === editingStudent.id ? updatedStudent : s))
+              setShowEditForm(false)
+              setEditingStudent(null)
+            }}
+          />
+        )}
+
+        {/* Bulk Operations Modal */}
+        <BulkOperationsModal
+          isOpen={showBulkModal}
+          onClose={() => setShowBulkModal(false)}
+          title="Data Siswa"
+          exportData={exportData}
+          exportColumns={exportColumns}
+          importValidationRules={importValidationRules}
+          templateColumns={templateColumns}
+          onImportComplete={handleImportComplete}
+        />
       </main>
     </div>
   )

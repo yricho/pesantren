@@ -456,6 +456,11 @@ model Student {
   setoranSchedules   SetoranSchedule[]
   hafalanAchievements HafalanAchievement[]
   hafalanSessions    HafalanSession[]
+
+  // Billing Relations
+  bills              Bill[]
+  paymentHistory     PaymentHistory[]
+  paymentReminders   PaymentReminder[]
   
   @@index([institutionType, status])
   @@index([enrollmentYear])
@@ -2077,4 +2082,301 @@ model HafalanSession {
   @@index([teacherId, sessionDate])
   @@index([type, sessionDate])
   @@map("hafalan_sessions")
+}
+
+// ==========================================
+// SPP & BILLING SYSTEM MODELS
+// ==========================================
+
+model BillType {
+  id          String   @id @default(cuid())
+  name        String   @unique // "SPP", "Daftar Ulang", "Seragam", "Buku", "Kegiatan", etc.
+  category    String   // "TUITION", "REGISTRATION", "MATERIAL", "ACTIVITY", "OTHER"
+  description String?
+  
+  // Default settings
+  defaultAmount Decimal? // Default amount for this bill type
+  isRecurring Boolean  @default(false) // Is this a recurring bill (like monthly SPP)?
+  frequency   String?  // "MONTHLY", "QUARTERLY", "ANNUALLY", "ONE_TIME"
+  
+  // Grade-specific pricing
+  priceByGrade String  @default("{}") // JSON: {"TK": 200000, "SD": 300000, "PONDOK": 500000}
+  
+  // Due date settings
+  dueDayOfMonth Int?   // Day of month when bill is due (e.g., 10 for 10th of each month)
+  gracePeriodDays Int  @default(7) // Grace period before late penalty
+  
+  // Penalty settings
+  latePenaltyType String @default("NONE") // "NONE", "FIXED", "PERCENTAGE"
+  latePenaltyAmount Decimal @default(0) // Fixed amount or percentage
+  maxPenalty    Decimal? // Maximum penalty amount
+  
+  // Discount settings
+  allowSiblingDiscount Boolean @default(false)
+  siblingDiscountPercent Decimal @default(0) // Percentage discount for siblings
+  allowScholarshipDiscount Boolean @default(false)
+  
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  bills       Bill[]
+  
+  @@index([category, isActive])
+  @@index([isRecurring])
+  @@map("bill_types")
+}
+
+model Bill {
+  id          String   @id @default(cuid())
+  billNo      String   @unique // Format: BILL-2024-12-001
+  
+  // Basic bill information
+  studentId   String
+  billTypeId  String
+  amount      Decimal
+  originalAmount Decimal // Original amount before discounts/penalties
+  
+  // Billing period
+  period      String   // "2024-12", "2024-Q1", "2024", etc.
+  dueDate     DateTime
+  
+  // Status and tracking
+  status      String   @default("OUTSTANDING") // "OUTSTANDING", "PARTIAL", "PAID", "OVERDUE", "CANCELLED", "WAIVED"
+  paidAmount  Decimal  @default(0)
+  remainingAmount Decimal // Calculated: amount - paidAmount
+  
+  // Discounts and penalties
+  discounts   String   @default("[]") // JSON array of discounts applied
+  totalDiscount Decimal @default(0)
+  penalties   String   @default("[]") // JSON array of penalties applied
+  totalPenalty Decimal @default(0)
+  
+  // Late payment tracking
+  isOverdue   Boolean  @default(false)
+  daysPastDue Int      @default(0)
+  firstOverdueDate DateTime?
+  
+  // Payment reminders
+  lastReminderSent DateTime?
+  reminderCount Int    @default(0)
+  
+  // Notes and metadata
+  notes       String?
+  metadata    String   @default("{}") // JSON for additional data
+  
+  // Generation info
+  generatedAt DateTime @default(now())
+  generatedBy String?  // User who generated this bill (for manual bills)
+  
+  // Cancellation/waiver info
+  cancelledAt DateTime?
+  cancelledBy String?
+  cancelReason String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  student     Student @relation(fields: [studentId], references: [id])
+  billType    BillType @relation(fields: [billTypeId], references: [id])
+  payments    BillPayment[]
+  paymentHistory PaymentHistory[]
+  
+  @@index([studentId, status])
+  @@index([billTypeId, period])
+  @@index([status, dueDate])
+  @@index([isOverdue, dueDate])
+  @@index([period, billTypeId])
+  @@map("bills")
+}
+
+model BillPayment {
+  id          String   @id @default(cuid())
+  paymentNo   String   @unique // Format: BP-2024-12-001
+  
+  // Payment details
+  billId      String
+  amount      Decimal
+  paymentDate DateTime @default(now())
+  
+  // Payment method
+  method      String   // "CASH", "BANK_TRANSFER", "QRIS", "VIRTUAL_ACCOUNT", "CARD", "OTHER"
+  channel     String?  // "BCA", "MANDIRI", "GOPAY", "OVO", "DANA", etc.
+  reference   String?  // Bank reference number, transaction ID, etc.
+  
+  // Payment proof and verification
+  proofUrl    String?  // URL to payment proof image
+  verificationStatus String @default("PENDING") // "PENDING", "VERIFIED", "REJECTED"
+  verifiedBy  String?  // User who verified the payment
+  verifiedAt  DateTime?
+  rejectionReason String?
+  
+  // External payment gateway data
+  externalId  String?  // Payment gateway transaction ID
+  gatewayResponse String @default("{}") // JSON response from payment gateway
+  
+  // Reconciliation
+  reconciledAt DateTime?
+  reconciledBy String?
+  
+  // Metadata
+  notes       String?
+  ipAddress   String?  // For online payments
+  userAgent   String?  // For online payments
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  bill        Bill @relation(fields: [billId], references: [id])
+  history     PaymentHistory[]
+  
+  @@index([billId, paymentDate])
+  @@index([method, verificationStatus])
+  @@index([paymentDate])
+  @@index([verificationStatus])
+  @@map("bill_payments")
+}
+
+model PaymentHistory {
+  id          String   @id @default(cuid())
+  
+  // Reference information
+  billId      String
+  paymentId   String?  // Link to BillPayment if applicable
+  studentId   String   // For easy querying
+  
+  // Event information
+  action      String   // "BILL_GENERATED", "PAYMENT_MADE", "PAYMENT_VERIFIED", "LATE_PENALTY_ADDED", "DISCOUNT_APPLIED", etc.
+  description String   // Human readable description
+  
+  // Amounts (for tracking changes)
+  previousAmount Decimal?
+  newAmount   Decimal?
+  changeAmount Decimal? // The change made (positive or negative)
+  
+  // Context
+  performedBy String?  // User who performed the action
+  metadata    String   @default("{}") // JSON for additional context
+  
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  bill        Bill @relation(fields: [billId], references: [id])
+  payment     BillPayment? @relation(fields: [paymentId], references: [id])
+  student     Student @relation(fields: [studentId], references: [id])
+  
+  @@index([billId, createdAt])
+  @@index([studentId, createdAt])
+  @@index([action, createdAt])
+  @@map("payment_history")
+}
+
+model BillingSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  category    String   @default("GENERAL") // "GENERAL", "PENALTIES", "DISCOUNTS", "NOTIFICATIONS", "AUTOMATION"
+  description String?
+  dataType    String   @default("STRING") // "STRING", "NUMBER", "BOOLEAN", "JSON"
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category])
+  @@map("billing_settings")
+}
+
+model PaymentReminder {
+  id          String   @id @default(cuid())
+  billId      String
+  studentId   String   // For easy querying
+  
+  // Reminder details
+  type        String   // "EMAIL", "SMS", "WHATSAPP", "IN_APP", "PHONE_CALL"
+  status      String   @default("PENDING") // "PENDING", "SENT", "DELIVERED", "FAILED"
+  
+  // Content
+  subject     String?
+  message     String
+  
+  // Scheduling
+  scheduledAt DateTime
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  
+  // Response tracking
+  readAt      DateTime?
+  respondedAt DateTime?
+  response    String?
+  
+  // Contact information used
+  recipientEmail String?
+  recipientPhone String?
+  
+  // Delivery details
+  deliveryAttempts Int @default(0)
+  maxAttempts   Int    @default(3)
+  lastAttemptAt DateTime?
+  failureReason String?
+  
+  // Metadata
+  templateUsed String? // Template ID if using templates
+  metadata    String   @default("{}")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  bill        Bill @relation(fields: [billId], references: [id])
+  student     Student @relation(fields: [studentId], references: [id])
+  
+  @@index([billId, scheduledAt])
+  @@index([studentId, type])
+  @@index([status, scheduledAt])
+  @@index([type, status])
+  @@map("payment_reminders")
+}
+
+model BillingReport {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // "MONTHLY_COLLECTION", "OUTSTANDING_BILLS", "PAYMENT_ANALYSIS", "GRADE_WISE_COLLECTION", etc.
+  
+  // Report parameters
+  parameters  String   @default("{}") // JSON with report filters and parameters
+  
+  // Date range
+  startDate   DateTime
+  endDate     DateTime
+  
+  // Generated data
+  data        String?  // JSON with report data
+  summary     String   @default("{}") // JSON with summary statistics
+  
+  // File outputs
+  pdfUrl      String?  // Generated PDF URL
+  excelUrl    String?  // Generated Excel URL
+  
+  // Generation info
+  status      String   @default("GENERATING") // "GENERATING", "COMPLETED", "FAILED"
+  progress    Int      @default(0) // Progress percentage
+  
+  generatedBy String   // User who requested the report
+  generatedAt DateTime @default(now())
+  completedAt DateTime?
+  
+  // Error handling
+  errorMessage String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([type, startDate])
+  @@index([generatedBy, createdAt])
+  @@index([status])
+  @@map("billing_reports")
 }

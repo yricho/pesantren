@@ -8,9 +8,11 @@ import {
   Plus, Search, Filter, Users, GraduationCap, 
   Briefcase, Building, Phone, Mail, MapPin,
   Calendar, Facebook, Instagram, Linkedin,
-  MessageSquare, Download, CheckCircle
+  MessageSquare, Download, CheckCircle, Edit
 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { AlumniEditForm } from '@/components/alumni/alumni-edit-form'
+import BulkOperationsModal from '@/components/bulk-operations/bulk-operations-modal'
 
 interface Alumni {
   id: string
@@ -58,6 +60,11 @@ export default function AlumniPage() {
   const [selectedAlumni, setSelectedAlumni] = useState<Alumni | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null)
+  const [editingAlumni, setEditingAlumni] = useState<Alumni | null>(null)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [showBulkModal, setShowBulkModal] = useState(false)
+  const [exportData, setExportData] = useState<any[]>([])
+  const [exportColumns, setExportColumns] = useState<any[]>([])
 
   useEffect(() => {
     fetchAlumni()
@@ -121,6 +128,25 @@ export default function AlumniPage() {
         setCopiedPhone(alum.id)
         setTimeout(() => setCopiedPhone(null), 2000)
       })
+    }
+  }
+
+  const handleBulkExport = async () => {
+    try {
+      const params = new URLSearchParams()
+      if (selectedType !== 'all') params.set('institutionType', selectedType)
+      if (selectedYear !== 'all') params.set('graduationYear', selectedYear)
+      
+      const response = await fetch(`/api/export/alumni?${params}`)
+      if (response.ok) {
+        const data = await response.json()
+        setExportData(data.data || [])
+        setExportColumns(data.columns || [])
+        setShowBulkModal(true)
+      }
+    } catch (error) {
+      console.error('Error preparing export:', error)
+      alert('Gagal menyiapkan data export')
     }
   }
 
@@ -273,12 +299,12 @@ export default function AlumniPage() {
                 Salin Kontak
               </Button>
               <Button
-                onClick={exportToCSV}
+                onClick={handleBulkExport}
                 variant="outline"
                 size="sm"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Export CSV
+                Export Data
               </Button>
               <Button
                 onClick={() => setShowForm(true)}
@@ -415,7 +441,7 @@ export default function AlumniPage() {
                     )}
                   </div>
 
-                  {/* Availability Badge */}
+                  {/* Availability Badge and Actions */}
                   <div className="flex items-center justify-between">
                     <span className={`px-3 py-1 text-xs font-medium rounded-full ${
                       alum.availableForEvents ? 
@@ -424,13 +450,25 @@ export default function AlumniPage() {
                     }`}>
                       {alum.availableForEvents ? '✓ Bisa Diundang' : 'Tidak Bisa Diundang'}
                     </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setSelectedAlumni(alum)}
-                    >
-                      Detail →
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setEditingAlumni(alum)
+                          setShowEditForm(true)
+                        }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setSelectedAlumni(alum)}
+                      >
+                        Detail →
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -568,6 +606,46 @@ export default function AlumniPage() {
             </div>
           </div>
         )}
+
+        {/* Edit Alumni Form Sidebar */}
+        {editingAlumni && (
+          <AlumniEditForm
+            alumni={editingAlumni}
+            isOpen={showEditForm}
+            onClose={() => {
+              setShowEditForm(false)
+              setEditingAlumni(null)
+            }}
+            onSubmit={async (updatedData) => {
+              const response = await fetch(`/api/alumni/${editingAlumni.id}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+              })
+
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Gagal memperbarui data alumni')
+              }
+
+              const updatedAlumni = await response.json()
+              setAlumni(alumni.map(a => a.id === editingAlumni.id ? updatedAlumni : a))
+              setShowEditForm(false)
+              setEditingAlumni(null)
+            }}
+          />
+        )}
+
+        {/* Bulk Operations Modal */}
+        <BulkOperationsModal
+          isOpen={showBulkModal}
+          onClose={() => setShowBulkModal(false)}
+          title="Data Alumni"
+          exportData={exportData}
+          exportColumns={exportColumns}
+        />
       </main>
     </div>
   )

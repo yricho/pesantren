@@ -148,6 +148,7 @@ export default function PPDBRegisterClient() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [registrationId, setRegistrationId] = useState('');
+  const [uploadingDoc, setUploadingDoc] = useState('');
 
   useEffect(() => {
     const level = searchParams.get('level');
@@ -176,12 +177,11 @@ export default function PPDBRegisterClient() {
   }, [formData]);
 
   const steps = [
-    { number: 1, title: 'Data Pribadi', icon: User },
-    { number: 2, title: 'Data Orang Tua', icon: Users },
-    { number: 3, title: 'Informasi Pendidikan', icon: School },
-    { number: 4, title: 'Kontak & Kesehatan', icon: Heart },
-    { number: 5, title: 'Upload Dokumen', icon: FileText },
-    { number: 6, title: 'Konfirmasi', icon: CheckCircle },
+    { number: 1, title: 'Data Calon Santri/Siswa', icon: User, subtitle: 'Informasi pribadi dan alamat' },
+    { number: 2, title: 'Data Orang Tua/Wali', icon: Users, subtitle: 'Informasi ayah, ibu, dan wali' },
+    { number: 3, title: 'Data Pendidikan Sebelumnya', icon: School, subtitle: 'Riwayat dan pilihan program' },
+    { number: 4, title: 'Upload Dokumen', icon: FileText, subtitle: 'Berkas pendukung pendaftaran' },
+    { number: 5, title: 'Pilihan Program & Konfirmasi', icon: CheckCircle, subtitle: 'Review dan konfirmasi data' },
   ];
 
   const validateStep = (step: number): boolean => {
@@ -197,6 +197,7 @@ export default function PPDBRegisterClient() {
         if (!formData.village) newErrors.village = 'Kelurahan wajib diisi';
         if (!formData.district) newErrors.district = 'Kecamatan wajib diisi';
         if (!formData.city) newErrors.city = 'Kota wajib diisi';
+        if (!formData.whatsapp) newErrors.whatsapp = 'Nomor WhatsApp wajib diisi';
         break;
       case 2:
         if (!formData.fatherName) newErrors.fatherName = 'Nama ayah wajib diisi';
@@ -207,9 +208,6 @@ export default function PPDBRegisterClient() {
         if (formData.level === 'PONDOK' && !formData.boardingType) {
           newErrors.boardingType = 'Tipe asrama wajib dipilih';
         }
-        break;
-      case 4:
-        if (!formData.whatsapp) newErrors.whatsapp = 'Nomor WhatsApp wajib diisi';
         break;
     }
     
@@ -262,6 +260,88 @@ export default function PPDBRegisterClient() {
     // Clear error for this field
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleDocumentUpload = async (file: File, documentType: string) => {
+    if (!registrationId) {
+      // If no registration ID yet, create a draft registration
+      try {
+        const response = await fetch('/api/ppdb/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...formData, status: 'DRAFT' }),
+        });
+        const result = await response.json();
+        if (result.success) {
+          setRegistrationId(result.data.id);
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        alert('Gagal membuat draft pendaftaran. Silakan coba lagi.');
+        return;
+      }
+    }
+
+    setUploadingDoc(documentType);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('documentType', documentType);
+      formData.append('registrationId', registrationId);
+
+      const response = await fetch('/api/ppdb/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update form data with new document
+        const newDoc = {
+          type: documentType,
+          fileName: file.name,
+          url: result.data.url,
+          uploadedAt: result.data.uploadedAt,
+          fileSize: result.data.size,
+          fileType: result.data.type,
+          status: 'uploaded'
+        };
+
+        updateFormData('documents', [
+          ...formData.documents.filter(d => d.type !== documentType),
+          newDoc
+        ]);
+      } else {
+        alert(result.error || 'Gagal mengupload file');
+      }
+    } catch (error) {
+      alert('Gagal mengupload file. Silakan coba lagi.');
+    } finally {
+      setUploadingDoc('');
+    }
+  };
+
+  const handleDocumentDelete = async (documentType: string) => {
+    if (!registrationId) return;
+
+    try {
+      const response = await fetch(`/api/ppdb/upload?registrationId=${registrationId}&documentType=${documentType}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        updateFormData('documents', formData.documents.filter(d => d.type !== documentType));
+      } else {
+        alert(result.error || 'Gagal menghapus file');
+      }
+    } catch (error) {
+      alert('Gagal menghapus file. Silakan coba lagi.');
     }
   };
 
@@ -507,6 +587,127 @@ export default function PPDBRegisterClient() {
                     <p className="text-red-500 text-sm mt-1">{errors.city}</p>
                   )}
                 </div>
+              </div>
+            </div>
+
+            <h4 className="text-lg font-semibold mt-8 mb-4">Informasi Kontak</h4>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nomor HP
+                </label>
+                <input
+                  type="text"
+                  value={formData.phoneNumber}
+                  onChange={(e) => updateFormData('phoneNumber', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  placeholder="08xx-xxxx-xxxx"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nomor WhatsApp *
+                </label>
+                <input
+                  type="text"
+                  value={formData.whatsapp}
+                  onChange={(e) => updateFormData('whatsapp', e.target.value)}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 ${
+                    errors.whatsapp ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="08xx-xxxx-xxxx"
+                />
+                {errors.whatsapp && (
+                  <p className="text-red-500 text-sm mt-1">{errors.whatsapp}</p>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => updateFormData('email', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  placeholder="email@example.com"
+                />
+              </div>
+            </div>
+
+            <h4 className="text-lg font-semibold mt-8 mb-4">Informasi Kesehatan</h4>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Golongan Darah
+                </label>
+                <select
+                  value={formData.bloodType}
+                  onChange={(e) => updateFormData('bloodType', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Pilih golongan darah</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="AB">AB</option>
+                  <option value="O">O</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tinggi Badan (cm)
+                </label>
+                <input
+                  type="number"
+                  value={formData.height}
+                  onChange={(e) => updateFormData('height', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  placeholder="150"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Berat Badan (kg)
+                </label>
+                <input
+                  type="number"
+                  value={formData.weight}
+                  onChange={(e) => updateFormData('weight', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  placeholder="40"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kebutuhan Khusus
+                </label>
+                <input
+                  type="text"
+                  value={formData.specialNeeds}
+                  onChange={(e) => updateFormData('specialNeeds', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  placeholder="Kosongkan jika tidak ada"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Riwayat Penyakit
+                </label>
+                <textarea
+                  value={formData.medicalHistory}
+                  onChange={(e) => updateFormData('medicalHistory', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  rows={3}
+                  placeholder="Tuliskan riwayat penyakit yang perlu diketahui (jika ada)"
+                />
               </div>
             </div>
           </div>
@@ -925,7 +1126,7 @@ export default function PPDBRegisterClient() {
       case 4:
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Kontak & Informasi Kesehatan</h3>
+            <h3 className="text-xl font-semibold mb-4">Upload Dokumen Pendaftaran</h3>
             
             {/* Contact Information */}
             <div className="bg-blue-50 p-6 rounded-lg">
@@ -1057,7 +1258,7 @@ export default function PPDBRegisterClient() {
       case 5:
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Upload Dokumen</h3>
+            <h3 className="text-xl font-semibold mb-4">Pilihan Program & Konfirmasi Data</h3>
             
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <div className="flex items-start gap-3">
@@ -1079,68 +1280,101 @@ export default function PPDBRegisterClient() {
                 { type: 'akta', label: 'Akta Kelahiran', required: true },
                 { type: 'kk', label: 'Kartu Keluarga', required: true },
                 { type: 'foto', label: 'Pas Foto 3x4', required: true },
-                { type: 'ijazah', label: 'Ijazah/Raport Terakhir', required: false },
+                { type: 'ijazah', label: 'Ijazah/Raport Terakhir', required: formData.level !== 'TK' },
+                { type: 'sehat', label: 'Surat Keterangan Sehat', required: true },
                 { type: 'kip', label: 'Kartu Indonesia Pintar (jika ada)', required: false },
-              ].map((doc) => (
-                <div key={doc.type} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-700">
-                      {doc.label} {doc.required && '*'}
-                    </label>
-                    {formData.documents.find(d => d.type === doc.type) ? (
-                      <span className="text-green-600 text-sm flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4" />
-                        Uploaded
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 text-sm">Not uploaded</span>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <label className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            // In real app, upload to server/cloud storage
-                            const newDoc = {
-                              type: doc.type,
-                              fileName: file.name,
-                              url: URL.createObjectURL(file),
-                              status: 'pending'
-                            };
-                            updateFormData('documents', [
-                              ...formData.documents.filter(d => d.type !== doc.type),
-                              newDoc
-                            ]);
-                          }
-                        }}
-                        className="hidden"
-                      />
-                      <div className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer text-center">
-                        <Upload className="w-5 h-5 inline mr-2" />
-                        Upload File
-                      </div>
-                    </label>
+              ].map((doc) => {
+                const uploadedDoc = formData.documents.find(d => d.type === doc.type);
+                const isUploading = uploadingDoc === doc.type;
+                
+                return (
+                  <div key={doc.type} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        {doc.label} {doc.required && '*'}
+                      </label>
+                      {uploadedDoc ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-600 text-sm flex items-center gap-1">
+                            <CheckCircle className="w-4 h-4" />
+                            Uploaded
+                          </span>
+                          <a 
+                            href={uploadedDoc.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-700 text-xs"
+                          >
+                            Preview
+                          </a>
+                        </div>
+                      ) : isUploading ? (
+                        <span className="text-blue-600 text-sm flex items-center gap-1">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Uploading...
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-sm">Not uploaded</span>
+                      )}
+                    </div>
                     
-                    {formData.documents.find(d => d.type === doc.type) && (
-                      <button
-                        onClick={() => {
-                          updateFormData('documents', 
-                            formData.documents.filter(d => d.type !== doc.type)
-                          );
-                        }}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
+                    {uploadedDoc && (
+                      <div className="text-xs text-gray-500 mb-2">
+                        {uploadedDoc.fileName} ({(uploadedDoc.fileSize / 1024).toFixed(1)} KB)
+                      </div>
                     )}
+                    
+                    <div className="flex items-center gap-4">
+                      <label className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleDocumentUpload(file, doc.type);
+                            }
+                          }}
+                          disabled={isUploading}
+                          className="hidden"
+                        />
+                        <div className={`px-4 py-2 text-white rounded-lg text-center transition-colors ${
+                          isUploading 
+                            ? 'bg-gray-400 cursor-not-allowed' 
+                            : 'bg-green-600 hover:bg-green-700 cursor-pointer'
+                        }`}>
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="w-5 h-5 inline mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : uploadedDoc ? (
+                            <>
+                              <Upload className="w-5 h-5 inline mr-2" />
+                              Replace File
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-5 h-5 inline mr-2" />
+                              Upload File
+                            </>
+                          )}
+                        </div>
+                      </label>
+                      
+                      {uploadedDoc && !isUploading && (
+                        <button
+                          onClick={() => handleDocumentDelete(doc.type)}
+                          className="text-red-600 hover:text-red-700 p-2"
+                          title="Hapus dokumen"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         );
@@ -1318,9 +1552,14 @@ export default function PPDBRegisterClient() {
                       />
                     )}
                   </div>
-                  <p className="text-xs text-gray-600 mt-2 text-center">
-                    {step.title}
-                  </p>
+                  <div className="text-center mt-2">
+                    <p className="text-xs font-medium text-gray-800">
+                      {step.title}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {step.subtitle}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>

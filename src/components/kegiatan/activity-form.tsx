@@ -4,9 +4,19 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { X, Upload, Trash2 } from 'lucide-react'
+import { X, Upload, Trash2, Save, Loader2 } from 'lucide-react'
 
 interface ActivityFormProps {
+  activity?: {
+    id: string
+    title: string
+    description: string
+    type: string
+    date: Date
+    location?: string
+    status: string
+    photos?: string[]
+  }
   onClose: () => void
   onSubmit: (data: {
     title: string
@@ -16,37 +26,48 @@ interface ActivityFormProps {
     location?: string
     status: string
     photos?: string[]
-  }) => void
+  }) => Promise<void>
 }
 
-export function ActivityForm({ onClose, onSubmit }: ActivityFormProps) {
+export function ActivityForm({ activity, onClose, onSubmit }: ActivityFormProps) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    type: 'kajian',
-    date: new Date().toISOString().split('T')[0],
-    location: '',
-    status: 'planned'
+    title: activity?.title || '',
+    description: activity?.description || '',
+    type: activity?.type || 'kajian',
+    date: activity ? new Date(activity.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    location: activity?.location || '',
+    status: activity?.status || 'planned'
   })
-  const [photos, setPhotos] = useState<string[]>([])
+  const [photos, setPhotos] = useState<string[]>(activity?.photos || [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!formData.title || !formData.description) {
-      alert('Mohon lengkapi semua field yang wajib')
+      setError('Mohon lengkapi semua field yang wajib')
       return
     }
 
-    onSubmit({
-      title: formData.title,
-      description: formData.description,
-      type: formData.type,
-      date: new Date(formData.date),
-      location: formData.location || undefined,
-      status: formData.status,
-      photos
-    })
+    setLoading(true)
+    setError(null)
+
+    try {
+      await onSubmit({
+        title: formData.title,
+        description: formData.description,
+        type: formData.type,
+        date: new Date(formData.date),
+        location: formData.location || undefined,
+        status: formData.status,
+        photos
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat menyimpan data')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,12 +104,19 @@ export function ActivityForm({ onClose, onSubmit }: ActivityFormProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
       <Card className="w-full max-w-2xl my-8">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Tambah Kegiatan</CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <CardTitle>{activity ? 'Edit Kegiatan' : 'Tambah Kegiatan'}</CardTitle>
+          <Button variant="ghost" size="icon" onClick={onClose} disabled={loading}>
             <X className="w-4 h-4" />
           </Button>
         </CardHeader>
         <CardContent>
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -226,11 +254,21 @@ export function ActivityForm({ onClose, onSubmit }: ActivityFormProps) {
             </div>
 
             <div className="flex gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={loading}>
                 Batal
               </Button>
-              <Button type="submit" className="flex-1">
-                Simpan
+              <Button type="submit" className="flex-1" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {activity ? 'Menyimpan...' : 'Menyimpan...'}
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    {activity ? 'Simpan Perubahan' : 'Simpan'}
+                  </>
+                )}
               </Button>
             </div>
           </form>
