@@ -291,7 +291,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error generating report card:', error);
     
-    if (error.code === 'P2002') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Report card already exists for this student and semester' },
         { status: 409 }
@@ -388,7 +388,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating report card:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Report card not found' },
         { status: 404 }

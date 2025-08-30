@@ -140,8 +140,8 @@ export async function GET(request: NextRequest) {
 
     // Sort by progress (descending)
     studentsWithProgress.sort((a, b) => {
-      const progressA = a.progress?.overallProgress || 0;
-      const progressB = b.progress?.overallProgress || 0;
+      const progressA = Number(a.progress?.overallProgress) || 0;
+      const progressB = Number(b.progress?.overallProgress) || 0;
       return progressB - progressA;
     });
 
@@ -151,10 +151,10 @@ export async function GET(request: NextRequest) {
     const statistics = {
       totalStudents: studentsWithProgress.length,
       activeStudents: studentsWithProgress.filter(s => s.status === 'AKTIF' || s.status === 'AKTIF_HARI_INI').length,
-      averageProgress: studentsWithProgress.reduce((sum, s) => sum + (s.progress?.overallProgress || 0), 0) / studentsWithProgress.length,
-      averageJuz30Progress: studentsWithProgress.reduce((sum, s) => sum + (s.progress?.juz30Progress || 0), 0) / studentsWithProgress.length,
-      totalCompletedSurahs: studentsWithProgress.reduce((sum, s) => sum + (s.progress?.totalSurah || 0), 0),
-      totalAyatsMemorized: studentsWithProgress.reduce((sum, s) => sum + (s.progress?.totalAyat || 0), 0),
+      averageProgress: studentsWithProgress.reduce((sum, s) => sum + Number(s.progress?.overallProgress || 0), 0) / studentsWithProgress.length,
+      averageJuz30Progress: studentsWithProgress.reduce((sum, s) => sum + Number(s.progress?.juz30Progress || 0), 0) / studentsWithProgress.length,
+      totalCompletedSurahs: studentsWithProgress.reduce((sum, s) => sum + Number(s.progress?.totalSurah || 0), 0),
+      totalAyatsMemorized: studentsWithProgress.reduce((sum, s) => sum + Number(s.progress?.totalAyat || 0), 0),
       levelDistribution: {
         PEMULA: studentsWithProgress.filter(s => s.progress?.level === 'PEMULA').length,
         MENENGAH: studentsWithProgress.filter(s => s.progress?.level === 'MENENGAH').length,

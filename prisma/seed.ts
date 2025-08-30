@@ -42,35 +42,118 @@ async function main() {
 
   console.log('Created staff user:', staff.username);
 
+  // Create financial accounts
+  const incomeAccount = await prisma.financialAccount.upsert({
+    where: { code: '4001' },
+    update: {},
+    create: {
+      code: '4001',
+      name: 'Income Account',
+      type: 'INCOME',
+      subtype: 'GENERAL',
+      isActive: true,
+      balance: 0,
+      description: 'General income account'
+    }
+  });
+
+  const expenseAccount = await prisma.financialAccount.upsert({
+    where: { code: '5001' },
+    update: {},
+    create: {
+      code: '5001',
+      name: 'Expense Account',
+      type: 'EXPENSE',
+      subtype: 'GENERAL',
+      isActive: true,
+      balance: 0,
+      description: 'General expense account'
+    }
+  });
+
+  // Create financial categories
+  const sppCategory = await prisma.financialCategory.upsert({
+    where: { name_type: { name: 'SPP', type: 'INCOME' } },
+    update: {},
+    create: {
+      name: 'SPP',
+      type: 'INCOME',
+      code: 'INC001',
+      accountId: incomeAccount.id,
+      color: '#22C55E',
+      icon: 'academic-cap',
+      isActive: true,
+      description: 'Student tuition payments'
+    }
+  });
+
+  const infaqCategory = await prisma.financialCategory.upsert({
+    where: { name_type: { name: 'Infaq', type: 'DONATION' } },
+    update: {},
+    create: {
+      name: 'Infaq',
+      type: 'DONATION',
+      code: 'DON001',
+      accountId: incomeAccount.id,
+      color: '#10B981',
+      icon: 'heart',
+      isActive: true,
+      description: 'Charitable donations'
+    }
+  });
+
+  const operationalCategory = await prisma.financialCategory.upsert({
+    where: { name_type: { name: 'Operational', type: 'EXPENSE' } },
+    update: {},
+    create: {
+      name: 'Operational',
+      type: 'EXPENSE',
+      code: 'EXP001',
+      accountId: expenseAccount.id,
+      color: '#EF4444',
+      icon: 'cog',
+      isActive: true,
+      description: 'Operational expenses'
+    }
+  });
+
+  console.log('Created financial accounts and categories');
+
   // Create sample transactions
   const transactions = await Promise.all([
     prisma.transaction.create({
       data: {
+        transactionNo: 'TRX-2024-001',
         type: 'INCOME',
-        category: 'SPP',
+        categoryId: sppCategory.id,
         amount: 500000,
         description: 'Pembayaran SPP Bulan Januari',
         date: new Date('2024-01-15'),
+        status: 'POSTED',
         createdBy: admin.id,
       },
     }),
     prisma.transaction.create({
       data: {
+        transactionNo: 'TRX-2024-002',
         type: 'DONATION',
-        category: 'Infaq',
+        categoryId: infaqCategory.id,
         amount: 1000000,
         description: 'Infaq dari Hamba Allah',
         date: new Date('2024-01-20'),
+        status: 'POSTED',
         createdBy: admin.id,
       },
     }),
     prisma.transaction.create({
       data: {
+        transactionNo: 'TRX-2024-003',
         type: 'EXPENSE',
-        category: 'Operasional',
+        categoryId: operationalCategory.id,
         amount: 250000,
         description: 'Pembelian Alat Tulis',
         date: new Date('2024-01-22'),
+        status: 'POSTED',
         createdBy: admin.id,
       },
     }),

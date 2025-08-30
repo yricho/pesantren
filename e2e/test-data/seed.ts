@@ -18,6 +18,8 @@ export async function seedTestData() {
     await prisma.course.deleteMany()
     await prisma.activity.deleteMany()
     await prisma.transaction.deleteMany()
+    await prisma.financialCategory.deleteMany()
+    await prisma.financialAccount.deleteMany()
     await prisma.user.deleteMany()
 
     // Create test users
@@ -46,38 +48,124 @@ export async function seedTestData() {
       },
     })
 
+    // Create financial accounts
+    const incomeAccount = await prisma.financialAccount.create({
+      data: {
+        code: '4001',
+        name: 'Donation Income',
+        type: 'INCOME',
+        subtype: 'DONATION',
+        isActive: true,
+        balance: 0,
+        description: 'Income from donations'
+      }
+    })
+
+    const expenseAccount = await prisma.financialAccount.create({
+      data: {
+        code: '5001',
+        name: 'General Expenses',
+        type: 'EXPENSE',
+        subtype: 'OPERATIONAL',
+        isActive: true,
+        balance: 0,
+        description: 'General operational expenses'
+      }
+    })
+
+    // Create financial categories
+    const donationCategory = await prisma.financialCategory.create({
+      data: {
+        name: 'Donation',
+        type: 'INCOME',
+        code: 'DON001',
+        accountId: incomeAccount.id,
+        color: '#22C55E',
+        icon: 'heart',
+        isActive: true,
+        description: 'Community donations'
+      }
+    })
+
+    const utilitiesCategory = await prisma.financialCategory.create({
+      data: {
+        name: 'Utilities',
+        type: 'EXPENSE',
+        code: 'EXP001',
+        accountId: expenseAccount.id,
+        color: '#EF4444',
+        icon: 'bolt',
+        isActive: true,
+        description: 'Utilities expenses'
+      }
+    })
+
+    const zakatCategory = await prisma.financialCategory.create({
+      data: {
+        name: 'Zakat',
+        type: 'DONATION',
+        code: 'ZAK001',
+        accountId: incomeAccount.id,
+        color: '#10B981',
+        icon: 'currency-dollar',
+        isActive: true,
+        description: 'Zakat donations'
+      }
+    })
+
+    const foodCategory = await prisma.financialCategory.create({
+      data: {
+        name: 'Food',
+        type: 'EXPENSE',
+        code: 'EXP002',
+        accountId: expenseAccount.id,
+        color: '#F59E0B',
+        icon: 'shopping-bag',
+        isActive: true,
+        description: 'Food and supplies'
+      }
+    })
+
     // Create test transactions
     const transactions = [
       {
+        transactionNo: 'TRX-2024-001',
         type: 'INCOME',
-        category: 'Donation',
+        categoryId: donationCategory.id,
         amount: 5000000,
         description: 'Monthly community donation',
         date: new Date('2024-01-15'),
+        status: 'POSTED',
         createdBy: adminUser.id,
       },
       {
+        transactionNo: 'TRX-2024-002',
         type: 'EXPENSE',
-        category: 'Utilities',
+        categoryId: utilitiesCategory.id,
         amount: 1500000,
         description: 'Electricity and water bills',
         date: new Date('2024-01-10'),
+        status: 'POSTED',
         createdBy: staffUser.id,
       },
       {
+        transactionNo: 'TRX-2024-003',
         type: 'DONATION',
-        category: 'Zakat',
+        categoryId: zakatCategory.id,
         amount: 2000000,
         description: 'Zakat from local community',
         date: new Date('2024-01-20'),
+        status: 'POSTED',
         createdBy: adminUser.id,
       },
       {
+        transactionNo: 'TRX-2024-004',
         type: 'EXPENSE',
-        category: 'Food',
+        categoryId: foodCategory.id,
         amount: 3000000,
         description: 'Monthly food supplies',
         date: new Date('2024-01-25'),
+        status: 'POSTED',
         createdBy: staffUser.id,
       },
     ]

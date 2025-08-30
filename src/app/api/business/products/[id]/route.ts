@@ -215,27 +215,35 @@ export async function PUT(
           })
 
           // Update or create inventory record
-          await tx.inventory.upsert({
+          const existingInventory = await tx.inventory.findFirst({
             where: {
-              productId_location_batchNo: {
-                productId: params.id,
-                location: data.location || existingProduct.location,
-                batchNo: undefined,
-              },
-            },
-            update: {
-              quantity: data.stock!,
-              unitCost: data.cost || existingProduct.cost,
-              lastUpdated: new Date(),
-            },
-            create: {
               productId: params.id,
-              quantity: data.stock!,
               location: data.location || existingProduct.location,
-              unitCost: data.cost || existingProduct.cost,
-              lastUpdated: new Date(),
+              batchNo: null,
             },
-          })
+          });
+
+          if (existingInventory) {
+            await tx.inventory.update({
+              where: { id: existingInventory.id },
+              data: {
+                quantity: data.stock!,
+                unitCost: data.cost || existingProduct.cost,
+                lastUpdated: new Date(),
+              },
+            });
+          } else {
+            await tx.inventory.create({
+              data: {
+                productId: params.id,
+                quantity: data.stock!,
+                location: data.location || existingProduct.location,
+                unitCost: data.cost || existingProduct.cost,
+                batchNo: null,
+                lastUpdated: new Date(),
+              },
+            });
+          }
         }
 
         return product

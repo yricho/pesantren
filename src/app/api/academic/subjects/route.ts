@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating subject:', error);
     
-    if (error.code === 'P2002') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Subject with this code already exists' },
         { status: 409 }
@@ -206,14 +206,14 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating subject:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Subject not found' },
         { status: 404 }
       );
     }
 
-    if (error.code === 'P2002') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Subject with this code already exists' },
         { status: 409 }

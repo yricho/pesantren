@@ -217,7 +217,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating schedule:', error);
     
-    if (error.code === 'P2002') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Schedule already exists for this class, day, and time' },
         { status: 409 }
@@ -365,7 +365,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating schedule:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Schedule not found' },
         { status: 404 }
@@ -404,7 +404,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Error deleting schedule:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Schedule not found' },
         { status: 404 }

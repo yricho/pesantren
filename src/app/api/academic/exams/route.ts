@@ -321,7 +321,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating exam:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Exam not found' },
         { status: 404 }

@@ -238,35 +238,49 @@ export async function POST(request: NextRequest) {
       })
 
       // Update or create inventory record
-      const inventoryRecord = await tx.inventory.upsert({
+      // Find existing inventory record
+      const existingInventory = await tx.inventory.findFirst({
         where: {
-          productId_location_batchNo: {
-            productId: data.productId,
-            location: data.location,
-            batchNo: data.batchNo || undefined,
-          },
-        },
-        update: {
-          quantity: {
-            increment: data.quantity,
-          },
-          unitCost: data.unitCost,
-          lastUpdated: new Date(),
-          expiryDate: data.expiryDate ? new Date(data.expiryDate) : undefined,
-        },
-        create: {
           productId: data.productId,
-          quantity: Math.max(0, data.quantity),
           location: data.location,
-          unitCost: data.unitCost,
-          batchNo: data.batchNo,
-          expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
-          lastUpdated: new Date(),
+          batchNo: data.batchNo || null,
         },
-        include: {
-          product: true,
-        },
-      })
+      });
+
+      let inventoryRecord;
+      if (existingInventory) {
+        // Update existing record
+        inventoryRecord = await tx.inventory.update({
+          where: { id: existingInventory.id },
+          data: {
+            quantity: {
+              increment: data.quantity,
+            },
+            unitCost: data.unitCost,
+            lastUpdated: new Date(),
+            expiryDate: data.expiryDate ? new Date(data.expiryDate) : undefined,
+          },
+          include: {
+            product: true,
+          },
+        });
+      } else {
+        // Create new record
+        inventoryRecord = await tx.inventory.create({
+          data: {
+            productId: data.productId,
+            quantity: Math.max(0, data.quantity),
+            location: data.location,
+            unitCost: data.unitCost || 0,
+            batchNo: data.batchNo || null,
+            expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
+            lastUpdated: new Date(),
+          },
+          include: {
+            product: true,
+          },
+        });
+      }
 
       // Update product total stock
       const totalStock = await tx.inventory.aggregate({
@@ -399,26 +413,35 @@ export async function PUT(request: NextRequest) {
       // Add to destination inventory
       const avgCost = sourceRecords.reduce((sum, r) => sum + Number(r.unitCost), 0) / sourceRecords.length
 
-      await tx.inventory.upsert({
+      // Find or create destination inventory
+      const destinationInventory = await tx.inventory.findFirst({
         where: {
-          productId_location_batchNo: {
-            productId: data.productId,
-            location: data.toLocation,
-            batchNo: undefined,
-          },
-        },
-        update: {
-          quantity: { increment: data.quantity },
-          lastUpdated: new Date(),
-        },
-        create: {
           productId: data.productId,
-          quantity: data.quantity,
           location: data.toLocation,
-          unitCost: avgCost,
-          lastUpdated: new Date(),
+          batchNo: null,
         },
-      })
+      });
+
+      if (destinationInventory) {
+        await tx.inventory.update({
+          where: { id: destinationInventory.id },
+          data: {
+            quantity: { increment: data.quantity },
+            lastUpdated: new Date(),
+          },
+        });
+      } else {
+        await tx.inventory.create({
+          data: {
+            productId: data.productId,
+            quantity: data.quantity,
+            location: data.toLocation,
+            unitCost: avgCost,
+            batchNo: null,
+            lastUpdated: new Date(),
+          },
+        });
+      }
 
       return { success: true }
     })

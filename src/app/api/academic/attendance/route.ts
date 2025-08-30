@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating attendance:', error);
     
-    if (error.code === 'P2002') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Attendance already recorded for this student, class, and date' },
         { status: 409 }
@@ -278,7 +278,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating attendance:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Attendance not found' },
         { status: 404 }
@@ -401,7 +401,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Error deleting attendance:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Attendance not found' },
         { status: 404 }

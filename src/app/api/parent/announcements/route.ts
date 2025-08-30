@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const parentAccount = await prisma.parentAccount.findFirst({
       where: { userId: session.user.id },
       include: {
-        students: {
+        parentStudents: {
           include: {
             student: {
               select: {
@@ -45,33 +45,41 @@ export async function GET(request: NextRequest) {
 
     // Build where conditions
     const whereConditions: any = {
-      OR: [
-        { targetAudience: 'ALL' },
-        { targetAudience: 'PARENT' }
-      ],
-      publishDate: {
-        lte: new Date()
-      },
-      OR: [
-        { expiryDate: null },
-        { expiryDate: { gte: new Date() } }
+      AND: [
+        {
+          OR: [
+            { targetAudience: 'ALL' },
+            { targetAudience: 'PARENT' }
+          ]
+        },
+        {
+          publishDate: {
+            lte: new Date()
+          }
+        },
+        {
+          OR: [
+            { expiryDate: null },
+            { expiryDate: { gte: new Date() } }
+          ]
+        }
       ]
     };
 
     // Add filters
     if (category) {
-      whereConditions.category = category;
+      whereConditions.AND.push({ category });
     }
     if (priority) {
-      whereConditions.priority = priority;
+      whereConditions.AND.push({ priority });
     }
     if (search) {
-      whereConditions.AND = {
+      whereConditions.AND.push({
         OR: [
           { title: { contains: search, mode: 'insensitive' } },
           { content: { contains: search, mode: 'insensitive' } }
         ]
-      };
+      });
     }
 
     // Get total count

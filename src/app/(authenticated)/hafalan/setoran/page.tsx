@@ -290,7 +290,7 @@ export default function HafalanSetoranPage() {
                 <div className="bg-orange-50 p-4 rounded-lg text-center">
                   <Users className="w-8 h-8 text-orange-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-orange-600">
-                    {studentProgress.statistics.inProgressSurahs}
+                    {Math.max(0, 114 - studentProgress.statistics.completedSurahs)}
                   </p>
                   <p className="text-sm text-gray-600">Sedang Proses</p>
                 </div>

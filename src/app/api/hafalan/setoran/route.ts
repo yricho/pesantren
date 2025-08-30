@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Start transaction
     const result = await prisma.$transaction(async (tx) => {
       // Create hafalan session
-      const session = await tx.hafalanSession.create({
+      const hafalanSession = await tx.hafalanSession.create({
         data: {
           studentId,
           teacherId: session.user.id,
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         records.push(record);
       }
 
-      return { session, records };
+      return { session: hafalanSession, records };
     });
 
     // Update student progress (outside transaction for performance)

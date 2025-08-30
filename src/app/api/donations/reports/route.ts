@@ -199,7 +199,7 @@ async function getSummaryReport() {
     totalAmount: parseFloat(totalAmount._sum.amount?.toString() || '0'),
     monthlyAmount: parseFloat(monthlyAmount._sum.amount?.toString() || '0'),
     yearlyAmount: parseFloat(yearlyAmount._sum.amount?.toString() || '0'),
-    monthlyAmount: Array.from({ length: 12 }, (_, i) => monthlyTrend[i] || 0),
+    monthlyTrend: Array.from({ length: 12 }, (_, i) => monthlyTrend[i] || 0),
     campaignStats,
     categoryBreakdown,
     topCampaigns,

@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
       totalAmount: parseFloat(totalStats._sum.amount?.toString() || '0'),
       monthlyDonations: monthlyStats._count,
       monthlyAmount: parseFloat(monthlyStats._sum.amount?.toString() || '0'),
-      monthlyAmount: monthlyTrend,
+      monthlyTrend: monthlyTrend,
       campaignStats,
       categoryBreakdown,
       topCampaigns,

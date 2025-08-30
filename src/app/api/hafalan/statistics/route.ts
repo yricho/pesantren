@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     // Top performing students
     const topStudents = studentsWithProgress
       .filter(s => s.hafalanProgress)
-      .sort((a, b) => (b.hafalanProgress?.overallProgress || 0) - (a.hafalanProgress?.overallProgress || 0))
+      .sort((a, b) => Number(b.hafalanProgress?.overallProgress || 0) - Number(a.hafalanProgress?.overallProgress || 0))
       .slice(0, 10)
       .map(student => ({
         id: student.id,
@@ -204,19 +204,19 @@ export async function GET(request: NextRequest) {
     const studentsWithData = studentsWithProgress.filter(s => s.hafalanProgress);
     const averages = {
       overallProgress: studentsWithData.length > 0 
-        ? studentsWithData.reduce((sum, s) => sum + (s.hafalanProgress?.overallProgress || 0), 0) / studentsWithData.length 
+        ? studentsWithData.reduce((sum, s) => sum + Number(s.hafalanProgress?.overallProgress || 0), 0) / studentsWithData.length 
         : 0,
       juz30Progress: studentsWithData.length > 0 
-        ? studentsWithData.reduce((sum, s) => sum + (s.hafalanProgress?.juz30Progress || 0), 0) / studentsWithData.length 
+        ? studentsWithData.reduce((sum, s) => sum + Number(s.hafalanProgress?.juz30Progress || 0), 0) / studentsWithData.length 
         : 0,
       totalSurah: studentsWithData.length > 0 
-        ? studentsWithData.reduce((sum, s) => sum + (s.hafalanProgress?.totalSurah || 0), 0) / studentsWithData.length 
+        ? studentsWithData.reduce((sum, s) => sum + Number(s.hafalanProgress?.totalSurah || 0), 0) / studentsWithData.length 
         : 0,
       totalAyat: studentsWithData.length > 0 
-        ? studentsWithData.reduce((sum, s) => sum + (s.hafalanProgress?.totalAyat || 0), 0) / studentsWithData.length 
+        ? studentsWithData.reduce((sum, s) => sum + Number(s.hafalanProgress?.totalAyat || 0), 0) / studentsWithData.length 
         : 0,
       quality: studentsWithData.length > 0 
-        ? studentsWithData.reduce((sum, s) => sum + (s.hafalanProgress?.avgQuality || 0), 0) / studentsWithData.length 
+        ? studentsWithData.reduce((sum, s) => sum + Number(s.hafalanProgress?.avgQuality || 0), 0) / studentsWithData.length 
         : 0
     };
 

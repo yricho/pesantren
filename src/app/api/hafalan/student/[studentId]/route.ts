@@ -45,7 +45,7 @@ export async function GET(
     });
 
     // Get recent records
-    let recentRecords = [];
+    let recentRecords: any[] = [];
     if (includeRecords) {
       recentRecords = await prisma.hafalanRecord.findMany({
         where: { studentId },

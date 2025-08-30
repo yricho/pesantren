@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating academic year:', error);
     
-    if (error.code === 'P2002') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Academic year with this name already exists' },
         { status: 409 }
@@ -163,14 +163,14 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating academic year:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Academic year not found' },
         { status: 404 }
       );
     }
 
-    if (error.code === 'P2002') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Academic year with this name already exists' },
         { status: 409 }

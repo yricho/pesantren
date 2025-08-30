@@ -259,7 +259,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating grade:', error);
     
-    if (error.code === 'P2002') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Grade already exists for this student, subject, and semester' },
         { status: 409 }
@@ -393,7 +393,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating grade:', error);
     
-    if (error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Grade not found' },
         { status: 404 }
