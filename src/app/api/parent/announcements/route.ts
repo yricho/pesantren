@@ -97,13 +97,24 @@ export async function GET(request: NextRequest) {
       ],
       skip: offset,
       take: limit,
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        summary: true,
+        targetAudience: true,
+        priority: true,
+        category: true,
+        attachments: true,
+        featuredImage: true,
+        status: true,
+        publishDate: true,
+        expiryDate: true,
+        isPinned: true,
+        viewCount: true,
+        createdBy: true,
+        createdAt: true,
+        updatedAt: true
       }
     });
 
@@ -125,13 +136,24 @@ export async function GET(request: NextRequest) {
         publishDate: 'desc'
       },
       take: 3,
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        summary: true,
+        targetAudience: true,
+        priority: true,
+        category: true,
+        attachments: true,
+        featuredImage: true,
+        status: true,
+        publishDate: true,
+        expiryDate: true,
+        isPinned: true,
+        viewCount: true,
+        createdBy: true,
+        createdAt: true,
+        updatedAt: true
       }
     }) : [];
 

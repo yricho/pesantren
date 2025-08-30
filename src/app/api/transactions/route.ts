@@ -84,10 +84,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = createTransactionSchema.parse(body)
 
+    const { category, date, ...otherData } = validatedData;
+    
+    // Generate transaction number
+    const year = new Date().getFullYear();
+    const count = await prisma.transaction.count() + 1;
+    const transactionNo = `TRX-${year}-${count.toString().padStart(3, '0')}`;
+    
     const transaction = await prisma.transaction.create({
       data: {
-        ...validatedData,
-        date: new Date(validatedData.date),
+        ...otherData,
+        transactionNo,
+        categoryId: category,
+        date: new Date(date),
         createdBy: session.user.id,
       },
       include: {

@@ -46,7 +46,6 @@ export async function GET(request: NextRequest) {
                 grades: {
                   include: {
                     semester: {
-                      where: { isActive: true },
                       include: {
                         academicYear: {
                           select: { name: true }
@@ -64,9 +63,7 @@ export async function GET(request: NextRequest) {
                 },
                 attendances: {
                   include: {
-                    semester: {
-                      where: { isActive: true }
-                    }
+                    semester: true
                   }
                 },
                 payments: {
@@ -96,37 +93,44 @@ export async function GET(request: NextRequest) {
       where: { isActive: true }
     });
 
-    const children = parentAccount.parentStudents.map(parentStudent => {
+    const children = parentAccount.parentStudents.map((parentStudent: { student: any; relationship: string; isPrimary: boolean; canViewGrades: boolean; canViewAttendance: boolean; canViewPayments: boolean; canReceiveMessages: boolean }) => {
       const student = parentStudent.student;
       
       // Calculate current attendance stats
       const currentAttendances = student.attendances.filter(
-        att => currentSemester && att.semesterId === currentSemester.id
+        (att: { semesterId: string; status: string; semester: { isActive: boolean } }) => 
+          currentSemester && 
+          att.semesterId === currentSemester.id &&
+          att.semester.isActive
       );
       
       const attendanceStats = {
         totalDays: currentAttendances.length,
-        presentDays: currentAttendances.filter(att => att.status === 'HADIR').length,
-        absentDays: currentAttendances.filter(att => att.status === 'ALPHA').length,
-        sickDays: currentAttendances.filter(att => att.status === 'SAKIT').length,
-        permittedDays: currentAttendances.filter(att => att.status === 'IZIN').length,
-        lateDays: currentAttendances.filter(att => att.status === 'TERLAMBAT').length,
+        presentDays: currentAttendances.filter((att: { status: string }) => att.status === 'HADIR').length,
+        absentDays: currentAttendances.filter((att: { status: string }) => att.status === 'ALPHA').length,
+        sickDays: currentAttendances.filter((att: { status: string }) => att.status === 'SAKIT').length,
+        permittedDays: currentAttendances.filter((att: { status: string }) => att.status === 'IZIN').length,
+        lateDays: currentAttendances.filter((att: { status: string }) => att.status === 'TERLAMBAT').length,
         percentage: currentAttendances.length > 0 
-          ? Math.round((currentAttendances.filter(att => att.status === 'HADIR').length / currentAttendances.length) * 100)
+          ? Math.round((currentAttendances.filter((att: { status: string }) => att.status === 'HADIR').length / currentAttendances.length) * 100)
           : 0
       };
 
       // Calculate current semester grades
       const currentGrades = student.grades.filter(
-        grade => currentSemester && grade.semesterId === currentSemester.id && grade.total
+        (grade: { semesterId: string; total: any; semester: { isActive: boolean } }) => 
+          currentSemester && 
+          grade.semesterId === currentSemester.id && 
+          grade.total &&
+          grade.semester.isActive
       );
 
       const gradeStats = {
         totalSubjects: currentGrades.length,
         average: currentGrades.length > 0 
-          ? Math.round(currentGrades.reduce((sum, grade) => sum + (grade.total?.toNumber() || 0), 0) / currentGrades.length * 100) / 100
+          ? Math.round(currentGrades.reduce((sum: number, grade: { total: { toNumber(): number } }) => sum + (grade.total?.toNumber() || 0), 0) / currentGrades.length * 100) / 100
           : 0,
-        subjects: currentGrades.map(grade => ({
+        subjects: currentGrades.map((grade: { subject: { name: string; code: string; category: string }; total: { toNumber(): number }; grade: string; point: { toNumber(): number } }) => ({
           name: grade.subject.name,
           code: grade.subject.code,
           category: grade.subject.category,
@@ -138,15 +142,15 @@ export async function GET(request: NextRequest) {
 
       // Calculate payment stats
       const paymentStats = {
-        totalAmount: student.payments.reduce((sum, payment) => sum + payment.amount.toNumber(), 0),
+        totalAmount: student.payments.reduce((sum: number, payment: { amount: { toNumber(): number } }) => sum + payment.amount.toNumber(), 0),
         paidAmount: student.payments
-          .filter(payment => payment.status === 'SUCCESS')
-          .reduce((sum, payment) => sum + payment.amount.toNumber(), 0),
+          .filter((payment: { status: string }) => payment.status === 'SUCCESS')
+          .reduce((sum: number, payment: { amount: { toNumber(): number } }) => sum + payment.amount.toNumber(), 0),
         pendingAmount: student.payments
-          .filter(payment => payment.status === 'PENDING')
-          .reduce((sum, payment) => sum + payment.amount.toNumber(), 0),
-        pendingCount: student.payments.filter(payment => payment.status === 'PENDING').length,
-        recentPayments: student.payments.slice(0, 3).map(payment => ({
+          .filter((payment: { status: string }) => payment.status === 'PENDING')
+          .reduce((sum: number, payment: { amount: { toNumber(): number } }) => sum + payment.amount.toNumber(), 0),
+        pendingCount: student.payments.filter((payment: { status: string }) => payment.status === 'PENDING').length,
+        recentPayments: student.payments.slice(0, 3).map((payment: { id: string; paymentType: string; amount: { toNumber(): number }; status: string; createdAt: Date }) => ({
           id: payment.id,
           type: payment.paymentType,
           amount: payment.amount.toNumber(),
@@ -156,7 +160,7 @@ export async function GET(request: NextRequest) {
       };
 
       // Get current class info
-      const currentClass = student.studentClasses.find(sc => 
+      const currentClass = student.studentClasses.find((sc: { status: string; class: { academicYear: { isActive: boolean } } }) => 
         sc.status === 'ACTIVE' && sc.class.academicYear.isActive
       );
 

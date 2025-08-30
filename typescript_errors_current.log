@@ -1,0 +1,69 @@
+src/app/api/parent/announcements/route.ts(100,7): error TS2322: Type '{ author: { select: { id: true; name: true; }; }; }' is not assignable to type 'never'.
+src/app/api/parent/announcements/route.ts(128,7): error TS2322: Type '{ author: { select: { id: true; name: true; }; }; }' is not assignable to type 'never'.
+src/app/api/parent/attendance/[studentId]/route.ts(135,5): error TS7053: Element implicitly has an 'any' type because expression of type '"percentage"' can't be used to index type '{ total: number; present: number; absent: number; sick: number; permitted: number; late: number; }'.
+  Property 'percentage' does not exist on type '{ total: number; present: number; absent: number; sick: number; permitted: number; late: number; }'.
+src/app/api/parent/children/route.ts(49,23): error TS2353: Object literal may only specify known properties, and 'where' does not exist in type 'SemesterDefaultArgs<DefaultArgs>'.
+src/app/api/parent/children/route.ts(68,23): error TS2353: Object literal may only specify known properties, and 'where' does not exist in type 'SemesterDefaultArgs<DefaultArgs>'.
+src/app/api/parent/children/route.ts(99,36): error TS2339: Property 'parentStudents' does not exist on type '{ id: string; isActive: boolean; createdAt: Date; updatedAt: Date; userId: string; phoneNumber: string | null; whatsapp: string | null; emergencyContact: string | null; notificationSettings: string; preferredLanguage: string; timezone: string; }'.
+src/app/api/parent/children/route.ts(99,55): error TS7006: Parameter 'parentStudent' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(104,9): error TS7006: Parameter 'att' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(109,48): error TS7006: Parameter 'att' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(110,47): error TS7006: Parameter 'att' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(111,45): error TS7006: Parameter 'att' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(112,50): error TS7006: Parameter 'att' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(113,45): error TS7006: Parameter 'att' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(115,51): error TS7006: Parameter 'att' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(121,9): error TS7006: Parameter 'grade' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(127,46): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(127,51): error TS7006: Parameter 'grade' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(129,37): error TS7006: Parameter 'grade' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(141,47): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(141,52): error TS7006: Parameter 'payment' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(143,19): error TS7006: Parameter 'payment' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(144,20): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(144,25): error TS7006: Parameter 'payment' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(146,19): error TS7006: Parameter 'payment' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(147,20): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(147,25): error TS7006: Parameter 'payment' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(148,47): error TS7006: Parameter 'payment' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(149,58): error TS7006: Parameter 'payment' implicitly has an 'any' type.
+src/app/api/parent/children/route.ts(159,56): error TS7006: Parameter 'sc' implicitly has an 'any' type.
+src/app/api/parent/dashboard/route.ts(210,9): error TS1117: An object literal cannot have multiple properties with the same name.
+src/app/api/parent/grades/[studentId]/route.ts(160,64): error TS2345: Argument of type '([category, categoryGrades]: [string, any[]]) => { category: string; totalSubjects: number; gradedSubjects: number; average: number; gradeInfo: { grade: string; level: string; color: string; } | null; }' is not assignable to parameter of type '(value: [string, unknown], index: number, array: [string, unknown][]) => { category: string; totalSubjects: number; gradedSubjects: number; average: number; gradeInfo: { grade: string; level: string; color: string; } | null; }'.
+  Types of parameters '__0' and 'value' are incompatible.
+    Type '[string, unknown]' is not assignable to type '[string, any[]]'.
+      Type at position 1 in source is not compatible with type at position 1 in target.
+        Type 'unknown' is not assignable to type 'any[]'.
+src/app/api/parent/payments/[studentId]/route.ts(214,9): error TS2698: Spread types may only be created from object types.
+src/app/api/transactions/route.ts(88,7): error TS2322: Type '{ date: Date; createdBy: string; type: "INCOME" | "EXPENSE" | "DONATION"; description: string; category: string; amount: number; }' is not assignable to type '(Without<TransactionCreateInput, TransactionUncheckedCreateInput> & TransactionUncheckedCreateInput) | (Without<...> & TransactionCreateInput)'.
+  Type '{ date: Date; createdBy: string; type: "INCOME" | "EXPENSE" | "DONATION"; description: string; category: string; amount: number; }' is not assignable to type 'Without<TransactionCreateInput, TransactionUncheckedCreateInput> & TransactionUncheckedCreateInput'.
+    Type '{ date: Date; createdBy: string; type: "INCOME" | "EXPENSE" | "DONATION"; description: string; category: string; amount: number; }' is not assignable to type 'Without<TransactionCreateInput, TransactionUncheckedCreateInput>'.
+      Types of property 'category' are incompatible.
+        Type 'string' is not assignable to type 'undefined'.
+src/components/hafalan/quick-record-modal.tsx(277,17): error TS2322: Type 'Dispatch<SetStateAction<{ overall: string; fluency: string; tajweed: string; makharijul: string; }>>' is not assignable to type '(quality: QualityScore) => void'.
+  Types of parameters 'value' and 'quality' are incompatible.
+    Type 'QualityScore' is not assignable to type 'SetStateAction<{ overall: string; fluency: string; tajweed: string; makharijul: string; }>'.
+      Type 'QualityScore' is not assignable to type '{ overall: string; fluency: string; tajweed: string; makharijul: string; }'.
+        Types of property 'fluency' are incompatible.
+          Type 'string | undefined' is not assignable to type 'string'.
+            Type 'undefined' is not assignable to type 'string'.
+src/lib/auth.ts(70,11): error TS2322: Type '({ session, token }: { session: Session; token: JWT; user: AdapterUser; } & { newSession: any; trigger: "update"; }) => Promise<Session | { expires: string; user: null; }>' is not assignable to type '(params: { session: Session; token: JWT; user: AdapterUser; } & { newSession: any; trigger: "update"; }) => Awaitable<Session | DefaultSession>'.
+  Type 'Promise<Session | { expires: string; user: null; }>' is not assignable to type 'Awaitable<Session | DefaultSession>'.
+    Type 'Promise<Session | { expires: string; user: null; }>' is not assignable to type 'PromiseLike<Session | DefaultSession>'.
+      Types of property 'then' are incompatible.
+        Type '<TResult1 = Session | { expires: string; user: null; }, TResult2 = never>(onfulfilled?: ((value: Session | { expires: string; user: null; }) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => Promise<...>' is not assignable to type '<TResult1 = Session | DefaultSession, TResult2 = never>(onfulfilled?: ((value: Session | DefaultSession) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | ... 1 more ... | undefined) => PromiseLike<...>'.
+          Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+            Types of parameters 'value' and 'value' are incompatible.
+              Type 'Session | { expires: string; user: null; }' is not assignable to type 'Session | DefaultSession'.
+                Type '{ expires: string; user: null; }' is not assignable to type 'Session | DefaultSession'.
+                  Type '{ expires: string; user: null; }' is not assignable to type 'DefaultSession'.
+                    Types of property 'user' are incompatible.
+                      Type 'null' is not assignable to type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; } | undefined'.
+src/lib/auth.ts(122,11): error TS2322: Type '({ user, account, profile }: { user: User; account: Account | null; profile?: Profile | undefined; isNewUser?: boolean | undefined; }) => Promise<boolean>' is not assignable to type '(message: { user: User; account: Account | null; profile?: Profile | undefined; isNewUser?: boolean | undefined; }) => Awaitable<void>'.
+  Type 'Promise<boolean>' is not assignable to type 'Awaitable<void>'.
+    Type 'Promise<boolean>' is not assignable to type 'PromiseLike<void>'.
+      Types of property 'then' are incompatible.
+        Type '<TResult1 = boolean, TResult2 = never>(onfulfilled?: ((value: boolean) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => Promise<...>' is not assignable to type '<TResult1 = void, TResult2 = never>(onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: any) => TResult2 | PromiseLike<...>) | null | undefined) => PromiseLike<...>'.
+          Types of parameters 'onfulfilled' and 'onfulfilled' are incompatible.
+            Types of parameters 'value' and 'value' are incompatible.
+              Type 'boolean' is not assignable to type 'void'.

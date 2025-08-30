@@ -129,10 +129,15 @@ export async function GET(
       absent: attendances.filter(att => att.status === 'ALPHA').length,
       sick: attendances.filter(att => att.status === 'SAKIT').length,
       permitted: attendances.filter(att => att.status === 'IZIN').length,
-      late: attendances.filter(att => att.status === 'TERLAMBAT').length
+      late: attendances.filter(att => att.status === 'TERLAMBAT').length,
     };
 
-    stats['percentage'] = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+    const percentage = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+    
+    const statsWithPercentage = {
+      ...stats,
+      percentage
+    };
 
     // Group by month for monthly summary if no specific period requested
     let monthlyStats = {};
@@ -231,7 +236,7 @@ export async function GET(
         fullName: parentAccess.student.fullName,
         photo: parentAccess.student.photo
       },
-      stats,
+      stats: statsWithPercentage,
       monthlyStats,
       dayPatterns,
       recentAlerts: recentAlerts.map(att => ({

@@ -31,6 +31,13 @@ interface Student {
   photo?: string;
 }
 
+interface QualityScore {
+  overall: string;
+  fluency?: string;
+  tajweed?: string;
+  makharijul?: string;
+}
+
 interface QuickRecordModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -49,11 +56,11 @@ export function QuickRecordModal({
   const [startAyat, setStartAyat] = useState(1);
   const [endAyat, setEndAyat] = useState(1);
   const [status, setStatus] = useState('BARU');
-  const [quality, setQuality] = useState({
+  const [quality, setQuality] = useState<QualityScore>({
     overall: 'B',
-    fluency: '',
-    tajweed: '',
-    makharijul: ''
+    fluency: undefined,
+    tajweed: undefined,
+    makharijul: undefined
   });
   const [duration, setDuration] = useState('15');
   const [notes, setNotes] = useState('');
@@ -164,7 +171,7 @@ export function QuickRecordModal({
     setStartAyat(1);
     setEndAyat(1);
     setStatus(typeConfig.defaultStatus);
-    setQuality({ overall: 'B', fluency: '', tajweed: '', makharijul: '' });
+    setQuality({ overall: 'B', fluency: undefined, tajweed: undefined, makharijul: undefined });
     setDuration('15');
     setNotes('');
     setCorrections('');

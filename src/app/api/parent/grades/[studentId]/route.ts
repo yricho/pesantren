@@ -157,15 +157,16 @@ export async function GET(
     }, {} as any);
 
     // Calculate category averages
-    const categoryStats = Object.entries(gradesByCategory).map(([category, categoryGrades]: [string, any[]]) => {
-      const categoryGradesWithScores = categoryGrades.filter(grade => grade.total !== null);
+    const categoryStats = (Object.entries(gradesByCategory) as [string, any[]][]).map(([category, categoryGrades]) => {
+      const categoryGradesArray = categoryGrades as any[];
+      const categoryGradesWithScores = categoryGradesArray.filter((grade: any) => grade.total !== null);
       const average = categoryGradesWithScores.length > 0
-        ? Math.round(categoryGradesWithScores.reduce((sum, grade) => sum + (grade.total?.toNumber() || 0), 0) / categoryGradesWithScores.length * 100) / 100
+        ? Math.round(categoryGradesWithScores.reduce((sum: number, grade: any) => sum + (grade.total?.toNumber() || 0), 0) / categoryGradesWithScores.length * 100) / 100
         : 0;
       
       return {
         category,
-        totalSubjects: categoryGrades.length,
+        totalSubjects: categoryGradesArray.length,
         gradedSubjects: categoryGradesWithScores.length,
         average,
         gradeInfo: average > 0 ? getGradeLevel(average) : null

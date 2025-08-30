@@ -211,7 +211,7 @@ export async function GET(
       stats,
       paymentsByType: Object.entries(paymentsByType).map(([type, data]) => ({
         type,
-        ...data
+        ...(data as Record<string, any>)
       })),
       monthlyPayments: Object.values(monthlyPayments).sort((a: any, b: any) => 
         b.month.localeCompare(a.month)

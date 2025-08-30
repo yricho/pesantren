@@ -202,14 +202,20 @@ export async function GET(request: NextRequest) {
     const recentAnnouncements = await prisma.announcement.findMany({
       where: {
         status: 'PUBLISHED',
-        OR: [
-          { targetAudience: 'ALL' },
-          { targetAudience: 'PARENTS' }
-        ],
         publishDate: { lte: new Date() },
-        OR: [
-          { expiryDate: null },
-          { expiryDate: { gte: new Date() } }
+        AND: [
+          {
+            OR: [
+              { targetAudience: 'ALL' },
+              { targetAudience: 'PARENTS' }
+            ]
+          },
+          {
+            OR: [
+              { expiryDate: null },
+              { expiryDate: { gte: new Date() } }
+            ]
+          }
         ]
       },
       orderBy: [

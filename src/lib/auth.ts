@@ -12,30 +12,52 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
+        console.log('🔐 Authorize called with:', { 
+          username: credentials?.username,
+          hasPassword: !!credentials?.password 
+        })
+
         if (!credentials?.username || !credentials?.password) {
+          console.log('❌ Missing credentials')
           return null
         }
 
         try {
+          console.log('🔍 Looking for user:', credentials.username)
           const user = await prisma.user.findUnique({
             where: {
               username: credentials.username
             }
           })
 
-          if (!user || !user.isActive) {
+          if (!user) {
+            console.log('❌ User not found:', credentials.username)
             return null
           }
 
+          if (!user.isActive) {
+            console.log('❌ User not active:', credentials.username)
+            return null
+          }
+
+          console.log('✅ User found:', { 
+            id: user.id, 
+            username: user.username, 
+            isActive: user.isActive 
+          })
+
+          console.log('🔑 Comparing passwords...')
           const passwordMatch = await bcrypt.compare(
             credentials.password,
             user.password
           )
 
           if (!passwordMatch) {
+            console.log('❌ Password mismatch for user:', credentials.username)
             return null
           }
 
+          console.log('✅ Password match successful for user:', credentials.username)
           return {
             id: user.id,
             username: user.username,
@@ -44,7 +66,7 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
           }
         } catch (error) {
-          console.error('Auth error:', error)
+          console.error('❌ Auth error:', error)
           return null
         }
       }
@@ -79,7 +101,7 @@ export const authOptions: NextAuthOptions = {
         if (!session) {
           return {
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            user: null
+            user: {}
           }
         }
         
@@ -89,9 +111,15 @@ export const authOptions: NextAuthOptions = {
         // Return a valid empty session structure
         return {
           expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          user: null
+          user: {}
         }
       }
+    },
+    async signIn({ user, account, profile }) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('SignIn callback:', { user: !!user, account: !!account, profile: !!profile })
+      }
+      return true
     },
   },
   pages: {
@@ -118,12 +146,6 @@ export const authOptions: NextAuthOptions = {
       if (process.env.NODE_ENV === 'development') {
         console.log('Session event:', { session: !!session, token: !!token })
       }
-    },
-    async signIn({ user, account, profile }) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('SignIn event:', { user: !!user, account: !!account, profile: !!profile })
-      }
-      return true
     },
   },
 }
