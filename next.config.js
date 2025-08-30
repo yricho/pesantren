@@ -6,6 +6,21 @@ const withPWA = require('next-pwa')({
   buildExcludes: [/middleware-manifest.json$/],
   runtimeCaching: [
     {
+      urlPattern: /^https?.*\/api\/auth\/.*/i,
+      handler: 'NetworkOnly',
+    },
+    {
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images',
+        expiration: {
+          maxEntries: 60,
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+        }
+      }
+    },
+    {
       urlPattern: /^https?.*/,
       handler: 'NetworkFirst',
       options: {
@@ -16,7 +31,8 @@ const withPWA = require('next-pwa')({
         },
         cacheableResponse: {
           statuses: [0, 200]
-        }
+        },
+        networkTimeoutSeconds: 10
       }
     }
   ]

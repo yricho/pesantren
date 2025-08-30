@@ -5,6 +5,6 @@ const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
 
-// Force dynamic rendering
+// Configuration for App Router
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
