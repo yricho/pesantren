@@ -32,7 +32,8 @@ import {
   FileText,
   Award,
   Clock,
-  BookMarked
+  BookMarked,
+  Heart
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -65,6 +66,12 @@ const menuItems: MenuItem[] = [
     title: 'Admin PPDB',
     href: '/ppdb-admin',
     icon: ClipboardCheck,
+    adminOnly: true
+  },
+  {
+    title: 'OTA Admin',
+    href: '/ota-admin',
+    icon: Heart,
     adminOnly: true
   },
   {
