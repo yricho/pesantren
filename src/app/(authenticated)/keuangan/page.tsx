@@ -286,7 +286,7 @@ export default function Keuangan() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {financialSummary?.categoryBreakdown?.slice(0, 5).map((item, index) => (
+                {((financialSummary?.categoryBreakdown) || []).slice(0, 5).map((item, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full`} 
@@ -325,7 +325,7 @@ export default function Keuangan() {
                   Tidak ada transaksi terbaru
                 </div>
               ) : (
-                recentTransactions.slice(0, 5).map((transaction) => (
+                (recentTransactions || []).slice(0, 5).map((transaction) => (
                   <div
                     key={transaction.id}
                     className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors"

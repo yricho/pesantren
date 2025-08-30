@@ -98,18 +98,18 @@ export default function AlumniPage() {
   })
 
   const stats = {
-    tk: alumni.filter(a => a.institutionType === 'TK').length,
-    sd: alumni.filter(a => a.institutionType === 'SD').length,
-    pondok: alumni.filter(a => a.institutionType === 'PONDOK').length,
-    total: alumni.length,
-    availableForEvents: alumni.filter(a => a.availableForEvents).length
+    tk: (alumni || []).filter(a => a.institutionType === 'TK').length,
+    sd: (alumni || []).filter(a => a.institutionType === 'SD').length,
+    pondok: (alumni || []).filter(a => a.institutionType === 'PONDOK').length,
+    total: (alumni || []).length,
+    availableForEvents: (alumni || []).filter(a => a.availableForEvents).length
   }
 
-  const graduationYears = Array.from(new Set(alumni.map(a => a.graduationYear))).sort((a, b) => b.localeCompare(a))
+  const graduationYears = Array.from(new Set((alumni || []).map(a => a.graduationYear))).sort((a, b) => b.localeCompare(a))
 
   const copyInvitationList = () => {
     const availableAlumni = filteredAlumni.filter(a => a.availableForEvents && a.whatsapp)
-    const invitationText = availableAlumni.map(a => 
+    const invitationText = (availableAlumni || []).map(a => 
       `${a.fullName} - ${a.whatsapp} - ${a.currentCity}`
     ).join('\n')
     
@@ -152,7 +152,7 @@ export default function AlumniPage() {
 
   const exportToCSV = () => {
     const headers = ['Nama', 'Angkatan', 'Tahun Lulus', 'Institusi', 'Kota', 'Pekerjaan', 'Perusahaan', 'WhatsApp', 'Email', 'Bersedia Hadir']
-    const csvData = filteredAlumni.map(a => [
+    const csvData = (filteredAlumni || []).map(a => [
       a.fullName,
       a.generation || '',
       a.graduationYear,
@@ -167,7 +167,7 @@ export default function AlumniPage() {
     
     const csvContent = [
       headers.join(','),
-      ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...(csvData || []).map(row => (row || []).map(cell => `"${cell}"`).join(','))
     ].join('\n')
     
     const blob = new Blob([csvContent], { type: 'text/csv' })
@@ -283,7 +283,7 @@ export default function AlumniPage() {
                 className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="all">Semua Angkatan</option>
-                {graduationYears.map(year => (
+                {(graduationYears || []).map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
               </select>
@@ -325,7 +325,7 @@ export default function AlumniPage() {
               <p className="text-gray-500">Tidak ada data alumni</p>
             </div>
           ) : (
-            filteredAlumni.map((alum) => (
+            (filteredAlumni || []).map((alum) => (
               <Card key={alum.id} className="hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
                   <div className="flex items-start gap-4 mb-4">
@@ -631,7 +631,7 @@ export default function AlumniPage() {
               }
 
               const updatedAlumni = await response.json()
-              setAlumni(alumni.map(a => a.id === editingAlumni.id ? updatedAlumni : a))
+              setAlumni((alumni || []).map(a => a.id === editingAlumni.id ? updatedAlumni : a))
               setShowEditForm(false)
               setEditingAlumni(null)
             }}

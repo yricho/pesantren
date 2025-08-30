@@ -253,7 +253,7 @@ export default function HafalanProgress() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {hafalanData.children.map((child) => (
+                {(hafalanData.children || []).map((child) => (
                   <SelectItem key={child.student.id} value={child.student.id}>
                     {child.student.nickname || child.student.fullName}
                   </SelectItem>
@@ -377,7 +377,7 @@ export default function HafalanProgress() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {selectedChild.recentSessions.slice(0, 4).map((session) => (
+                      {(selectedChild.recentSessions || []).slice(0, 4).map((session) => (
                         <div key={session.id} className="flex items-center p-3 border rounded-lg">
                           <div className={`w-3 h-3 rounded-full mr-3 ${
                             session.type === 'SETORAN_BARU' ? 'bg-green-400' :
@@ -457,7 +457,7 @@ export default function HafalanProgress() {
                   <div className="space-y-4">
                     {selectedChild.surahProgress.length > 0 ? (
                       <div className="grid gap-4">
-                        {selectedChild.surahProgress.map((surah, index) => (
+                        {(selectedChild.surahProgress || []).map((surah, index) => (
                           <div key={surah.surah.number} className="flex items-center p-4 border rounded-lg hover:bg-gray-50">
                             <div className="mr-4">
                               {getStatusIcon(surah.status)}
@@ -508,7 +508,7 @@ export default function HafalanProgress() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {selectedChild.recentSessions.map((session) => (
+                    {(selectedChild.recentSessions || []).map((session) => (
                       <div key={session.id} className="border rounded-lg p-4">
                         <div className="flex justify-between items-start mb-3">
                           <div>
@@ -572,7 +572,7 @@ export default function HafalanProgress() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {selectedChild.achievements.map((achievement) => (
+                    {(selectedChild.achievements || []).map((achievement) => (
                       <div key={achievement.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
                         <div className="flex items-start space-x-3">
                           <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg"
@@ -658,7 +658,7 @@ export default function HafalanProgress() {
                       <div>
                         <h4 className="font-medium mb-3">Progress Terakhir</h4>
                         <div className="space-y-2">
-                          {selectedChild.recentRecords
+                          {(selectedChild.recentRecords || [])
                             .filter(record => record.surah.name === selectedChild.currentTarget?.surah.name)
                             .slice(0, 5)
                             .map((record) => (

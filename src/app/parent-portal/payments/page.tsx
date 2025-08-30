@@ -324,7 +324,7 @@ export default function ParentPaymentsPage() {
                   required
                 >
                   <option value="">Select a bill...</option>
-                  {outstandingBills.map((bill) => (
+                  {(outstandingBills || []).map((bill) => (
                     <option key={bill.id} value={bill.id}>
                       {bill.billType.name} - {bill.period} - {formatCurrency(bill.remainingAmount)}
                     </option>
@@ -408,7 +408,7 @@ export default function ParentPaymentsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {children.map((child) => (
+              {(children || []).map((child) => (
                 <Button
                   key={child.id}
                   variant={selectedChild === child.id ? "default" : "outline"}
@@ -474,7 +474,7 @@ export default function ParentPaymentsPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {outstandingBills.map((bill) => (
+                          {(outstandingBills || []).map((bill) => (
                             <tr key={bill.id} className="border-b hover:bg-gray-50">
                               <td className="p-2 font-mono text-sm">{bill.billNo}</td>
                               <td className="p-2">
@@ -573,7 +573,7 @@ export default function ParentPaymentsPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {paymentHistory.map((payment) => (
+                        {(paymentHistory || []).map((payment) => (
                           <tr key={payment.id} className="border-b hover:bg-gray-50">
                             <td className="p-2 font-mono text-sm">{payment.paymentNo}</td>
                             <td className="p-2">

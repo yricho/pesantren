@@ -244,7 +244,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-4 pb-4 space-y-2">
-        {filteredMenuItems.map((item) => {
+        {(filteredMenuItems || []).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
           const hasChildren = item.children && item.children.length > 0
@@ -291,7 +291,7 @@ export function Sidebar() {
               
               {hasChildren && isExpanded && (
                 <div className="ml-6 mt-1 space-y-1">
-                  {item.children?.map((child) => {
+                  {(item.children || []).map((child) => {
                     const ChildIcon = child.icon
                     const isChildActiveItem = pathname === child.href
                     

@@ -80,7 +80,7 @@ export default function Kegiatan() {
     }, 1000)
   }, [])
 
-  const filteredActivities = activities.filter(activity => 
+  const filteredActivities = (activities || []).filter(activity => 
     filter === 'all' || activity.status === filter
   )
 
@@ -130,7 +130,7 @@ export default function Kegiatan() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-center">
-                {activities.length}
+                {(activities || []).length}
               </div>
               <p className="text-sm text-gray-600 text-center">
                 Total Kegiatan
@@ -141,7 +141,7 @@ export default function Kegiatan() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-center text-yellow-600">
-                {activities.filter(a => a.status === 'planned').length}
+                {(activities || []).filter(a => a.status === 'planned').length}
               </div>
               <p className="text-sm text-gray-600 text-center">
                 Direncanakan
@@ -152,7 +152,7 @@ export default function Kegiatan() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-center text-blue-600">
-                {activities.filter(a => a.status === 'ongoing').length}
+                {(activities || []).filter(a => a.status === 'ongoing').length}
               </div>
               <p className="text-sm text-gray-600 text-center">
                 Berlangsung
@@ -163,7 +163,7 @@ export default function Kegiatan() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-center text-green-600">
-                {activities.filter(a => a.status === 'completed').length}
+                {(activities || []).filter(a => a.status === 'completed').length}
               </div>
               <p className="text-sm text-gray-600 text-center">
                 Selesai
@@ -198,7 +198,7 @@ export default function Kegiatan() {
               Tidak ada kegiatan ditemukan
             </div>
           ) : (
-            filteredActivities.map((activity) => (
+            (filteredActivities || []).map((activity) => (
               <Card key={activity.id} className="overflow-hidden">
                 <div className="h-48 bg-gray-200 relative">
                   {activity.photos.length > 0 ? (
@@ -299,7 +299,7 @@ export default function Kegiatan() {
               createdAt: new Date(),
               updatedAt: new Date()
             }
-            setActivities([newActivity, ...activities])
+            setActivities([newActivity, ...(activities || [])])
             setShowForm(false)
           }}
         />
@@ -328,7 +328,7 @@ export default function Kegiatan() {
             }
 
             const updatedActivity = await response.json()
-            setActivities(activities.map(a => a.id === editingActivity.id ? updatedActivity : a))
+            setActivities((activities || []).map(a => a.id === editingActivity.id ? updatedActivity : a))
             setShowEditForm(false)
             setEditingActivity(null)
           }}
@@ -341,7 +341,7 @@ export default function Kegiatan() {
           activity={selectedActivity}
           onClose={() => setSelectedActivity(null)}
           onUpdate={(updatedActivity) => {
-            setActivities(activities.map(a => 
+            setActivities((activities || []).map(a => 
               a.id === updatedActivity.id ? updatedActivity : a
             ))
             setSelectedActivity(null)

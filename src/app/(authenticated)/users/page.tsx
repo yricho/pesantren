@@ -290,7 +290,7 @@ export default function UsersPage() {
             <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
+            <div className="text-2xl font-bold">{(users || []).length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -299,7 +299,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter(u => u.role === 'SUPER_ADMIN').length}
+              {(users || []).filter(u => u.role === 'SUPER_ADMIN').length}
             </div>
           </CardContent>
         </Card>
@@ -309,7 +309,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter(u => u.role === 'ADMIN').length}
+              {(users || []).filter(u => u.role === 'ADMIN').length}
             </div>
           </CardContent>
         </Card>
@@ -319,7 +319,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter(u => u.role === 'USTADZ').length}
+              {(users || []).filter(u => u.role === 'USTADZ').length}
             </div>
           </CardContent>
         </Card>
@@ -329,7 +329,7 @@ export default function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter(u => u.isActive).length}
+              {(users || []).filter(u => u.isActive).length}
             </div>
           </CardContent>
         </Card>
@@ -409,7 +409,7 @@ export default function UsersPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user) => (
+                (users || []).map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell>{user.username}</TableCell>

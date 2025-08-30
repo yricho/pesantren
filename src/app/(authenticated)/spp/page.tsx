@@ -343,7 +343,7 @@ export default function SPPManagementPage() {
                     required
                   >
                     <option value="">Select a bill...</option>
-                    {outstandingBills.map((bill) => (
+                    {(outstandingBills || []).map((bill) => (
                       <option key={bill.id} value={bill.id}>
                         {bill.student.fullName} - {bill.billType.name} - {formatCurrency(bill.remainingAmount)}
                       </option>

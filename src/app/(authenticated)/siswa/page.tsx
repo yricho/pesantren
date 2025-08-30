@@ -150,7 +150,7 @@ export default function SiswaPage() {
     }
   }
 
-  const filteredStudents = students.filter(student => {
+  const filteredStudents = (students || []).filter(student => {
     const matchesSearch = 
       student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.nis.includes(searchTerm) ||
@@ -159,10 +159,10 @@ export default function SiswaPage() {
   })
 
   const stats = {
-    tk: students.filter(s => s.institutionType === 'TK').length,
-    sd: students.filter(s => s.institutionType === 'SD').length,
-    pondok: students.filter(s => s.institutionType === 'PONDOK').length,
-    total: students.length
+    tk: (students || []).filter(s => s.institutionType === 'TK').length,
+    sd: (students || []).filter(s => s.institutionType === 'SD').length,
+    pondok: (students || []).filter(s => s.institutionType === 'PONDOK').length,
+    total: (students || []).length
   }
 
 
@@ -326,7 +326,7 @@ export default function SiswaPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredStudents.map((student) => (
+                  (filteredStudents || []).map((student) => (
                     <tr key={student.id} className="hover:bg-gray-50">
                       <td className="px-4 py-4">
                         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -585,7 +585,7 @@ export default function SiswaPage() {
               }
 
               const updatedStudent = await response.json()
-              setStudents(students.map(s => s.id === editingStudent.id ? updatedStudent : s))
+              setStudents((students || []).map(s => s.id === editingStudent.id ? updatedStudent : s))
               setShowEditForm(false)
               setEditingStudent(null)
             }}

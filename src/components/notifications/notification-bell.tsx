@@ -56,7 +56,7 @@ export function NotificationBell() {
 
       if (response.ok) {
         setNotifications(prev =>
-          prev.map(n =>
+          (prev || []).map(n =>
             n.id === notificationId ? { ...n, isRead: true } : n
           )
         );
@@ -74,7 +74,7 @@ export function NotificationBell() {
       });
 
       if (response.ok) {
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+        setNotifications(prev => (prev || []).map(n => ({ ...n, isRead: true })));
         setUnreadCount(0);
       }
     } catch (error) {
@@ -214,7 +214,7 @@ export function NotificationBell() {
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-100">
-                    {notifications.map((notification) => (
+                    {(notifications || []).map((notification) => (
                       <motion.div
                         key={notification.id}
                         initial={{ opacity: 0, x: -20 }}

@@ -538,7 +538,7 @@ export default function DashboardPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 col-span-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Metode Pembayaran</h3>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={analytics.paymentAnalytics.paymentMethods}>
+                <BarChart data={(analytics.paymentAnalytics?.paymentMethods || [])}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="method" />
                   <YAxis />
