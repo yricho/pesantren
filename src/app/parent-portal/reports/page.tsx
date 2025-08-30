@@ -556,7 +556,7 @@ export default function ReportsAnalytics() {
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Nilai < 70</span>
+                    <span className="text-sm">Nilai &lt; 70</span>
                     <div className="flex items-center">
                       <AlertCircle className="w-4 h-4 text-red-500 mr-1" />
                       <span className="font-medium text-red-600">
@@ -599,7 +599,7 @@ export default function ReportsAnalytics() {
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Perlu Perbaikan (<80%)</span>
+                    <span className="text-sm">Perlu Perbaikan (&lt;80%)</span>
                     <div className="flex items-center">
                       <AlertCircle className="w-4 h-4 text-red-500 mr-1" />
                       <span className="font-medium text-red-600">
