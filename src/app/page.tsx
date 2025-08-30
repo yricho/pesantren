@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
+import { useState } from 'react';
 import {
   BookOpenIcon,
   AcademicCapIcon,
@@ -21,6 +22,11 @@ import {
   CheckCircleIcon,
   ArrowRightIcon,
   UserGroupIcon,
+  Bars3Icon,
+  XMarkIcon,
+  HomeIcon,
+  PhotoIcon,
+  PlayCircleIcon,
 } from '@heroicons/react/24/outline';
 import {
   StarIcon,
@@ -28,6 +34,7 @@ import {
 } from '@heroicons/react/24/solid';
 
 export default function HomePage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -141,6 +148,150 @@ export default function HomePage() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23065f46' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }} />
       </div>
+
+      {/* Navigation Bar */}
+      <nav className="bg-white/95 backdrop-blur-sm shadow-lg sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-8">
+              <Link href="/" className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">P</span>
+                </div>
+                <span className="font-bold text-gray-800 hidden md:block">Pondok Imam Syafi'i</span>
+              </Link>
+              
+              {/* Desktop Navigation */}
+              <div className="hidden lg:flex items-center space-x-6">
+                <Link href="/" className="flex items-center space-x-1 text-green-600 font-semibold">
+                  <HomeIcon className="w-4 h-4" />
+                  <span>Beranda</span>
+                </Link>
+                
+                {/* Dropdown Profil */}
+                <div className="relative group">
+                  <button className="flex items-center space-x-1 text-gray-600 hover:text-green-600 transition-colors">
+                    <span>Profil</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <Link href="/about/yayasan" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                      Yayasan
+                    </Link>
+                    <Link href="/about/pondok" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                      Pondok Pesantren
+                    </Link>
+                    <Link href="/about/tk" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                      TK Islam
+                    </Link>
+                    <Link href="/about/sd" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                      SD Islam
+                    </Link>
+                  </div>
+                </div>
+                
+                <Link href="/donasi" className="flex items-center space-x-1 text-gray-600 hover:text-green-600 transition-colors">
+                  <HeartIcon className="w-4 h-4" />
+                  <span>Donasi</span>
+                </Link>
+                
+                <Link href="/gallery" className="flex items-center space-x-1 text-gray-600 hover:text-green-600 transition-colors">
+                  <PhotoIcon className="w-4 h-4" />
+                  <span>Galeri</span>
+                </Link>
+                
+                <Link href="/kajian" className="flex items-center space-x-1 text-gray-600 hover:text-green-600 transition-colors">
+                  <PlayCircleIcon className="w-4 h-4" />
+                  <span>Kajian</span>
+                </Link>
+                
+                <Link href="/library" className="flex items-center space-x-1 text-gray-600 hover:text-green-600 transition-colors">
+                  <BookOpenIcon className="w-4 h-4" />
+                  <span>Perpustakaan</span>
+                </Link>
+                
+                <Link href="/ppdb" className="text-gray-600 hover:text-green-600 transition-colors">
+                  PPDB
+                </Link>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {/* Login Button */}
+              <Link href="/auth/signin" className="hidden md:block">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                >
+                  Masuk
+                </motion.button>
+              </Link>
+              
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                {isMenuOpen ? (
+                  <XMarkIcon className="w-6 h-6" />
+                ) : (
+                  <Bars3Icon className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="lg:hidden bg-white border-t"
+          >
+            <div className="container mx-auto px-4 py-4 space-y-2">
+              <Link href="/" className="block py-2 text-green-600 font-semibold">
+                Beranda
+              </Link>
+              <div className="border-l-2 border-gray-200 ml-2 pl-4 space-y-2">
+                <Link href="/about/yayasan" className="block py-2 text-gray-600 hover:text-green-600">
+                  Profil Yayasan
+                </Link>
+                <Link href="/about/pondok" className="block py-2 text-gray-600 hover:text-green-600">
+                  Profil Pondok
+                </Link>
+                <Link href="/about/tk" className="block py-2 text-gray-600 hover:text-green-600">
+                  Profil TK Islam
+                </Link>
+                <Link href="/about/sd" className="block py-2 text-gray-600 hover:text-green-600">
+                  Profil SD Islam
+                </Link>
+              </div>
+              <Link href="/donasi" className="block py-2 text-gray-600 hover:text-green-600">
+                Donasi
+              </Link>
+              <Link href="/gallery" className="block py-2 text-gray-600 hover:text-green-600">
+                Galeri Kegiatan
+              </Link>
+              <Link href="/kajian" className="block py-2 text-gray-600 hover:text-green-600">
+                Video Kajian
+              </Link>
+              <Link href="/library" className="block py-2 text-gray-600 hover:text-green-600">
+                Perpustakaan Digital
+              </Link>
+              <Link href="/ppdb" className="block py-2 text-gray-600 hover:text-green-600">
+                PPDB Online
+              </Link>
+              <Link href="/auth/signin" className="block py-2 text-green-600 font-semibold">
+                Masuk Dashboard
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </nav>
 
       {/* Hero Section */}
       <motion.section
