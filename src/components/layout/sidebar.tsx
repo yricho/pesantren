@@ -231,7 +231,7 @@ export function Sidebar() {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className="p-6">
+      <div className="p-6 flex-shrink-0">
         <Link href="/dashboard" className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
             <BookOpen className="w-6 h-6 text-primary-600" />
@@ -243,7 +243,7 @@ export function Sidebar() {
         </Link>
       </div>
 
-      <nav className="flex-1 px-4 pb-4 space-y-2">
+      <nav className="flex-1 px-4 pb-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
         {(filteredMenuItems || []).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
@@ -319,7 +319,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t flex-shrink-0">
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
             <span className="text-xs font-medium text-primary-600">

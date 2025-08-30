@@ -79,7 +79,7 @@ export default function ParentPortalSidebar() {
     <aside className="fixed left-0 top-16 w-64 h-full bg-white border-r border-gray-200 z-40">
       <div className="flex flex-col h-full">
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-2">
+        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
           {navigationItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
             
@@ -108,7 +108,7 @@ export default function ParentPortalSidebar() {
         </nav>
 
         {/* Quick Actions */}
-        <div className="px-4 py-4 border-t border-gray-200">
+        <div className="px-4 py-4 border-t border-gray-200 flex-shrink-0">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
             Aksi Cepat
           </h3>
@@ -131,7 +131,7 @@ export default function ParentPortalSidebar() {
         </div>
 
         {/* Help Section */}
-        <div className="px-4 py-4 border-t border-gray-200">
+        <div className="px-4 py-4 border-t border-gray-200 flex-shrink-0">
           <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg">
             <h4 className="text-sm font-medium text-gray-900 mb-2">
               Butuh Bantuan?
