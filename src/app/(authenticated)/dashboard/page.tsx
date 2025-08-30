@@ -17,6 +17,9 @@ import {
   ClockIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
+  TrophyIcon,
+  CreditCardIcon,
+  UserPlusIcon,
 } from '@heroicons/react/24/outline';
 import {
   StarIcon,
@@ -37,9 +40,13 @@ import {
   Cell,
   LineChart,
   Line,
-  Legend
+  Legend,
+  ComposedChart,
+  RadialBarChart,
+  RadialBar,
 } from 'recharts';
 import CountUp from 'react-countup';
+import type { DashboardAnalytics } from '@/lib/dashboard-analytics';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -57,76 +64,115 @@ const stagger = {
 export default function DashboardPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const [loading, setLoading] = useState(true);
+  const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null);
+  const [selectedTab, setSelectedTab] = useState('overview');
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
+    fetchAnalytics();
   }, []);
 
-  // Sample data for charts
-  const revenueData = [
-    { month: 'Jan', pendapatan: 45000000, pengeluaran: 32000000 },
-    { month: 'Feb', pendapatan: 52000000, pengeluaran: 35000000 },
-    { month: 'Mar', pendapatan: 48000000, pengeluaran: 30000000 },
-    { month: 'Apr', pendapatan: 61000000, pengeluaran: 38000000 },
-    { month: 'Mei', pendapatan: 55000000, pengeluaran: 33000000 },
-    { month: 'Jun', pendapatan: 67000000, pengeluaran: 40000000 },
-  ];
+  const fetchAnalytics = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/dashboard/analytics');
+      if (response.ok) {
+        const data = await response.json();
+        setAnalytics(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const studentData = [
-    { name: 'TK', value: 45, color: '#10B981' },
-    { name: 'SD', value: 120, color: '#3B82F6' },
-    { name: 'Pondok', value: 185, color: '#8B5CF6' },
-  ];
+  // Get stats from analytics or use defaults
+  const getStats = () => {
+    if (!analytics) {
+      return [
+        {
+          title: 'Total Santri',
+          value: 350,
+          change: '+12%',
+          trend: 'up' as const,
+          icon: UsersIcon,
+          color: 'from-blue-400 to-blue-600',
+          bgColor: 'bg-blue-50',
+        },
+        {
+          title: 'Pendapatan Bulan Ini',
+          value: 67000000,
+          change: '+22%',
+          trend: 'up' as const,
+          icon: CurrencyDollarIcon,
+          color: 'from-green-400 to-green-600',
+          bgColor: 'bg-green-50',
+          prefix: 'Rp ',
+        },
+        {
+          title: 'Kegiatan Bulan Ini',
+          value: 24,
+          change: '+8%',
+          trend: 'up' as const,
+          icon: CalendarIcon,
+          color: 'from-purple-400 to-purple-600',
+          bgColor: 'bg-purple-50',
+        },
+        {
+          title: 'Pengajar Aktif',
+          value: 156,
+          change: '+15%',
+          trend: 'up' as const,
+          icon: UserGroupIcon,
+          color: 'from-orange-400 to-orange-600',
+          bgColor: 'bg-orange-50',
+        },
+      ];
+    }
 
-  const activityData = [
-    { day: 'Sen', kegiatan: 8 },
-    { day: 'Sel', kegiatan: 12 },
-    { day: 'Rab', kegiatan: 15 },
-    { day: 'Kam', kegiatan: 10 },
-    { day: 'Jum', kegiatan: 18 },
-    { day: 'Sab', kegiatan: 6 },
-    { day: 'Min', kegiatan: 4 },
-  ];
+    return [
+      {
+        title: 'Total Santri',
+        value: analytics.overview.totalStudents,
+        change: `${analytics.overview.studentGrowth >= 0 ? '+' : ''}${analytics.overview.studentGrowth.toFixed(1)}%`,
+        trend: analytics.overview.studentGrowth >= 0 ? 'up' as const : 'down' as const,
+        icon: UsersIcon,
+        color: 'from-blue-400 to-blue-600',
+        bgColor: 'bg-blue-50',
+      },
+      {
+        title: 'Pendapatan Bulan Ini',
+        value: analytics.overview.totalRevenue,
+        change: `${analytics.overview.revenueGrowth >= 0 ? '+' : ''}${analytics.overview.revenueGrowth.toFixed(1)}%`,
+        trend: analytics.overview.revenueGrowth >= 0 ? 'up' as const : 'down' as const,
+        icon: CurrencyDollarIcon,
+        color: 'from-green-400 to-green-600',
+        bgColor: 'bg-green-50',
+        prefix: 'Rp ',
+      },
+      {
+        title: 'Kegiatan Bulan Ini',
+        value: analytics.overview.totalActivities,
+        change: '+8%',
+        trend: 'up' as const,
+        icon: CalendarIcon,
+        color: 'from-purple-400 to-purple-600',
+        bgColor: 'bg-purple-50',
+      },
+      {
+        title: 'Pengajar Aktif',
+        value: analytics.overview.totalTeachers,
+        change: '+5%',
+        trend: 'up' as const,
+        icon: UserGroupIcon,
+        color: 'from-orange-400 to-orange-600',
+        bgColor: 'bg-orange-50',
+      },
+    ];
+  };
 
-  const stats = [
-    {
-      title: 'Total Santri',
-      value: 350,
-      change: '+12%',
-      trend: 'up',
-      icon: UsersIcon,
-      color: 'from-blue-400 to-blue-600',
-      bgColor: 'bg-blue-50',
-    },
-    {
-      title: 'Pendapatan Bulan Ini',
-      value: 67000000,
-      change: '+22%',
-      trend: 'up',
-      icon: CurrencyDollarIcon,
-      color: 'from-green-400 to-green-600',
-      bgColor: 'bg-green-50',
-      prefix: 'Rp ',
-    },
-    {
-      title: 'Kegiatan Bulan Ini',
-      value: 24,
-      change: '+8%',
-      trend: 'up',
-      icon: CalendarIcon,
-      color: 'from-purple-400 to-purple-600',
-      bgColor: 'bg-purple-50',
-    },
-    {
-      title: 'Video Kajian',
-      value: 156,
-      change: '+15%',
-      trend: 'up',
-      icon: VideoCameraIcon,
-      color: 'from-orange-400 to-orange-600',
-      bgColor: 'bg-orange-50',
-    },
-  ];
+  const stats = getStats();
+
 
   const recentActivities = [
     {
@@ -204,12 +250,12 @@ export default function DashboardPage() {
     >
       {/* Header */}
       <motion.div variants={fadeInUp} className="mb-8">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              Dashboard <span className="text-green-600">Overview</span>
+              Dashboard <span className="text-green-600">Analytics</span>
             </h1>
-            <p className="text-gray-600 mt-1">Selamat datang kembali, Admin!</p>
+            <p className="text-gray-600 mt-1">Selamat datang kembali! Berikut ringkasan aktivitas sistem.</p>
           </div>
           <div className="flex items-center gap-2">
             <motion.div
@@ -230,11 +276,37 @@ export default function DashboardPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700 transition-colors"
+              onClick={fetchAnalytics}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700 transition-colors flex items-center gap-2"
             >
-              Download Report
+              <ArrowTrendingUpIcon className="w-4 h-4" />
+              Refresh Data
             </motion.button>
           </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg mb-6">
+          {[
+            { key: 'overview', label: 'Overview', icon: ChartBarIcon },
+            { key: 'academic', label: 'Akademik', icon: AcademicCapIcon },
+            { key: 'financial', label: 'Keuangan', icon: CurrencyDollarIcon },
+            { key: 'hafalan', label: 'Hafalan', icon: BookOpenIcon },
+            { key: 'teachers', label: 'Pengajar', icon: UserGroupIcon },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setSelectedTab(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedTab === tab.key
+                  ? 'bg-white text-green-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
         </div>
       </motion.div>
 
@@ -276,112 +348,303 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Revenue Chart */}
-        <motion.div
-          variants={fadeInUp}
-          className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Grafik Keuangan</h2>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full" />
-                <span className="text-sm text-gray-600">Pendapatan</span>
+      {/* Dynamic Content Based on Selected Tab */}
+      {selectedTab === 'overview' && (
+        <div className="space-y-8">
+          {/* Revenue and Enrollment Trends */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Financial Overview */}
+            <motion.div
+              variants={fadeInUp}
+              className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Trend Keuangan</h2>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full" />
+                    <span className="text-sm text-gray-600">Pendapatan</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full" />
+                    <span className="text-sm text-gray-600">Pengeluaran</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full" />
-                <span className="text-sm text-gray-600">Pengeluaran</span>
+              
+              <ResponsiveContainer width="100%" height={300}>
+                <ComposedChart data={analytics?.financialOverview || []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="month" stroke="#6B7280" />
+                  <YAxis stroke="#6B7280" />
+                  <Tooltip 
+                    formatter={(value: any) => [`Rp ${Number(value).toLocaleString('id-ID')}`, '']}
+                    contentStyle={{ 
+                      backgroundColor: '#fff', 
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '8px' 
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="income" 
+                    fill="#10B981" 
+                    stroke="#10B981" 
+                    fillOpacity={0.3}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="expenses" 
+                    fill="#EF4444" 
+                    stroke="#EF4444" 
+                    fillOpacity={0.3}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="profit" 
+                    stroke="#8B5CF6" 
+                    strokeWidth={2}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </motion.div>
+
+            {/* Enrollment Trends */}
+            <motion.div
+              variants={fadeInUp}
+              className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
+            >
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Trend Pendaftaran</h2>
+              
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={analytics?.enrollmentTrends || []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis dataKey="month" stroke="#6B7280" />
+                  <YAxis stroke="#6B7280" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#fff', 
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '8px' 
+                    }}
+                  />
+                  <Legend />
+                  <Bar dataKey="newEnrollments" fill="#10B981" name="Pendaftaran Baru" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="graduations" fill="#EF4444" name="Kelulusan" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="netGrowth" fill="#3B82F6" name="Pertumbuhan Bersih" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </motion.div>
+          </div>
+        </div>
+      )}
+
+      {selectedTab === 'academic' && analytics && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          {/* Academic Performance by Level */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Performa Akademik per Jenjang</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={analytics.academicPerformance}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="level" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="averageGrade" fill="#10B981" name="Nilai Rata-rata" />
+                  <Bar dataKey="passingRate" fill="#3B82F6" name="Tingkat Kelulusan %" />
+                  <Bar dataKey="attendanceRate" fill="#F59E0B" name="Tingkat Kehadiran %" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Partisipasi Kegiatan</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={analytics.activityParticipation}
+                    dataKey="participationRate"
+                    nameKey="activityType"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    label={({ name, value }) => `${name}: ${value}%`}
+                  >
+                    {analytics.activityParticipation.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 60%)`} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {selectedTab === 'financial' && analytics && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          {/* Payment Analytics */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistik Pembayaran</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Tepat Waktu</span>
+                  <span className="text-green-600 font-semibold">{analytics.paymentAnalytics.onTimeRate.toFixed(1)}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Terlambat</span>
+                  <span className="text-red-600 font-semibold">{analytics.paymentAnalytics.latePaymentRate.toFixed(1)}%</span>
+                </div>
+                <div className="pt-4 border-t">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Terkumpul</span>
+                    <span className="text-blue-600 font-semibold">
+                      Rp {analytics.paymentAnalytics.totalCollection.toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-gray-600">Tunggakan</span>
+                    <span className="text-orange-600 font-semibold">
+                      Rp {analytics.paymentAnalytics.outstandingAmount.toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 col-span-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Metode Pembayaran</h3>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={analytics.paymentAnalytics.paymentMethods}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="method" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#10B981" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {selectedTab === 'hafalan' && analytics && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          {/* Hafalan Progress by Level */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Progress Hafalan per Jenjang</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={analytics.hafalanProgress}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="level" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="averageProgress" fill="#10B981" name="Progress Rata-rata %" />
+                  <Bar dataKey="completedSurahs" fill="#3B82F6" name="Total Surah Selesai" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Top Performers</h2>
+              <div className="space-y-4">
+                {analytics.hafalanProgress[0]?.topPerformers?.slice(0, 5).map((performer, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <span className="text-green-600 font-semibold text-sm">{index + 1}</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{performer.name}</p>
+                        <p className="text-sm text-gray-600">{performer.surahs} Surah</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-green-600">{performer.progress.toFixed(1)}%</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-          
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={revenueData}>
-              <defs>
-                <linearGradient id="colorPendapatan" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorPengeluaran" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="month" stroke="#6B7280" />
-              <YAxis stroke="#6B7280" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#fff', 
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '8px' 
-                }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="pendapatan" 
-                stroke="#10B981" 
-                fillOpacity={1} 
-                fill="url(#colorPendapatan)" 
-                strokeWidth={2}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="pengeluaran" 
-                stroke="#EF4444" 
-                fillOpacity={1} 
-                fill="url(#colorPengeluaran)" 
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
         </motion.div>
+      )}
 
-        {/* Student Distribution */}
-        <motion.div
-          variants={fadeInUp}
-          className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
+      {selectedTab === 'teachers' && analytics && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
         >
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Distribusi Siswa</h2>
-          
-          <div className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={studentData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {studentData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+          {/* Teacher Workload */}
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Distribusi Beban Kerja Pengajar</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Nama Pengajar</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Jumlah Kelas</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Jumlah Siswa</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Mata Pelajaran</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Skor Beban</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analytics.teacherWorkload.slice(0, 10).map((teacher, index) => (
+                    <tr key={index} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4 text-gray-900">{teacher.teacherName}</td>
+                      <td className="py-3 px-4 text-gray-600">{teacher.totalClasses}</td>
+                      <td className="py-3 px-4 text-gray-600">{teacher.totalStudents}</td>
+                      <td className="py-3 px-4 text-gray-600">
+                        <div className="flex flex-wrap gap-1">
+                          {teacher.subjects.slice(0, 2).map((subject, i) => (
+                            <span key={i} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                              {subject}
+                            </span>
+                          ))}
+                          {teacher.subjects.length > 2 && (
+                            <span className="text-gray-500 text-xs">+{teacher.subjects.length - 2}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-green-500 h-2 rounded-full"
+                              style={{ width: `${Math.min(teacher.workloadScore / 100 * 100, 100)}%` }}
+                            />
+                          </div>
+                          <span className="text-sm text-gray-600">{teacher.workloadScore}</span>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            {studentData.map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-sm font-medium text-gray-700">{item.name}</span>
-                </div>
-                <p className="text-xl font-bold text-gray-900">{item.value}</p>
-                <p className="text-xs text-gray-500">Siswa</p>
-              </div>
-            ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </motion.div>
-      </div>
+      )}
 
       {/* Activity & Events */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

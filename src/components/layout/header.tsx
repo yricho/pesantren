@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useOffline } from '@/components/offline-provider'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 import { Wifi, WifiOff, RefreshCw } from 'lucide-react'
 
 export function Header({ title }: { title: string }) {
@@ -9,11 +10,11 @@ export function Header({ title }: { title: string }) {
   const { isOnline, syncStatus } = useOffline()
 
   return (
-    <header className="bg-white border-b px-6 py-4">
+    <header className="bg-white border-b px-6 py-4 shadow-sm">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
           {/* Connection status */}
           <div className="flex items-center space-x-2">
             {isOnline ? (
@@ -31,8 +32,13 @@ export function Header({ title }: { title: string }) {
             </span>
           </div>
 
+          {/* Notification Bell */}
+          {session?.user && (
+            <NotificationBell />
+          )}
+
           {/* Current time */}
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 hidden md:block">
             {new Date().toLocaleString('id-ID', {
               weekday: 'long',
               year: 'numeric',
@@ -42,6 +48,21 @@ export function Header({ title }: { title: string }) {
               minute: '2-digit'
             })}
           </div>
+
+          {/* User info */}
+          {session?.user && (
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <span className="text-green-600 font-semibold text-sm">
+                  {session.user.name?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="hidden md:block">
+                <p className="text-sm font-medium text-gray-900">{session.user.name}</p>
+                <p className="text-xs text-gray-500">{session.user.email}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>
