@@ -219,6 +219,9 @@ export default function HomePage() {
                     <Link href="/about/struktur" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
                       Struktur Organisasi
                     </Link>
+                    <Link href="/about/pengajar" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                      Ustadz & Ustadzah
+                    </Link>
                     <Link href="/about/pondok" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
                       Pondok Pesantren
                     </Link>
@@ -318,6 +321,9 @@ export default function HomePage() {
                 </Link>
                 <Link href="/about/struktur" className="block py-2 text-gray-600 hover:text-green-600">
                   Struktur Organisasi
+                </Link>
+                <Link href="/about/pengajar" className="block py-2 text-gray-600 hover:text-green-600">
+                  Ustadz & Ustadzah
                 </Link>
                 <Link href="/about/pondok" className="block py-2 text-gray-600 hover:text-green-600">
                   Profil Pondok

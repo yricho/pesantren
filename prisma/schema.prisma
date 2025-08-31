@@ -36,6 +36,7 @@ model User {
   createdAlumni         Alumni[]
   createdCampaigns      DonationCampaign[]
   createdPurchaseOrders PurchaseOrder[]
+  createdTeachers       Teacher[]
 
   // Academic Relations
   homeroom_classes  Class[]          @relation("ClassTeacher")
@@ -290,6 +291,54 @@ model Activity {
   creator User @relation(fields: [createdBy], references: [id])
 
   @@map("activities")
+}
+
+model Teacher {
+  id            String   @id @default(cuid())
+  nip           String?  @unique // Nomor Induk Pegawai
+  name          String
+  title         String?  // Gelar akademik (S.Pd, M.Pd, etc)
+  gender        String   // L/P
+  birthPlace    String?
+  birthDate     DateTime?
+  phone         String?
+  email         String?
+  address       String?
+  
+  // Professional Info
+  position      String   // Jabatan (Guru Kelas, Guru Mapel, etc)
+  subjects      String   @default("[]") // JSON array of subjects taught
+  education     String?  // Pendidikan terakhir
+  university    String?  // Universitas
+  major         String?  // Jurusan
+  certifications String  @default("[]") // JSON array of certifications
+  
+  // Employment Info
+  employmentType String  @default("TETAP") // TETAP, HONORER, KONTRAK
+  joinDate      DateTime?
+  status        String   @default("ACTIVE") // ACTIVE, INACTIVE, LEAVE
+  
+  // Teaching Assignment
+  institution   String   // TK, SD, PONDOK, ALL
+  specialization String? // Tahfidz, Kitab, Bahasa Arab, etc
+  experience    Int?     // Years of experience
+  
+  // Additional Info
+  photo         String?
+  bio           String?  // Short biography
+  achievements  String   @default("[]") // JSON array of achievements
+  isUstadz      Boolean  @default(true) // true for Ustadz, false for Ustadzah
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String?
+
+  // Relations
+  creator       User?    @relation(fields: [createdBy], references: [id])
+
+  @@index([institution, status])
+  @@index([isUstadz, status])
+  @@map("teachers")
 }
 
 model Course {
