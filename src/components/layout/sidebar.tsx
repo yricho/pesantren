@@ -63,6 +63,11 @@ const menuItems: MenuItem[] = [
     icon: GraduationCap
   },
   {
+    title: 'Data Pengajar',
+    href: '/pengajar',
+    icon: Users
+  },
+  {
     title: 'Admin PPDB',
     href: '/ppdb-admin',
     icon: ClipboardCheck,
