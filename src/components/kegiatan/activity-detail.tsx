@@ -11,9 +11,10 @@ interface ActivityDetailProps {
   activity: Activity
   onClose: () => void
   onUpdate: (activity: Activity) => void
+  onDelete?: (activityId: string) => Promise<void>
 }
 
-export function ActivityDetail({ activity, onClose, onUpdate }: ActivityDetailProps) {
+export function ActivityDetail({ activity, onClose, onUpdate, onDelete }: ActivityDetailProps) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
 
   const getStatusLabel = (status: string) => {

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/layout/header'
-import { Plus, Calendar, MapPin, Camera, Eye, Edit } from 'lucide-react'
+import { Plus, Calendar, MapPin, Camera, Eye, Edit, Trash2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { Activity } from '@/types'
 import { ActivityForm } from '@/components/kegiatan/activity-form'
@@ -18,66 +18,43 @@ export default function Kegiatan() {
   const [filter, setFilter] = useState<'all' | 'planned' | 'ongoing' | 'completed'>('all')
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Fetch activities from API
+  const fetchActivities = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await fetch('/api/activities')
+      
+      if (!response.ok) {
+        throw new Error('Gagal mengambil data kegiatan')
+      }
+      
+      const data = await response.json()
+      // Handle the API response structure which includes pagination
+      const activitiesData = data.activities || data
+      
+      // Convert date strings back to Date objects
+      const formattedActivities = activitiesData.map((activity: any) => ({
+        ...activity,
+        date: new Date(activity.date),
+        createdAt: new Date(activity.createdAt),
+        updatedAt: new Date(activity.updatedAt)
+      }))
+      
+      setActivities(formattedActivities)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat mengambil data')
+      console.error('Error fetching activities:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    // Simulate loading activities
-    setTimeout(() => {
-      setActivities([
-        {
-          id: '1',
-          title: 'Kajian Rutin Mingguan',
-          description: 'Kajian rutin setiap hari Jumat dengan tema Fiqih Muamalah',
-          type: 'kajian',
-          date: new Date('2024-03-22'),
-          location: 'Masjid Pondok',
-          photos: ['/photos/kajian1.jpg', '/photos/kajian2.jpg'],
-          status: 'planned',
-          createdBy: 'user1',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          id: '2',
-          title: 'Pelatihan Komputer',
-          description: 'Pelatihan komputer dasar untuk santri tingkat menengah',
-          type: 'pelatihan',
-          date: new Date('2024-03-20'),
-          location: 'Lab Komputer',
-          photos: ['/photos/pelatihan1.jpg'],
-          status: 'completed',
-          createdBy: 'user1',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          id: '3',
-          title: 'Bakti Sosial',
-          description: 'Kegiatan bakti sosial di desa sekitar pondok',
-          type: 'sosial',
-          date: new Date('2024-03-18'),
-          location: 'Desa Sumberejo',
-          photos: ['/photos/baksos1.jpg', '/photos/baksos2.jpg', '/photos/baksos3.jpg'],
-          status: 'completed',
-          createdBy: 'user1',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          id: '4',
-          title: 'Seminar Kewirausahaan',
-          description: 'Seminar motivasi kewirausahaan untuk alumni dan santri senior',
-          type: 'seminar',
-          date: new Date('2024-03-25'),
-          location: 'Aula Pondok',
-          photos: [],
-          status: 'planned',
-          createdBy: 'user1',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-      ])
-      setLoading(false)
-    }, 1000)
+    fetchActivities()
   }, [])
 
   const filteredActivities = (activities || []).filter(activity => 
@@ -112,6 +89,32 @@ export default function Kegiatan() {
     }
   }
 
+  // Delete activity function
+  const handleDeleteActivity = async (activityId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus kegiatan ini?')) {
+      return
+    }
+    
+    try {
+      setError(null)
+      const response = await fetch(`/api/activities?id=${activityId}`, {
+        method: 'DELETE',
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Gagal menghapus kegiatan')
+      }
+      
+      // Remove activity from local state
+      setActivities((activities || []).filter(a => a.id !== activityId))
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat menghapus kegiatan'
+      setError(errorMessage)
+      console.error('Error deleting activity:', err)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -125,6 +128,20 @@ export default function Kegiatan() {
       <Header title="Manajemen Kegiatan" />
       
       <main className="p-6">
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span>{error}</span>
+              <button
+                onClick={() => setError(null)}
+                className="text-red-500 hover:text-red-700"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
@@ -174,18 +191,28 @@ export default function Kegiatan() {
 
         {/* Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 rounded-md"
-          >
-            <option value="all">Semua Status</option>
-            <option value="planned">Direncanakan</option>
-            <option value="ongoing">Berlangsung</option>
-            <option value="completed">Selesai</option>
-          </select>
+          <div className="flex gap-2">
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as any)}
+              className="px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="all">Semua Status</option>
+              <option value="planned">Direncanakan</option>
+              <option value="ongoing">Berlangsung</option>
+              <option value="completed">Selesai</option>
+            </select>
+            
+            <Button
+              variant="outline"
+              onClick={fetchActivities}
+              disabled={loading || isSubmitting}
+            >
+              {loading ? 'Memuat...' : 'Refresh'}
+            </Button>
+          </div>
 
-          <Button onClick={() => setShowForm(true)}>
+          <Button onClick={() => setShowForm(true)} disabled={isSubmitting}>
             <Plus className="w-4 h-4 mr-2" />
             Tambah Kegiatan
           </Button>
@@ -262,8 +289,9 @@ export default function Kegiatan() {
                         setShowEditForm(true)
                       }}
                       className="flex-1"
+                      disabled={isSubmitting}
                     >
-                      <Edit className="w-4 h-4 mr-2" />
+                      <Edit className="w-4 h-4 mr-1" />
                       Edit
                     </Button>
                     <Button
@@ -272,8 +300,17 @@ export default function Kegiatan() {
                       onClick={() => setSelectedActivity(activity)}
                       className="flex-1"
                     >
-                      <Eye className="w-4 h-4 mr-2" />
+                      <Eye className="w-4 h-4 mr-1" />
                       Detail
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteActivity(activity.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      disabled={isSubmitting}
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -288,19 +325,45 @@ export default function Kegiatan() {
         <ActivityForm
           onClose={() => setShowForm(false)}
           onSubmit={async (data) => {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            
-            const newActivity: Activity = {
-              id: Math.random().toString(),
-              ...data,
-              photos: data.photos || [],
-              createdBy: 'current-user',
-              createdAt: new Date(),
-              updatedAt: new Date()
+            try {
+              setIsSubmitting(true)
+              setError(null)
+              
+              const response = await fetch('/api/activities', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  ...data,
+                  photos: data.photos || [],
+                }),
+              })
+              
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Gagal membuat kegiatan')
+              }
+              
+              const newActivity = await response.json()
+              // Convert date strings back to Date objects
+              const formattedActivity = {
+                ...newActivity,
+                date: new Date(newActivity.date),
+                createdAt: new Date(newActivity.createdAt),
+                updatedAt: new Date(newActivity.updatedAt)
+              }
+              
+              setActivities([formattedActivity, ...(activities || [])])
+              setShowForm(false)
+            } catch (err) {
+              const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat membuat kegiatan'
+              setError(errorMessage)
+              console.error('Error creating activity:', err)
+              throw err // Let the form handle the error display
+            } finally {
+              setIsSubmitting(false)
             }
-            setActivities([newActivity, ...(activities || [])])
-            setShowForm(false)
           }}
         />
       )}
@@ -314,23 +377,49 @@ export default function Kegiatan() {
             setEditingActivity(null)
           }}
           onSubmit={async (data) => {
-            const response = await fetch(`/api/activities/${editingActivity.id}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(data),
-            })
-
-            if (!response.ok) {
-              const errorData = await response.json()
-              throw new Error(errorData.error || 'Gagal memperbarui kegiatan')
+            try {
+              setIsSubmitting(true)
+              setError(null)
+              
+              const response = await fetch('/api/activities', {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  ...data,
+                  id: editingActivity.id,
+                  photos: data.photos || [],
+                }),
+              })
+              
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Gagal memperbarui kegiatan')
+              }
+              
+              const updatedActivity = await response.json()
+              // Convert date strings back to Date objects
+              const formattedActivity = {
+                ...updatedActivity,
+                date: new Date(updatedActivity.date),
+                createdAt: new Date(updatedActivity.createdAt),
+                updatedAt: new Date(updatedActivity.updatedAt)
+              }
+              
+              setActivities((activities || []).map(a => 
+                a.id === editingActivity.id ? formattedActivity : a
+              ))
+              setShowEditForm(false)
+              setEditingActivity(null)
+            } catch (err) {
+              const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat memperbarui kegiatan'
+              setError(errorMessage)
+              console.error('Error updating activity:', err)
+              throw err // Let the form handle the error display
+            } finally {
+              setIsSubmitting(false)
             }
-
-            const updatedActivity = await response.json()
-            setActivities((activities || []).map(a => a.id === editingActivity.id ? updatedActivity : a))
-            setShowEditForm(false)
-            setEditingActivity(null)
           }}
         />
       )}
@@ -341,12 +430,30 @@ export default function Kegiatan() {
           activity={selectedActivity}
           onClose={() => setSelectedActivity(null)}
           onUpdate={(updatedActivity) => {
+            // Convert date strings back to Date objects
+            const formattedActivity = {
+              ...updatedActivity,
+              date: new Date(updatedActivity.date),
+              createdAt: new Date(updatedActivity.createdAt),
+              updatedAt: new Date(updatedActivity.updatedAt)
+            }
             setActivities((activities || []).map(a => 
-              a.id === updatedActivity.id ? updatedActivity : a
+              a.id === updatedActivity.id ? formattedActivity : a
             ))
             setSelectedActivity(null)
           }}
+          onDelete={handleDeleteActivity}
         />
+      )}
+      
+      {/* Loading Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex items-center gap-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+            <span>Memproses...</span>
+          </div>
+        </div>
       )}
     </div>
   )

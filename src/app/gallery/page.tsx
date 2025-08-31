@@ -7,18 +7,13 @@ import Image from 'next/image'
 import { 
   Calendar,
   MapPin,
-  Users,
   Clock,
   ChevronLeft,
   ChevronRight,
   Grid3x3,
-  Play,
   X,
   Menu,
-  Filter,
   Search,
-  Eye,
-  Heart,
   Share2
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -35,13 +30,15 @@ interface Activity {
   location: string
   category: string
   images: string[]
-  participants: number
-  likes: number
-  views: number
+  status: string
+  createdAt: string
+  updatedAt: string
 }
 
 export default function GalleryPage() {
   const [activities, setActivities] = useState<Activity[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
@@ -54,81 +51,38 @@ export default function GalleryPage() {
   }, [])
 
   const fetchActivities = async () => {
-    // Simulated data
-    setActivities([
-      {
-        id: '1',
-        title: 'Wisuda Tahfidz 30 Juz',
-        description: 'Acara wisuda untuk 25 santri yang telah menyelesaikan hafalan 30 juz Al-Quran',
-        date: '2024-01-15',
-        location: 'Aula Utama Pondok',
-        category: 'Akademik',
-        images: ['/gallery/wisuda1.jpg', '/gallery/wisuda2.jpg', '/gallery/wisuda3.jpg'],
-        participants: 250,
-        likes: 128,
-        views: 1024
-      },
-      {
-        id: '2',
-        title: 'Peringatan Maulid Nabi Muhammad SAW',
-        description: 'Peringatan Maulid Nabi dengan berbagai kegiatan dan perlombaan',
-        date: '2024-01-10',
-        location: 'Masjid Pondok',
-        category: 'Keagamaan',
-        images: ['/gallery/maulid1.jpg', '/gallery/maulid2.jpg'],
-        participants: 500,
-        likes: 245,
-        views: 2048
-      },
-      {
-        id: '3',
-        title: 'Lomba Kreativitas Santri',
-        description: 'Kompetisi tahunan kreativitas santri dalam berbagai bidang',
-        date: '2024-01-05',
-        location: 'Lapangan Pondok',
-        category: 'Kompetisi',
-        images: ['/gallery/lomba1.jpg', '/gallery/lomba2.jpg', '/gallery/lomba3.jpg'],
-        participants: 150,
-        likes: 89,
-        views: 756
-      },
-      {
-        id: '4',
-        title: 'Kunjungan Studi Banding',
-        description: 'Kunjungan dari Pondok Pesantren se-Jawa Timur',
-        date: '2023-12-20',
-        location: 'Pondok Imam Syafi\'i',
-        category: 'Kunjungan',
-        images: ['/gallery/kunjungan1.jpg', '/gallery/kunjungan2.jpg'],
-        participants: 75,
-        likes: 67,
-        views: 543
-      },
-      {
-        id: '5',
-        title: 'Bakti Sosial Ramadhan',
-        description: 'Program bakti sosial dan pembagian sembako untuk masyarakat sekitar',
-        date: '2023-12-15',
-        location: 'Desa Sekitar',
-        category: 'Sosial',
-        images: ['/gallery/baksos1.jpg', '/gallery/baksos2.jpg', '/gallery/baksos3.jpg'],
-        participants: 100,
-        likes: 156,
-        views: 892
-      },
-      {
-        id: '6',
-        title: 'Festival Seni Islam',
-        description: 'Festival seni Islam dengan penampilan nasyid, kaligrafi, dan seni budaya Islam',
-        date: '2023-12-10',
-        location: 'Aula Utama',
-        category: 'Seni Budaya',
-        images: ['/gallery/festival1.jpg', '/gallery/festival2.jpg'],
-        participants: 300,
-        likes: 198,
-        views: 1567
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/activities?status=all&limit=50')
+      if (!response.ok) {
+        throw new Error('Failed to fetch activities')
       }
-    ])
+      
+      const data = await response.json()
+      
+      // Transform the API data to match our interface
+      const transformedActivities = data.activities.map((activity: any) => ({
+        id: activity.id,
+        title: activity.title,
+        description: activity.description,
+        date: activity.date,
+        location: activity.location || 'Pondok Imam Syafi\'i',
+        category: activity.type, // Map 'type' field to 'category'
+        images: activity.photos || [], // Use photos array
+        status: activity.status,
+        createdAt: activity.createdAt,
+        updatedAt: activity.updatedAt
+      }))
+      
+      setActivities(transformedActivities)
+    } catch (err) {
+      console.error('Error fetching activities:', err)
+      setError('Gagal memuat data kegiatan. Silakan coba lagi nanti.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const navigationItems = [
@@ -145,27 +99,32 @@ export default function GalleryPage() {
 
   const categories = [
     { value: 'all', label: 'Semua', color: 'bg-gray-100 text-gray-800' },
-    { value: 'Akademik', label: 'Akademik', color: 'bg-blue-100 text-blue-800' },
-    { value: 'Keagamaan', label: 'Keagamaan', color: 'bg-green-100 text-green-800' },
-    { value: 'Kompetisi', label: 'Kompetisi', color: 'bg-purple-100 text-purple-800' },
-    { value: 'Sosial', label: 'Sosial', color: 'bg-red-100 text-red-800' },
-    { value: 'Seni Budaya', label: 'Seni Budaya', color: 'bg-yellow-100 text-yellow-800' },
-    { value: 'Kunjungan', label: 'Kunjungan', color: 'bg-indigo-100 text-indigo-800' },
+    { value: 'akademik', label: 'Akademik', color: 'bg-blue-100 text-blue-800' },
+    { value: 'keagamaan', label: 'Keagamaan', color: 'bg-green-100 text-green-800' },
+    { value: 'kompetisi', label: 'Kompetisi', color: 'bg-purple-100 text-purple-800' },
+    { value: 'sosial', label: 'Sosial', color: 'bg-red-100 text-red-800' },
+    { value: 'seni_budaya', label: 'Seni Budaya', color: 'bg-yellow-100 text-yellow-800' },
+    { value: 'kunjungan', label: 'Kunjungan', color: 'bg-indigo-100 text-indigo-800' },
+    { value: 'lainnya', label: 'Lainnya', color: 'bg-orange-100 text-orange-800' },
   ]
 
   const filteredActivities = activities.filter(activity => {
     const matchesSearch = activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           activity.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || activity.category === selectedCategory
+    const matchesCategory = selectedCategory === 'all' || activity.category.toLowerCase() === selectedCategory
     return matchesSearch && matchesCategory
   })
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
+    try {
+      return new Date(dateString).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    } catch {
+      return dateString // Return original string if parsing fails
+    }
   }
 
   return (
@@ -305,11 +264,40 @@ export default function GalleryPage() {
       {/* Gallery Grid */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={viewMode === 'grid' 
-            ? "grid md:grid-cols-2 lg:grid-cols-3 gap-8" 
-            : "space-y-6"
-          }>
-            {filteredActivities.map((activity, index) => (
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600">Memuat kegiatan...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <div className="text-red-600 mb-4">
+                <svg className="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                {error}
+              </div>
+              <button 
+                onClick={fetchActivities}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Coba Lagi
+              </button>
+            </div>
+          ) : filteredActivities.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="text-gray-500 mb-4">
+                <Calendar className="mx-auto h-12 w-12 mb-2" />
+                <p>Tidak ada kegiatan yang ditemukan.</p>
+                {searchQuery && <p className="text-sm">Coba ubah kata kunci pencarian Anda.</p>}
+              </div>
+            </div>
+          ) : (
+            <div className={viewMode === 'grid' 
+              ? "grid md:grid-cols-2 lg:grid-cols-3 gap-8" 
+              : "space-y-6"
+            }>
+              {filteredActivities.map((activity, index) => (
               <motion.div
                 key={activity.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -321,19 +309,30 @@ export default function GalleryPage() {
                   className="overflow-hidden hover:shadow-xl transition-all cursor-pointer"
                   onClick={() => setSelectedActivity(activity)}
                 >
-                  <div className="relative h-64 bg-gradient-to-br from-blue-400 to-indigo-600">
-                    <div className="absolute inset-0 bg-black/20"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Calendar className="w-24 h-24 text-white/30" />
-                    </div>
+                  <div className="relative h-64 bg-gradient-to-br from-blue-400 to-indigo-600 overflow-hidden">
+                    {activity.images && activity.images.length > 0 ? (
+                      <>
+                        <div className="absolute inset-0 bg-black/20"></div>
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-500 text-sm">Foto kegiatan</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute inset-0 bg-black/20"></div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Calendar className="w-24 h-24 text-white/30" />
+                        </div>
+                      </>
+                    )}
                     <div className="absolute top-4 left-4">
-                      <Badge className={categories.find(c => c.value === activity.category)?.color}>
-                        {activity.category}
+                      <Badge className={categories.find(c => c.value === activity.category.toLowerCase())?.color || 'bg-gray-100 text-gray-800'}>
+                        {categories.find(c => c.value === activity.category.toLowerCase())?.label || activity.category}
                       </Badge>
                     </div>
                     <div className="absolute bottom-4 right-4">
                       <Badge variant="secondary" className="bg-white/90">
-                        {activity.images.length} Foto
+                        {activity.images?.length || 0} Foto
                       </Badge>
                     </div>
                   </div>
@@ -351,21 +350,23 @@ export default function GalleryPage() {
                         <span>{activity.location}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4" />
-                        <span>{activity.participants} Peserta</span>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs ${
+                            activity.status === 'completed' ? 'border-green-500 text-green-700' :
+                            activity.status === 'ongoing' ? 'border-yellow-500 text-yellow-700' :
+                            'border-blue-500 text-blue-700'
+                          }`}
+                        >
+                          {activity.status === 'completed' ? 'Selesai' :
+                           activity.status === 'ongoing' ? 'Berlangsung' : 'Direncanakan'}
+                        </Badge>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                      <div className="flex items-center gap-4 text-sm">
-                        <div className="flex items-center gap-1">
-                          <Eye className="w-4 h-4 text-gray-400" />
-                          <span>{activity.views}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-4 h-4 text-red-400" />
-                          <span>{activity.likes}</span>
-                        </div>
+                      <div className="text-xs text-gray-500">
+                        Dibuat: {new Date(activity.createdAt).toLocaleDateString('id-ID')}
                       </div>
                       <Button size="sm" variant="ghost">
                         <Share2 className="w-4 h-4" />
@@ -374,8 +375,9 @@ export default function GalleryPage() {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -411,38 +413,49 @@ export default function GalleryPage() {
                 {/* Image Gallery */}
                 <div className="mb-6">
                   <div className="relative h-96 bg-gray-200 rounded-lg overflow-hidden mb-4">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-gray-500">Image {selectedImageIndex + 1}</span>
-                    </div>
-                    {selectedActivity.images.length > 1 && (
+                    {selectedActivity.images && selectedActivity.images.length > 0 ? (
                       <>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80"
-                          onClick={() => setSelectedImageIndex(Math.max(0, selectedImageIndex - 1))}
-                        >
-                          <ChevronLeft className="w-5 h-5" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80"
-                          onClick={() => setSelectedImageIndex(Math.min(selectedActivity.images.length - 1, selectedImageIndex + 1))}
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </Button>
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                          <span className="text-gray-500">Foto {selectedImageIndex + 1} dari {selectedActivity.images.length}</span>
+                        </div>
+                        {selectedActivity.images.length > 1 && (
+                          <>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80"
+                              onClick={() => setSelectedImageIndex(Math.max(0, selectedImageIndex - 1))}
+                            >
+                              <ChevronLeft className="w-5 h-5" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80"
+                              onClick={() => setSelectedImageIndex(Math.min(selectedActivity.images.length - 1, selectedImageIndex + 1))}
+                            >
+                              <ChevronRight className="w-5 h-5" />
+                            </Button>
+                          </>
+                        )}
                       </>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center text-gray-500">
+                          <Calendar className="w-16 h-16 mx-auto mb-2" />
+                          <span>Tidak ada foto tersedia</span>
+                        </div>
+                      </div>
                     )}
                   </div>
 
                   {/* Thumbnails */}
-                  {selectedActivity.images.length > 1 && (
+                  {selectedActivity.images && selectedActivity.images.length > 1 && (
                     <div className="flex gap-2 overflow-x-auto">
                       {selectedActivity.images.map((_, index) => (
                         <button
                           key={index}
-                          className={`w-20 h-20 bg-gray-200 rounded flex-shrink-0 ${
+                          className={`w-20 h-20 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center ${
                             index === selectedImageIndex ? 'ring-2 ring-blue-600' : ''
                           }`}
                           onClick={() => setSelectedImageIndex(index)}
@@ -457,8 +470,8 @@ export default function GalleryPage() {
                 {/* Details */}
                 <div className="space-y-4">
                   <div>
-                    <Badge className={categories.find(c => c.value === selectedActivity.category)?.color}>
-                      {selectedActivity.category}
+                    <Badge className={categories.find(c => c.value === selectedActivity.category.toLowerCase())?.color || 'bg-gray-100 text-gray-800'}>
+                      {categories.find(c => c.value === selectedActivity.category.toLowerCase())?.label || selectedActivity.category}
                     </Badge>
                   </div>
                   
@@ -474,23 +487,28 @@ export default function GalleryPage() {
                       <span>{selectedActivity.location}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-600">
-                      <Users className="w-5 h-5" />
-                      <span>{selectedActivity.participants} Peserta</span>
+                      <Badge 
+                        variant="outline" 
+                        className={`${
+                          selectedActivity.status === 'completed' ? 'border-green-500 text-green-700' :
+                          selectedActivity.status === 'ongoing' ? 'border-yellow-500 text-yellow-700' :
+                          'border-blue-500 text-blue-700'
+                        }`}
+                      >
+                        Status: {selectedActivity.status === 'completed' ? 'Selesai' :
+                                selectedActivity.status === 'ongoing' ? 'Berlangsung' : 'Direncanakan'}
+                      </Badge>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4 pt-4 border-t">
                     <Button variant="outline">
-                      <Heart className="w-4 h-4 mr-2" />
-                      {selectedActivity.likes} Suka
-                    </Button>
-                    <Button variant="outline">
                       <Share2 className="w-4 h-4 mr-2" />
                       Bagikan
                     </Button>
                     <div className="ml-auto flex items-center gap-2 text-sm text-gray-600">
-                      <Eye className="w-4 h-4" />
-                      <span>{selectedActivity.views} views</span>
+                      <Clock className="w-4 h-4" />
+                      <span>Dibuat: {new Date(selectedActivity.createdAt).toLocaleDateString('id-ID')}</span>
                     </div>
                   </div>
                 </div>
