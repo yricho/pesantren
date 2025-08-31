@@ -216,6 +216,9 @@ export default function HomePage() {
                     <Link href="/about/yayasan" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
                       Yayasan
                     </Link>
+                    <Link href="/about/struktur" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                      Struktur Organisasi
+                    </Link>
                     <Link href="/about/pondok" className="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600">
                       Pondok Pesantren
                     </Link>
@@ -312,6 +315,9 @@ export default function HomePage() {
               <div className="border-l-2 border-gray-200 ml-2 pl-4 space-y-2">
                 <Link href="/about/yayasan" className="block py-2 text-gray-600 hover:text-green-600">
                   Profil Yayasan
+                </Link>
+                <Link href="/about/struktur" className="block py-2 text-gray-600 hover:text-green-600">
+                  Struktur Organisasi
                 </Link>
                 <Link href="/about/pondok" className="block py-2 text-gray-600 hover:text-green-600">
                   Profil Pondok
