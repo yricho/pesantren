@@ -91,7 +91,7 @@ export default function DonasiPage({}: DonasiPageProps) {
       targetAmount: campaign.targetAmount,
       collectedAmount: campaign.currentAmount,
       percentage: Math.round(calculateProgress(campaign.currentAmount, campaign.targetAmount)),
-      link: `${window.location.origin}/donasi/campaign/${campaign.slug}`
+      link: typeof window !== 'undefined' ? `${window.location.origin}/donasi/campaign/${campaign.slug}` : `https://pondokimamsyafii.sch.id/donasi/campaign/${campaign.slug}`
     })
     
     const success = await copyToClipboard(whatsappText)

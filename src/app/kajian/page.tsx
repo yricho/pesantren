@@ -160,13 +160,14 @@ export default function KajianPage() {
   };
 
   const handleCopyToWhatsApp = async (kajian: Kajian) => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://pondokimamsyafii.sch.id'
     const whatsappText = formatVideoForWhatsApp({
       title: kajian.title,
       description: kajian.description,
       speaker: kajian.ustadz,
       duration: kajian.duration,
       date: kajian.date,
-      link: `${window.location.origin}/kajian/${kajian.id}`
+      link: `${baseUrl}/kajian`
     })
     
     const success = await copyToClipboard(whatsappText)

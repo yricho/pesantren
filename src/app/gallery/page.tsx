@@ -130,13 +130,14 @@ export default function GalleryPage() {
   }
 
   const handleCopyToWhatsApp = async (activity: Activity) => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://pondokimamsyafii.sch.id'
     const whatsappText = formatActivityForWhatsApp({
       title: activity.title,
       description: activity.description,
       date: activity.date,
       location: activity.location,
       category: categories.find(c => c.value === activity.category.toLowerCase())?.label || activity.category,
-      link: `${window.location.origin}/gallery/${activity.id}`
+      link: `${baseUrl}/gallery`
     })
     
     const success = await copyToClipboard(whatsappText)
