@@ -249,7 +249,7 @@ export default function PPDBStatusPage() {
                 {/* Progress Steps */}
                 <div className="relative">
                   <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-gray-200" />
-                  {statusSteps.map((step, index) => {
+                  {(statusSteps || []).map((step, index) => {
                     const currentStep = getCurrentStep(data.status);
                     const isCompleted = index <= currentStep;
                     const isCurrent = index === currentStep;

@@ -233,13 +233,13 @@ export default function PaymentPage() {
 
   const getPaymentMethodInfo = (method: string, channel?: string) => {
     if (channel) {
-      const paymentMethod = PAYMENT_METHODS.find(pm => pm.code === channel.toLowerCase())
+      const paymentMethod = (PAYMENT_METHODS || []).find(pm => pm.code === channel.toLowerCase())
       if (paymentMethod) {
         return paymentMethod
       }
     }
     
-    return PAYMENT_METHODS.find(pm => pm.code === method.toLowerCase()) || {
+    return (PAYMENT_METHODS || []).find(pm => pm.code === method.toLowerCase()) || {
       type: 'bank_transfer' as const,
       name: method,
       code: method.toLowerCase(),

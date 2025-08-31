@@ -410,7 +410,7 @@ Hubungi kami: 0812-3456-7890
             </h2>
 
             <div className="space-y-6">
-              {timeline.map((step, index) => (
+              {(timeline || []).map((step, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
@@ -465,7 +465,7 @@ Hubungi kami: 0812-3456-7890
             </div>
 
             <div className="grid md:grid-cols-3 gap-4">
-              {paymentMethods.map((method, index) => (
+              {(paymentMethods || []).map((method, index) => (
                 <div key={index} className="border border-gray-200 rounded-xl p-4">
                   <div className="text-center">
                     <h4 className="font-semibold text-gray-900 mb-2">Bank {method.bank}</h4>

@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export default function PPDBPageClient() {
-  const [activeTab, setActiveTab] = useState('info');
+  const [activeTab, setActiveTab] = useState('TK');
 
   const programs = [
     {
@@ -225,7 +225,7 @@ export default function PPDBPageClient() {
                     <p className="text-2xl font-bold text-gray-900">{program.fee}</p>
                   </div>
                   <ul className="space-y-2 mb-6">
-                    {program.features.map((feature, i) => (
+                    {(program.features || []).map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-700">{feature}</span>
@@ -348,7 +348,7 @@ export default function PPDBPageClient() {
                 Dokumen yang diperlukan untuk {activeTab}:
               </h3>
               <ul className="space-y-3">
-                {requirements[activeTab as keyof typeof requirements].map((req, index) => (
+                {(requirements[activeTab as keyof typeof requirements] || []).map((req, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                     <span className="text-gray-700">{req}</span>

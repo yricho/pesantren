@@ -312,7 +312,7 @@ export default function PPDBRegisterClient() {
         };
 
         updateFormData('documents', [
-          ...(formData as any).documents.filter((d: any) => d.type !== documentType),
+          ...((formData as any).documents || []).filter((d: any) => d.type !== documentType),
           newDoc
         ]);
       } else {
@@ -336,7 +336,7 @@ export default function PPDBRegisterClient() {
       const result = await response.json();
 
       if (result.success) {
-        updateFormData('documents', formData.documents.filter(d => d.type !== documentType));
+        updateFormData('documents', (formData.documents || []).filter(d => d.type !== documentType));
       } else {
         alert(result.error || 'Gagal menghapus file');
       }
@@ -1284,7 +1284,7 @@ export default function PPDBRegisterClient() {
                 { type: 'sehat', label: 'Surat Keterangan Sehat', required: true },
                 { type: 'kip', label: 'Kartu Indonesia Pintar (jika ada)', required: false },
               ].map((doc) => {
-                const uploadedDoc = formData.documents.find(d => d.type === doc.type);
+                const uploadedDoc = (formData.documents || []).find(d => d.type === doc.type);
                 const isUploading = uploadingDoc === doc.type;
                 
                 return (
@@ -1476,13 +1476,13 @@ export default function PPDBRegisterClient() {
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h4 className="font-semibold text-gray-900 mb-4">Dokumen</h4>
                 <div className="space-y-2">
-                  {formData.documents.map((doc, index) => (
+                  {(formData.documents || []).map((doc, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm">
                       <CheckCircle className="w-4 h-4 text-green-600" />
                       <span className="text-gray-900">{doc.fileName}</span>
                     </div>
                   ))}
-                  {formData.documents.length === 0 && (
+                  {(formData.documents || []).length === 0 && (
                     <p className="text-gray-500 text-sm">Belum ada dokumen yang diupload</p>
                   )}
                 </div>
