@@ -8,8 +8,9 @@ import {
   Share2, Download, Filter, Grid, List, Home, BookOpen,
   Heart, Bookmark, Volume2, X, ChevronLeft, ChevronRight,
   Menu, Briefcase, Phone, Users, GraduationCap, Book,
-  DollarSign, PlayCircle, Image
+  DollarSign, PlayCircle, Image, Copy
 } from 'lucide-react';
+import { formatVideoForWhatsApp, copyToClipboard, showCopyNotification } from '@/lib/whatsapp-formatter';
 
 interface Kajian {
   id: string;
@@ -156,6 +157,20 @@ export default function KajianPage() {
       month: 'long',
       year: 'numeric'
     });
+  };
+
+  const handleCopyToWhatsApp = async (kajian: Kajian) => {
+    const whatsappText = formatVideoForWhatsApp({
+      title: kajian.title,
+      description: kajian.description,
+      speaker: kajian.ustadz,
+      duration: kajian.duration,
+      date: kajian.date,
+      link: `${window.location.origin}/kajian/${kajian.id}`
+    })
+    
+    const success = await copyToClipboard(whatsappText)
+    showCopyNotification(success)
   };
 
   return (
@@ -382,6 +397,13 @@ export default function KajianPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <button 
+                          onClick={() => handleCopyToWhatsApp(kajian)}
+                          className="p-1.5 rounded-lg transition-colors text-[#25D366] hover:bg-[#25D366]/10"
+                          title="Salin untuk WhatsApp"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                        <button 
                           onClick={() => toggleSaveVideo(kajian.id)}
                           className={`p-1.5 rounded-lg transition-colors ${
                             savedVideos.includes(kajian.id)
@@ -465,6 +487,13 @@ export default function KajianPage() {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => handleCopyToWhatsApp(kajian)}
+                            className="p-2 rounded-lg transition-colors text-[#25D366] hover:bg-[#25D366]/10"
+                            title="Salin untuk WhatsApp"
+                          >
+                            <Copy className="w-5 h-5" />
+                          </button>
                           <button 
                             onClick={() => toggleSaveVideo(kajian.id)}
                             className={`p-2 rounded-lg transition-colors ${
@@ -557,6 +586,13 @@ export default function KajianPage() {
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => handleCopyToWhatsApp(selectedKajian)}
+                    className="flex items-center gap-2 px-4 py-2 text-[#25D366] border border-[#25D366] rounded-lg hover:bg-[#25D366]/10 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    <span>Salin untuk WhatsApp</span>
+                  </button>
                   <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
                     <ThumbsUp className="w-4 h-4" />
                     <span>Suka</span>

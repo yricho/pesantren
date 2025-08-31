@@ -13,12 +13,14 @@ import {
   CalendarIcon,
   UserGroupIcon,
   ShareIcon,
-  ClockIcon
+  ClockIcon,
+  DocumentDuplicateIcon
 } from '@heroicons/react/24/outline'
 import { 
   HeartIcon as HeartSolidIcon,
   FireIcon 
 } from '@heroicons/react/24/solid'
+import { formatDonationForWhatsApp, copyToClipboard, showCopyNotification } from '@/lib/whatsapp-formatter'
 
 interface DonasiPageProps {}
 
@@ -80,6 +82,20 @@ export default function DonasiPage({}: DonasiPageProps) {
     
     const hours = Math.floor(diff / (1000 * 60 * 60))
     return `${hours} jam lagi`
+  }
+
+  const handleCopyToWhatsApp = async (campaign: DonationCampaign) => {
+    const whatsappText = formatDonationForWhatsApp({
+      campaignName: campaign.title,
+      description: campaign.description,
+      targetAmount: campaign.targetAmount,
+      collectedAmount: campaign.currentAmount,
+      percentage: Math.round(calculateProgress(campaign.currentAmount, campaign.targetAmount)),
+      link: `${window.location.origin}/donasi/campaign/${campaign.slug}`
+    })
+    
+    const success = await copyToClipboard(whatsappText)
+    showCopyNotification(success)
   }
 
   if (loading) {
@@ -235,11 +251,22 @@ export default function DonasiPage({}: DonasiPageProps) {
                     </div>
 
                     <div className="flex justify-between items-center">
-                      <Link href={`/donasi/campaign/${campaign.slug}`}>
-                        <Button variant="outline" size="sm">
-                          Lihat Detail
+                      <div className="flex items-center gap-2">
+                        <Link href={`/donasi/campaign/${campaign.slug}`}>
+                          <Button variant="outline" size="sm">
+                            Lihat Detail
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleCopyToWhatsApp(campaign)}
+                          className="text-[#25D366] border-[#25D366] hover:bg-[#25D366]/10"
+                          title="Salin untuk WhatsApp"
+                        >
+                          <DocumentDuplicateIcon className="w-4 h-4" />
                         </Button>
-                      </Link>
+                      </div>
                       <Link href={`/donasi/donate?campaign=${campaign.id}`}>
                         <Button size="sm" className="bg-red-500 hover:bg-red-600">
                           <HeartSolidIcon className="w-4 h-4 mr-1" />
@@ -325,11 +352,22 @@ export default function DonasiPage({}: DonasiPageProps) {
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <Link href={`/donasi/campaign/${campaign.slug}`}>
-                    <Button variant="outline" size="sm">
-                      Lihat Detail
+                  <div className="flex items-center gap-2">
+                    <Link href={`/donasi/campaign/${campaign.slug}`}>
+                      <Button variant="outline" size="sm">
+                        Lihat Detail
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleCopyToWhatsApp(campaign)}
+                      className="text-[#25D366] border-[#25D366] hover:bg-[#25D366]/10"
+                      title="Salin untuk WhatsApp"
+                    >
+                      <DocumentDuplicateIcon className="w-4 h-4" />
                     </Button>
-                  </Link>
+                  </div>
                   <Link href={`/donasi/donate?campaign=${campaign.id}`}>
                     <Button size="sm">
                       <HeartSolidIcon className="w-4 h-4 mr-1" />

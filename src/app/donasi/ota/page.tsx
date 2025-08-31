@@ -8,9 +8,10 @@ import {
   User, Star, BookOpen, Award,
   CreditCard, Smartphone, Building,
   CheckCircle, Clock, AlertCircle,
-  ArrowRight, Filter, Search
+  ArrowRight, Filter, Search, Copy
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { formatOTAForWhatsApp, copyToClipboard, showCopyNotification } from '@/lib/whatsapp-formatter'
 
 interface HafalanProgress {
   totalSurah: number
@@ -151,6 +152,20 @@ export default function OTAPublicPage() {
       isAnonymous: false,
       paymentMethod: 'TRANSFER'
     })
+  }
+
+  const handleCopyToWhatsApp = async (program: OTAProgram) => {
+    const whatsappText = formatOTAForWhatsApp({
+      studentCode: program.student.initials,
+      institution: program.student.institutionType,
+      grade: program.student.grade || 'N/A',
+      monthlyTarget: program.monthlyTarget,
+      description: program.student.otaProfile,
+      progress: program.progressPercentage
+    })
+    
+    const success = await copyToClipboard(whatsappText)
+    showCopyNotification(success)
   }
 
   const sortedPrograms = [...programs].sort((a, b) => {
@@ -358,17 +373,28 @@ export default function OTAPublicPage() {
                     </div>
                   )}
 
-                  {/* Action Button */}
-                  <Button
-                    className="w-full bg-green-600 hover:bg-green-700"
-                    onClick={() => {
-                      setSelectedProgram(program)
-                      setShowDonationModal(true)
-                    }}
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Bantu Sekarang
-                  </Button>
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCopyToWhatsApp(program)}
+                      className="text-[#25D366] border-[#25D366] hover:bg-[#25D366]/10"
+                      title="Salin untuk WhatsApp"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      className="flex-1 bg-green-600 hover:bg-green-700"
+                      onClick={() => {
+                        setSelectedProgram(program)
+                        setShowDonationModal(true)
+                      }}
+                    >
+                      <Heart className="w-4 h-4 mr-2" />
+                      Bantu Sekarang
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

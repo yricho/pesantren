@@ -14,13 +14,15 @@ import {
   X,
   Menu,
   Search,
-  Share2
+  Share2,
+  Copy
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatActivityForWhatsApp, copyToClipboard, showCopyNotification } from '@/lib/whatsapp-formatter'
 
 interface Activity {
   id: string
@@ -125,6 +127,20 @@ export default function GalleryPage() {
     } catch {
       return dateString // Return original string if parsing fails
     }
+  }
+
+  const handleCopyToWhatsApp = async (activity: Activity) => {
+    const whatsappText = formatActivityForWhatsApp({
+      title: activity.title,
+      description: activity.description,
+      date: activity.date,
+      location: activity.location,
+      category: categories.find(c => c.value === activity.category.toLowerCase())?.label || activity.category,
+      link: `${window.location.origin}/gallery/${activity.id}`
+    })
+    
+    const success = await copyToClipboard(whatsappText)
+    showCopyNotification(success)
   }
 
   return (
@@ -368,9 +384,23 @@ export default function GalleryPage() {
                       <div className="text-xs text-gray-500">
                         Dibuat: {new Date(activity.createdAt).toLocaleDateString('id-ID')}
                       </div>
-                      <Button size="sm" variant="ghost">
-                        <Share2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleCopyToWhatsApp(activity)
+                          }}
+                          className="text-[#25D366] hover:text-[#25D366] hover:bg-[#25D366]/10"
+                          title="Salin untuk WhatsApp"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost">
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -502,6 +532,14 @@ export default function GalleryPage() {
                   </div>
 
                   <div className="flex items-center gap-4 pt-4 border-t">
+                    <Button 
+                      variant="outline"
+                      onClick={() => handleCopyToWhatsApp(selectedActivity)}
+                      className="text-[#25D366] border-[#25D366] hover:bg-[#25D366]/10"
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Salin untuk WhatsApp
+                    </Button>
                     <Button variant="outline">
                       <Share2 className="w-4 h-4 mr-2" />
                       Bagikan
