@@ -101,8 +101,8 @@ export const authOptions: NextAuthOptions = {
         if (!session) {
           return {
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            user: {}
-          }
+            user: null as any
+          } as any
         }
         
         return session
@@ -111,8 +111,8 @@ export const authOptions: NextAuthOptions = {
         // Return a valid empty session structure
         return {
           expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          user: {}
-        }
+          user: null as any
+        } as any
       }
     },
     async signIn({ user, account, profile }) {

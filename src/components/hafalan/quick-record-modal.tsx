@@ -57,10 +57,7 @@ export function QuickRecordModal({
   const [endAyat, setEndAyat] = useState(1);
   const [status, setStatus] = useState('BARU');
   const [quality, setQuality] = useState<QualityScore>({
-    overall: 'B',
-    fluency: undefined,
-    tajweed: undefined,
-    makharijul: undefined
+    overall: 'B'
   });
   const [duration, setDuration] = useState('15');
   const [notes, setNotes] = useState('');

@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       }),
       
       // Teachers
-      prisma.teacher.count({ where: { isActive: true } }),
+      prisma.teacher.count(),
       
       // Financial - Income
       prisma.transaction.aggregate({
