@@ -174,9 +174,29 @@ const menuItems: MenuItem[] = [
     icon: Store,
     children: [
       {
-        title: 'Dashboard',
+        title: 'Dashboard Umum',
         href: '/unit-usaha',
         icon: BarChart3
+      },
+      {
+        title: 'Koperasi Sekolah',
+        href: '/unit-usaha/koperasi',
+        icon: Store
+      },
+      {
+        title: 'Kantin',
+        href: '/unit-usaha/kantin',
+        icon: Store
+      },
+      {
+        title: 'Laundry',
+        href: '/unit-usaha/laundry',
+        icon: Store
+      },
+      {
+        title: 'Pasar Barkas',
+        href: '/unit-usaha/pasar-barkas',
+        icon: Store
       },
       {
         title: 'POS Kasir',
@@ -204,8 +224,8 @@ const menuItems: MenuItem[] = [
         icon: ShoppingCart
       },
       {
-        title: 'Laporan',
-        href: '/unit-usaha/reports',
+        title: 'Laporan Bulanan',
+        href: '/unit-usaha/monthly-reports',
         icon: BarChart3
       }
     ]

@@ -3031,3 +3031,141 @@ model SPPReport {
   @@index([generatedBy, generatedAt])
   @@map("spp_reports")
 }
+
+// ==========================================
+// BUSINESS UNIT MONTHLY REPORTS
+// ==========================================
+
+model BusinessUnit {
+  id          String   @id @default(cuid())
+  code        String   @unique // KOPERASI, KANTIN, LAUNDRY, PASAR_BARKAS
+  name        String   // Koperasi Sekolah, Kantin, etc.
+  description String?
+  
+  // Manager/PIC
+  managerId   String?
+  managerName String?
+  
+  // Bank Account
+  bankName    String?
+  bankAccount String?
+  
+  // Status
+  isActive    Boolean  @default(true)
+  startDate   DateTime @default(now())
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  monthlyReports BusinessUnitReport[]
+  transactions   BusinessTransaction[]
+  
+  @@index([code])
+  @@map("business_units")
+}
+
+model BusinessUnitReport {
+  id          String   @id @default(cuid())
+  unitId      String
+  
+  // Period
+  year        Int
+  month       Int      // 1-12
+  period      String   // "2024-01"
+  
+  // Financial Summary
+  initialCapital  Decimal  // Modal awal bulan
+  revenue         Decimal  // Total pemasukan
+  expenses        Decimal  // Total pengeluaran
+  
+  // Expense Breakdown
+  purchaseCost    Decimal  // Pembelian barang
+  operationalCost Decimal  // Biaya operasional (listrik, air, etc)
+  salaryCost      Decimal  // Gaji karyawan
+  maintenanceCost Decimal  // Biaya maintenance
+  otherCost       Decimal  // Biaya lain-lain
+  
+  // Revenue Breakdown
+  salesRevenue    Decimal  // Penjualan
+  serviceRevenue  Decimal  // Jasa (khusus laundry)
+  otherRevenue    Decimal  // Pendapatan lain
+  
+  // Profit Calculation
+  grossProfit     Decimal  // Revenue - Purchase Cost
+  netProfit       Decimal  // Gross Profit - All Expenses
+  profitMargin    Decimal  // Net Profit / Revenue * 100
+  
+  // Inventory (for relevant units)
+  inventoryValue  Decimal? // Nilai inventory akhir bulan
+  
+  // Statistics
+  totalTransactions Int     @default(0)
+  totalCustomers    Int     @default(0)
+  totalItems        Int     @default(0) // Items sold/serviced
+  
+  // Monthly Targets
+  revenueTarget   Decimal?
+  targetAchievement Decimal? // Revenue / Target * 100
+  
+  // Status
+  status          String   @default("DRAFT") // DRAFT, SUBMITTED, APPROVED
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  
+  // Notes
+  notes           String?
+  highlights      String?  // Key achievements/issues
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  unit            BusinessUnit @relation(fields: [unitId], references: [id])
+  
+  @@unique([unitId, year, month])
+  @@index([unitId, period])
+  @@index([status])
+  @@map("business_unit_reports")
+}
+
+model BusinessTransaction {
+  id              String   @id @default(cuid())
+  transactionNo   String   @unique // TRX-KOPERASI-2024-01-001
+  unitId          String
+  
+  // Transaction Details
+  date            DateTime
+  type            String   // SALE, PURCHASE, EXPENSE, SERVICE
+  category        String   // Specific category based on unit
+  
+  // Financial
+  amount          Decimal
+  paymentMethod   String   // CASH, TRANSFER
+  
+  // Customer/Supplier
+  customerName    String?
+  supplierName    String?
+  
+  // Items (JSON)
+  items           String   @default("[]") // JSON array of items
+  
+  // Notes
+  description     String?
+  receiptNo       String?
+  
+  // Recording
+  recordedBy      String
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  unit            BusinessUnit @relation(fields: [unitId], references: [id])
+  
+  @@index([unitId, date])
+  @@index([type])
+  @@map("business_transactions")
+}
