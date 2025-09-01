@@ -27,6 +27,9 @@ import {
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { toast } from '@/components/ui/use-toast'
+import { Textarea } from '@/components/ui/textarea'
+import { Separator } from '@/components/ui/separator'
+import { Progress } from '@/components/ui/progress'
 import {
   Users,
   UserPlus,
@@ -39,8 +42,23 @@ import {
   UserCheck,
   Key,
   AlertCircle,
+  Eye,
+  EyeOff,
+  Copy,
+  RefreshCw,
+  Zap,
+  CheckCircle2,
+  Lock,
+  RotateCcw,
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { 
+  generateSecurePassword, 
+  generateMemorablePassword, 
+  checkPasswordStrength, 
+  copyToClipboard,
+  type PasswordStrength 
+} from '@/lib/password-utils'
 
 interface User {
   id: string
@@ -60,6 +78,18 @@ interface UserFormData {
   password: string
   role: string
   isActive: boolean
+}
+
+interface ChangePasswordData {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
+interface GeneratedPasswordData {
+  password: string
+  username: string
+  email: string
 }
 
 const roleIcons = {
@@ -91,6 +121,9 @@ export default function UsersPage() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false)
+  const [showResetPasswordDialog, setShowResetPasswordDialog] = useState(false)
+  const [showGeneratedPasswordDialog, setShowGeneratedPasswordDialog] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [formData, setFormData] = useState<UserFormData>({
     username: '',
@@ -100,6 +133,23 @@ export default function UsersPage() {
     role: 'STAFF',
     isActive: true,
   })
+  const [changePasswordData, setChangePasswordData] = useState<ChangePasswordData>({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+  const [generatedPasswordData, setGeneratedPasswordData] = useState<GeneratedPasswordData>({
+    password: '',
+    username: '',
+    email: '',
+  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [saveLoading, setSaveLoading] = useState(false)
 
   // Check if user has permission
   useEffect(() => {
@@ -178,6 +228,7 @@ export default function UsersPage() {
   }
 
   const handleSubmitAdd = async () => {
+    setSaveLoading(true)
     try {
       const response = await fetch('/api/users', {
         method: 'POST',
@@ -188,6 +239,18 @@ export default function UsersPage() {
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.error || 'Failed to create user')
+      }
+
+      const result = await response.json()
+      
+      // Show generated password if one was generated
+      if (formData.password) {
+        setGeneratedPasswordData({
+          password: formData.password,
+          username: formData.username,
+          email: formData.email,
+        })
+        setShowGeneratedPasswordDialog(true)
       }
 
       toast({
@@ -202,6 +265,8 @@ export default function UsersPage() {
         description: error.message || 'Failed to create user',
         variant: 'destructive',
       })
+    } finally {
+      setSaveLoading(false)
     }
   }
 
@@ -263,6 +328,237 @@ export default function UsersPage() {
         description: error.message || 'Failed to delete user',
         variant: 'destructive',
       })
+    }
+  }
+
+  // Password utility functions
+  const handlePasswordChange = (password: string, isNewPassword: boolean = false) => {
+    if (isNewPassword) {
+      setChangePasswordData({ ...changePasswordData, newPassword: password })
+    } else {
+      setFormData({ ...formData, password })
+    }
+    
+    if (password) {
+      setPasswordStrength(checkPasswordStrength(password))
+    } else {
+      setPasswordStrength(null)
+    }
+  }
+
+  const generatePassword = async (type: 'secure' | 'memorable') => {
+    setIsGenerating(true)
+    try {
+      let password = ''
+      if (type === 'secure') {
+        password = generateSecurePassword(12)
+      } else {
+        password = generateMemorablePassword()
+      }
+      
+      setFormData({ ...formData, password })
+      setPasswordStrength(checkPasswordStrength(password))
+      
+      toast({
+        title: 'Password Generated',
+        description: `${type === 'secure' ? 'Secure' : 'Memorable'} password generated successfully`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to generate password',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const generatePasswordForChange = async (type: 'secure' | 'memorable') => {
+    setIsGenerating(true)
+    try {
+      let password = ''
+      if (type === 'secure') {
+        password = generateSecurePassword(12)
+      } else {
+        password = generateMemorablePassword()
+      }
+      
+      setChangePasswordData({ ...changePasswordData, newPassword: password, confirmPassword: password })
+      setPasswordStrength(checkPasswordStrength(password))
+      
+      toast({
+        title: 'Password Generated',
+        description: `${type === 'secure' ? 'Secure' : 'Memorable'} password generated successfully`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to generate password',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const copyPasswordToClipboard = async (password: string) => {
+    const success = await copyToClipboard(password)
+    if (success) {
+      toast({
+        title: 'Copied!',
+        description: 'Password copied to clipboard',
+      })
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Failed to copy password',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  // Dialog handlers
+  const handleChangePassword = (user: User) => {
+    setSelectedUser(user)
+    setChangePasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    })
+    setPasswordStrength(null)
+    setShowChangePasswordDialog(true)
+  }
+
+  const handleResetPassword = (user: User) => {
+    setSelectedUser(user)
+    setChangePasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    })
+    setPasswordStrength(null)
+    setShowResetPasswordDialog(true)
+  }
+
+  // Submit handlers for password operations
+  const handleSubmitChangePassword = async () => {
+    if (!selectedUser) return
+
+    if (changePasswordData.newPassword !== changePasswordData.confirmPassword) {
+      toast({
+        title: 'Error',
+        description: 'Password confirmation does not match',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (!changePasswordData.newPassword || changePasswordData.newPassword.length < 8) {
+      toast({
+        title: 'Error',
+        description: 'Password must be at least 8 characters long',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setSaveLoading(true)
+    try {
+      const response = await fetch('/api/users/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: changePasswordData.currentPassword,
+          newPassword: changePasswordData.newPassword,
+          userId: selectedUser.id !== session?.user.id ? selectedUser.id : undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to change password')
+      }
+
+      const result = await response.json()
+      
+      // Show generated password if it was generated
+      if (changePasswordData.newPassword && (changePasswordData.newPassword.includes('!') || changePasswordData.newPassword.includes('@'))) {
+        setGeneratedPasswordData({
+          password: changePasswordData.newPassword,
+          username: selectedUser.username,
+          email: selectedUser.email,
+        })
+        setShowGeneratedPasswordDialog(true)
+      }
+
+      toast({
+        title: 'Success',
+        description: result.message || 'Password changed successfully',
+      })
+      setShowChangePasswordDialog(false)
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to change password',
+        variant: 'destructive',
+      })
+    } finally {
+      setSaveLoading(false)
+    }
+  }
+
+  const handleSubmitResetPassword = async () => {
+    if (!selectedUser) return
+
+    if (!changePasswordData.newPassword || changePasswordData.newPassword.length < 8) {
+      toast({
+        title: 'Error',
+        description: 'Password must be at least 8 characters long',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setSaveLoading(true)
+    try {
+      const response = await fetch('/api/users/change-password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: selectedUser.id,
+          newPassword: changePasswordData.newPassword,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to reset password')
+      }
+
+      const result = await response.json()
+      
+      // Show generated password
+      setGeneratedPasswordData({
+        password: changePasswordData.newPassword,
+        username: selectedUser.username,
+        email: selectedUser.email,
+      })
+      setShowGeneratedPasswordDialog(true)
+
+      toast({
+        title: 'Success',
+        description: result.message || 'Password reset successfully',
+      })
+      setShowResetPasswordDialog(false)
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to reset password',
+        variant: 'destructive',
+      })
+    } finally {
+      setSaveLoading(false)
     }
   }
 
@@ -441,6 +737,24 @@ export default function UsersPage() {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => handleChangePassword(user)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <Key className="w-4 h-4" />
+                        </Button>
+                        {session?.user.role === 'SUPER_ADMIN' && user.id !== session?.user.id && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleResetPassword(user)}
+                            className="text-orange-600 hover:text-orange-700"
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => handleDelete(user)}
                           disabled={user.id === session?.user.id}
                           className="text-red-600 hover:text-red-700"
@@ -520,13 +834,101 @@ export default function UsersPage() {
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="Min. 8 characters"
-              />
+              <div className="space-y-2">
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
+                    placeholder="Min. 8 characters"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Password Generation Buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => generatePassword('secure')}
+                    disabled={isGenerating}
+                    className="flex-1"
+                  >
+                    {isGenerating ? (
+                      <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                    ) : (
+                      <Zap className="w-3 h-3 mr-1" />
+                    )}
+                    Secure
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => generatePassword('memorable')}
+                    disabled={isGenerating}
+                    className="flex-1"
+                  >
+                    {isGenerating ? (
+                      <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                    )}
+                    Memorable
+                  </Button>
+                  {formData.password && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyPasswordToClipboard(formData.password)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Password Strength Indicator */}
+                {passwordStrength && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Password Strength:</span>
+                      <span className={`text-sm font-bold text-${passwordStrength.color}-600`}>
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                    <Progress 
+                      value={(passwordStrength.score / 5) * 100} 
+                      className={`h-2 bg-gray-200`}
+                    />
+                    {passwordStrength.suggestions.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-gray-600">Suggestions:</p>
+                        <ul className="text-xs text-gray-500 space-y-0.5">
+                          {passwordStrength.suggestions.map((suggestion, index) => (
+                            <li key={index}>• {suggestion}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <Label htmlFor="role">Role</Label>
@@ -553,10 +955,13 @@ export default function UsersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)} disabled={saveLoading}>
               Cancel
             </Button>
-            <Button onClick={handleSubmitAdd}>Create User</Button>
+            <Button onClick={handleSubmitAdd} disabled={saveLoading || !formData.password}>
+              {saveLoading && <RefreshCw className="w-4 h-4 mr-2 animate-spin" />}
+              Create User
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -663,6 +1068,395 @@ export default function UsersPage() {
             </Button>
             <Button variant="destructive" onClick={handleSubmitDelete}>
               Delete User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Password Dialog */}
+      <Dialog open={showChangePasswordDialog} onOpenChange={setShowChangePasswordDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              {selectedUser && selectedUser.id === session?.user.id 
+                ? 'Change your password'
+                : `Change password for ${selectedUser?.name}`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedUser && selectedUser.id === session?.user.id && (
+              <div>
+                <Label htmlFor="current-password">Current Password</Label>
+                <div className="relative">
+                  <Input
+                    id="current-password"
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={changePasswordData.currentPassword}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, currentPassword: e.target.value })}
+                    placeholder="Enter current password"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <div>
+              <Label htmlFor="new-password">New Password</Label>
+              <div className="space-y-2">
+                <div className="relative">
+                  <Input
+                    id="new-password"
+                    type={showNewPassword ? "text" : "password"}
+                    value={changePasswordData.newPassword}
+                    onChange={(e) => handlePasswordChange(e.target.value, true)}
+                    placeholder="Enter new password"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Password Generation Buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => generatePasswordForChange('secure')}
+                    disabled={isGenerating}
+                    className="flex-1"
+                  >
+                    {isGenerating ? (
+                      <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                    ) : (
+                      <Zap className="w-3 h-3 mr-1" />
+                    )}
+                    Secure
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => generatePasswordForChange('memorable')}
+                    disabled={isGenerating}
+                    className="flex-1"
+                  >
+                    {isGenerating ? (
+                      <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                    )}
+                    Memorable
+                  </Button>
+                  {changePasswordData.newPassword && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyPasswordToClipboard(changePasswordData.newPassword)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Password Strength Indicator */}
+                {passwordStrength && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Password Strength:</span>
+                      <span className={`text-sm font-bold text-${passwordStrength.color}-600`}>
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                    <Progress 
+                      value={(passwordStrength.score / 5) * 100} 
+                      className={`h-2 bg-gray-200`}
+                    />
+                    {passwordStrength.suggestions.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-gray-600">Suggestions:</p>
+                        <ul className="text-xs text-gray-500 space-y-0.5">
+                          {passwordStrength.suggestions.map((suggestion, index) => (
+                            <li key={index}>• {suggestion}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={changePasswordData.confirmPassword}
+                  onChange={(e) => setChangePasswordData({ ...changePasswordData, confirmPassword: e.target.value })}
+                  placeholder="Confirm new password"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                </Button>
+              </div>
+              {changePasswordData.newPassword && changePasswordData.confirmPassword && 
+               changePasswordData.newPassword !== changePasswordData.confirmPassword && (
+                <p className="text-sm text-red-600 mt-1">Passwords do not match</p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowChangePasswordDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitChangePassword}
+              disabled={saveLoading || !changePasswordData.newPassword || 
+                       changePasswordData.newPassword !== changePasswordData.confirmPassword}
+            >
+              {saveLoading && <RefreshCw className="w-4 h-4 mr-2 animate-spin" />}
+              Change Password
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset Password Dialog (Admin Only) */}
+      <Dialog open={showResetPasswordDialog} onOpenChange={setShowResetPasswordDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>
+              Reset password for {selectedUser?.name} ({selectedUser?.username})
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                This will reset the user's password. They will need to use the new password to log in.
+              </AlertDescription>
+            </Alert>
+            
+            <div>
+              <Label htmlFor="reset-password">New Password</Label>
+              <div className="space-y-2">
+                <div className="relative">
+                  <Input
+                    id="reset-password"
+                    type={showNewPassword ? "text" : "password"}
+                    value={changePasswordData.newPassword}
+                    onChange={(e) => handlePasswordChange(e.target.value, true)}
+                    placeholder="Enter new password"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Password Generation Buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => generatePasswordForChange('secure')}
+                    disabled={isGenerating}
+                    className="flex-1"
+                  >
+                    {isGenerating ? (
+                      <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                    ) : (
+                      <Zap className="w-3 h-3 mr-1" />
+                    )}
+                    Secure
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => generatePasswordForChange('memorable')}
+                    disabled={isGenerating}
+                    className="flex-1"
+                  >
+                    {isGenerating ? (
+                      <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                    )}
+                    Memorable
+                  </Button>
+                  {changePasswordData.newPassword && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyPasswordToClipboard(changePasswordData.newPassword)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Password Strength Indicator */}
+                {passwordStrength && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Password Strength:</span>
+                      <span className={`text-sm font-bold text-${passwordStrength.color}-600`}>
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                    <Progress 
+                      value={(passwordStrength.score / 5) * 100} 
+                      className={`h-2 bg-gray-200`}
+                    />
+                    {passwordStrength.suggestions.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-gray-600">Suggestions:</p>
+                        <ul className="text-xs text-gray-500 space-y-0.5">
+                          {passwordStrength.suggestions.map((suggestion, index) => (
+                            <li key={index}>• {suggestion}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowResetPasswordDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitResetPassword}
+              disabled={saveLoading || !changePasswordData.newPassword}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {saveLoading && <RefreshCw className="w-4 h-4 mr-2 animate-spin" />}
+              Reset Password
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Generated Password Success Dialog */}
+      <Dialog open={showGeneratedPasswordDialog} onOpenChange={setShowGeneratedPasswordDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              Password Updated Successfully
+            </DialogTitle>
+            <DialogDescription>
+              The password has been updated. Please save the new password securely.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">User:</Label>
+                  <p className="font-medium">{generatedPasswordData.username}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Email:</Label>
+                  <p className="font-medium">{generatedPasswordData.email}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium text-gray-600">New Password:</Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  value={generatedPasswordData.password}
+                  readOnly
+                  className="font-mono bg-gray-50"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => copyPasswordToClipboard(generatedPasswordData.password)}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-gray-500 mt-1">
+                Click the copy button to copy this password to clipboard
+              </p>
+            </div>
+
+            <Alert>
+              <Lock className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Important:</strong> Make sure to save this password securely. 
+                The user will need this password to log in to their account.
+              </AlertDescription>
+            </Alert>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => copyPasswordToClipboard(generatedPasswordData.password)}
+            >
+              <Copy className="w-4 h-4 mr-2" />
+              Copy Password
+            </Button>
+            <Button onClick={() => setShowGeneratedPasswordDialog(false)}>
+              Done
             </Button>
           </DialogFooter>
         </DialogContent>

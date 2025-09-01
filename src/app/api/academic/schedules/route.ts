@@ -3,6 +3,29 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+// Helper function to check user permissions
+function hasPermission(userRole: string, action: 'read' | 'create' | 'update' | 'delete'): boolean {
+  const permissions: Record<string, string[]> = {
+    SUPER_ADMIN: ['read', 'create', 'update', 'delete'],
+    ADMIN: ['read', 'create', 'update', 'delete'],
+    USTADZ: ['read'],
+    STAFF: ['read'],
+    PARENT: []
+  };
+  
+  return permissions[userRole]?.includes(action) ?? false;
+}
+
+// Helper function to check time conflicts
+function hasTimeConflict(startTime1: string, endTime1: string, startTime2: string, endTime2: string): boolean {
+  const start1 = new Date(`2000-01-01T${startTime1}`);
+  const end1 = new Date(`2000-01-01T${endTime1}`);
+  const start2 = new Date(`2000-01-01T${startTime2}`);
+  const end2 = new Date(`2000-01-01T${endTime2}`);
+  
+  return (start1 < end2) && (start2 < end1);
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,6 +38,9 @@ export async function GET(request: NextRequest) {
     const teacherId = searchParams.get('teacherId');
     const day = searchParams.get('day');
     const isActive = searchParams.get('active');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
+    const format = searchParams.get('format');
 
     const whereConditions: any = {};
     
@@ -34,8 +60,13 @@ export async function GET(request: NextRequest) {
       whereConditions.isActive = true;
     }
 
-    const schedules = await prisma.schedule.findMany({
-      where: whereConditions,
+    const skip = (page - 1) * limit;
+
+    const [schedules, totalCount] = await Promise.all([
+      prisma.schedule.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
       include: {
         class: {
           select: {
@@ -71,22 +102,37 @@ export async function GET(request: NextRequest) {
         { period: 'asc' },
         { startTime: 'asc' },
       ],
-    });
+    }),
+    prisma.schedule.count({ where: whereConditions })
+  ]);
 
-    // Group schedules by day for better presentation
-    const groupedSchedules = schedules.reduce((acc, schedule) => {
-      const day = schedule.day;
-      if (!acc[day]) {
-        acc[day] = [];
-      }
-      acc[day].push(schedule);
-      return acc;
-    }, {} as Record<string, any[]>);
-
-    return NextResponse.json({
+    const response: any = {
       schedules,
-      grouped: groupedSchedules,
-    });
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPreviousPage: page > 1
+      }
+    };
+
+    // Group schedules by day if requested
+    if (format === 'grouped') {
+      const groupedSchedules = schedules.reduce((acc, schedule) => {
+        const day = schedule.day;
+        if (!acc[day]) {
+          acc[day] = [];
+        }
+        acc[day].push(schedule);
+        return acc;
+      }, {} as Record<string, any[]>);
+      
+      response.grouped = groupedSchedules;
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching schedules:', error);
     return NextResponse.json(
@@ -99,8 +145,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'create')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -134,38 +184,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for conflicts (same class, same time)
-    const existingSchedule = await prisma.schedule.findFirst({
+    // Enhanced conflict checking with time overlap detection
+    const conflictingSchedules = await prisma.schedule.findMany({
       where: {
-        classId,
-        day,
-        startTime,
-        isActive: true,
+        OR: [
+          { classId, day, isActive: true },
+          { teacherId, day, isActive: true }
+        ]
       },
+      select: {
+        id: true,
+        classId: true,
+        teacherId: true,
+        startTime: true,
+        endTime: true,
+        class: { select: { name: true } },
+        teacher: { select: { name: true } }
+      }
     });
 
-    if (existingSchedule) {
-      return NextResponse.json(
-        { error: 'Schedule conflict: Class already has a schedule at this time' },
-        { status: 409 }
-      );
-    }
-
-    // Check teacher availability (same teacher, same time)
-    const teacherConflict = await prisma.schedule.findFirst({
-      where: {
-        teacherId,
-        day,
-        startTime,
-        isActive: true,
-      },
-    });
-
-    if (teacherConflict) {
-      return NextResponse.json(
-        { error: 'Schedule conflict: Teacher is not available at this time' },
-        { status: 409 }
-      );
+    for (const conflict of conflictingSchedules) {
+      if (hasTimeConflict(startTime, endTime, conflict.startTime, conflict.endTime)) {
+        if (conflict.classId === classId) {
+          return NextResponse.json({
+            error: `Schedule conflict: Class ${conflict.class.name} already has a schedule from ${conflict.startTime} to ${conflict.endTime}`
+          }, { status: 409 });
+        }
+        if (conflict.teacherId === teacherId) {
+          return NextResponse.json({
+            error: `Schedule conflict: Teacher ${conflict.teacher.name} is not available from ${conflict.startTime} to ${conflict.endTime}`
+          }, { status: 409 });
+        }
+      }
     }
 
     const schedule = await prisma.schedule.create({
@@ -234,8 +284,12 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'update')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -382,8 +436,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'delete')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

@@ -3,6 +3,19 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+// Helper function to check user permissions
+function hasPermission(userRole: string, action: 'read' | 'create' | 'update' | 'delete'): boolean {
+  const permissions = {
+    SUPER_ADMIN: ['read', 'create', 'update', 'delete'],
+    ADMIN: ['read', 'create', 'update', 'delete'],
+    USTADZ: ['read', 'create', 'update'],
+    STAFF: ['read'],
+    PARENT: ['read']
+  };
+  
+  return permissions[userRole as keyof typeof permissions]?.includes(action) ?? false;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,6 +30,9 @@ export async function GET(request: NextRequest) {
     const date = searchParams.get('date');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
+    const includeStats = searchParams.get('includeStats') === 'true';
 
     const whereConditions: any = {};
     
@@ -41,8 +57,13 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const attendances = await prisma.attendance.findMany({
-      where: whereConditions,
+    const skip = (page - 1) * limit;
+
+    const [attendances, totalCount] = await Promise.all([
+      prisma.attendance.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
       include: {
         student: {
           select: {
@@ -82,9 +103,40 @@ export async function GET(request: NextRequest) {
         { date: 'desc' },
         { student: { fullName: 'asc' } },
       ],
-    });
+    }),
+    prisma.attendance.count({ where: whereConditions })
+  ]);
 
-    return NextResponse.json(attendances);
+    const response: any = {
+      attendances,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPreviousPage: page > 1
+      }
+    };
+
+    // Include attendance statistics if requested
+    if (includeStats && hasPermission(session.user?.role || '', 'read')) {
+      const statsWhere = { ...whereConditions };
+      delete statsWhere.date; // Remove date filter for overall stats
+      
+      const stats = await prisma.attendance.groupBy({
+        by: ['status'],
+        where: statsWhere,
+        _count: { status: true }
+      });
+      
+      response.statistics = {
+        byStatus: Object.fromEntries(stats.map(s => [s.status, s._count.status])),
+        totalRecords: totalCount
+      };
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching attendances:', error);
     return NextResponse.json(
@@ -97,8 +149,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'create')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -198,8 +254,12 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'update')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -296,8 +356,12 @@ export async function PUT(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'create')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -379,8 +443,12 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'delete')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

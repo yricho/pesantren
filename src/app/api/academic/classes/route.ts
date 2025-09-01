@@ -3,11 +3,28 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+// Helper function to check user permissions
+function hasPermission(userRole: string, action: 'read' | 'create' | 'update' | 'delete'): boolean {
+  const permissions: Record<string, string[]> = {
+    SUPER_ADMIN: ['read', 'create', 'update', 'delete'],
+    ADMIN: ['read', 'create', 'update', 'delete'],
+    USTADZ: ['read'],
+    STAFF: ['read'],
+    PARENT: []
+  };
+  
+  return permissions[userRole]?.includes(action) ?? false;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'read')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -15,6 +32,10 @@ export async function GET(request: NextRequest) {
     const level = searchParams.get('level');
     const grade = searchParams.get('grade');
     const isActive = searchParams.get('active');
+    const search = searchParams.get('search');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100); // Max 100 items per page
+    const includeStudentCount = searchParams.get('includeStudentCount') === 'true';
 
     const whereConditions: any = {};
     
@@ -32,11 +53,27 @@ export async function GET(request: NextRequest) {
     
     if (isActive === 'true') {
       whereConditions.isActive = true;
+    } else if (isActive === 'false') {
+      whereConditions.isActive = false;
     }
 
-    const classes = await prisma.class.findMany({
-      where: whereConditions,
-      include: {
+    if (search) {
+      whereConditions.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { room: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { teacher: { name: { contains: search, mode: 'insensitive' } } }
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [classes, totalCount] = await Promise.all([
+      prisma.class.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        include: {
         academicYear: {
           select: {
             id: true,
@@ -66,9 +103,39 @@ export async function GET(request: NextRequest) {
         { grade: 'asc' },
         { name: 'asc' },
       ],
-    });
+    }),
+    prisma.class.count({ where: whereConditions })
+  ]);
 
-    return NextResponse.json(classes);
+    const response: any = {
+      classes,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPreviousPage: page > 1
+      }
+    };
+
+    // Add student count if requested and user has permission
+    if (includeStudentCount && hasPermission(session.user.role, 'read')) {
+      const studentCounts = await prisma.studentClass.groupBy({
+        by: ['classId'],
+        where: {
+          classId: { in: classes.map(c => c.id) },
+          status: 'ACTIVE'
+        },
+        _count: { studentId: true }
+      });
+      
+      response.studentCounts = Object.fromEntries(
+        studentCounts.map(sc => [sc.classId, sc._count.studentId])
+      );
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching classes:', error);
     return NextResponse.json(
@@ -81,8 +148,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'create')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -104,6 +175,23 @@ export async function POST(request: NextRequest) {
     if (!name || !grade || !academicYearId || !level) {
       return NextResponse.json(
         { error: 'Name, grade, academic year, and level are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate capacity
+    if (capacity && (capacity < 1 || capacity > 100)) {
+      return NextResponse.json(
+        { error: 'Capacity must be between 1 and 100' },
+        { status: 400 }
+      );
+    }
+
+    // Validate level
+    const validLevels = ['TK', 'SD', 'SMP', 'PONDOK'];
+    if (!validLevels.includes(level)) {
+      return NextResponse.json(
+        { error: `Level must be one of: ${validLevels.join(', ')}` },
         { status: 400 }
       );
     }
@@ -195,8 +283,12 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'update')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -219,6 +311,25 @@ export async function PUT(request: NextRequest) {
         { error: 'Class ID is required' },
         { status: 400 }
       );
+    }
+
+    // Validate capacity
+    if (capacity && (capacity < 1 || capacity > 100)) {
+      return NextResponse.json(
+        { error: 'Capacity must be between 1 and 100' },
+        { status: 400 }
+      );
+    }
+
+    // Validate level if provided
+    if (level) {
+      const validLevels = ['TK', 'SD', 'SMP', 'PONDOK'];
+      if (!validLevels.includes(level)) {
+        return NextResponse.json(
+          { error: `Level must be one of: ${validLevels.join(', ')}` },
+          { status: 400 }
+        );
+      }
     }
 
     // Check if teacher exists (if provided)
@@ -303,8 +414,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, 'delete')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

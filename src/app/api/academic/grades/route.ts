@@ -3,6 +3,19 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+// Helper function to check user permissions
+function hasPermission(userRole: string, action: 'read' | 'create' | 'update' | 'delete'): boolean {
+  const permissions = {
+    SUPER_ADMIN: ['read', 'create', 'update', 'delete'],
+    ADMIN: ['read', 'create', 'update', 'delete'],
+    USTADZ: ['read', 'create', 'update'],
+    STAFF: ['read'],
+    PARENT: ['read']
+  };
+  
+  return permissions[userRole as keyof typeof permissions]?.includes(action) ?? false;
+}
+
 // Function to calculate grade and point from total score
 function calculateGradeAndPoint(score: number): { grade: string; point: number } {
   if (score >= 90) return { grade: 'A', point: 4.0 };
@@ -84,6 +97,9 @@ export async function GET(request: NextRequest) {
     const studentId = searchParams.get('studentId');
     const subjectId = searchParams.get('subjectId');
     const classId = searchParams.get('classId');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
+    const includeStats = searchParams.get('includeStats') === 'true';
 
     const whereConditions: any = {};
     
@@ -103,8 +119,13 @@ export async function GET(request: NextRequest) {
       whereConditions.classId = classId;
     }
 
-    const grades = await prisma.grade.findMany({
-      where: whereConditions,
+    const skip = (page - 1) * limit;
+
+    const [grades, totalCount] = await Promise.all([
+      prisma.grade.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
       include: {
         student: {
           select: {
@@ -140,9 +161,55 @@ export async function GET(request: NextRequest) {
         { student: { fullName: 'asc' } },
         { subject: { name: 'asc' } },
       ],
-    });
+    }),
+    prisma.grade.count({ where: whereConditions })
+  ]);
 
-    return NextResponse.json(grades);
+    const response: any = {
+      grades,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPreviousPage: page > 1
+      }
+    };
+
+    // Include grade statistics if requested
+    if (includeStats && hasPermission(session.user?.role || '', 'read')) {
+      const statsWhere = { ...whereConditions };
+      
+      const gradeStats = await prisma.grade.aggregate({
+        where: statsWhere,
+        _avg: { total: true, point: true },
+        _min: { total: true },
+        _max: { total: true },
+        _count: { grade: true }
+      });
+      
+      const gradeDistribution = await prisma.grade.groupBy({
+        by: ['grade'],
+        where: { ...statsWhere, grade: { not: null } },
+        _count: { grade: true }
+      });
+      
+      response.statistics = {
+        summary: {
+          averageScore: gradeStats._avg.total,
+          averagePoint: gradeStats._avg.point,
+          minScore: gradeStats._min.total,
+          maxScore: gradeStats._max.total,
+          totalGrades: gradeStats._count.grade
+        },
+        distribution: Object.fromEntries(
+          gradeDistribution.map(g => [g.grade, g._count.grade])
+        )
+      };
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching grades:', error);
     return NextResponse.json(
@@ -155,8 +222,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'create')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -276,8 +347,12 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'update')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -410,8 +485,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'delete')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

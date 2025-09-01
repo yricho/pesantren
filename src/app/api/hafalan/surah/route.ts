@@ -2,6 +2,187 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { z } from 'zod';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+// Type definitions
+interface StudentProgress {
+  completionPercentage: number;
+  completedAyats: number;
+  latestStatus: string;
+  lastStudiedDate: Date | null;
+  bestQuality: string | null;
+  totalSessions: number;
+  difficultyLevel: string;
+  isRecommended: boolean;
+}
+
+interface SurahWithProgress {
+  id: string;
+  number: number;
+  name: string;
+  nameArabic: string;
+  totalAyat: number;
+  juz: number;
+  page: number | null;
+  type: string;
+  meaningId: string | null;
+  meaningAr: string | null;
+  studentProgress?: StudentProgress;
+}
+
+// Helper function to get personalized surah recommendations
+async function getSurahRecommendations(studentId: string) {
+  const student = await prisma.student.findUnique({
+    where: { id: studentId }
+  });
+
+  if (!student) {
+    return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+  }
+
+  // Get student's current progress
+  const progress = await prisma.hafalanProgress.findUnique({
+    where: { studentId }
+  });
+
+  // Get student's recent records to understand their pattern
+  const recentRecords = await prisma.hafalanRecord.findMany({
+    where: { studentId },
+    orderBy: { date: 'desc' },
+    take: 10,
+    include: { surah: true }
+  });
+
+  // Get all surahs with completion status
+  const allSurahs = await prisma.quranSurah.findMany({
+    orderBy: { number: 'asc' }
+  });
+
+  const recommendations = await Promise.all(
+    allSurahs.map(async (surah) => {
+      // Get student's progress on this surah
+      const surahRecords = await prisma.hafalanRecord.findMany({
+        where: {
+          studentId,
+          surahNumber: surah.number
+        }
+      });
+
+      const completedAyats = new Set();
+      surahRecords.forEach(record => {
+        for (let i = record.startAyat; i <= record.endAyat; i++) {
+          completedAyats.add(i);
+        }
+      });
+
+      const completionPercentage = (completedAyats.size / surah.totalAyat) * 100;
+
+      // Calculate recommendation score
+      let score = 0;
+      let reasons = [];
+
+      // Level-based recommendations
+      if (progress) {
+        if (progress.level === 'PEMULA') {
+          if (surah.juz === 30) {
+            score += 50;
+            reasons.push('Juz Amma is perfect for beginners');
+          }
+          if (surah.totalAyat <= 10) {
+            score += 30;
+            reasons.push('Short surah, easy to memorize');
+          }
+        } else if (progress.level === 'MENENGAH') {
+          if (surah.totalAyat > 10 && surah.totalAyat <= 50) {
+            score += 40;
+            reasons.push('Good challenge for intermediate level');
+          }
+          if (surah.juz >= 25 && surah.juz <= 30) {
+            score += 20;
+            reasons.push('Building from familiar territory');
+          }
+        } else if (progress.level === 'LANJUT') {
+          if (completionPercentage === 0) {
+            score += 30;
+            reasons.push('New challenge for advanced student');
+          }
+          if (surah.totalAyat > 50) {
+            score += 25;
+            reasons.push('Long surah for skill development');
+          }
+        }
+      }
+
+      // Progress-based recommendations
+      if (completionPercentage > 0 && completionPercentage < 100) {
+        score += 40;
+        reasons.push('Continue previous progress');
+      }
+
+      // Pattern-based recommendations (similar to recently studied)
+      const recentJuzzes = recentRecords.map(r => r.surah.juz);
+      if (recentJuzzes.includes(surah.juz)) {
+        score += 15;
+        reasons.push('Same juz as recent studies');
+      }
+
+      // Avoid already completed surahs unless for review
+      if (completionPercentage === 100) {
+        score -= 30;
+        if (recentRecords.some(r => r.surahNumber === surah.number && 
+            (new Date().getTime() - r.date.getTime()) > 30 * 24 * 60 * 60 * 1000)) {
+          score += 20;
+          reasons.push('Good for review (completed over a month ago)');
+        }
+      }
+
+      // Type preference (if student has a pattern)
+      const recentTypes = recentRecords.map(r => r.surah.type);
+      const makkiyahCount = recentTypes.filter(t => t === 'MAKKIYAH').length;
+      const madaniyahCount = recentTypes.filter(t => t === 'MADANIYAH').length;
+      
+      if (makkiyahCount > madaniyahCount && surah.type === 'MAKKIYAH') {
+        score += 10;
+        reasons.push('Matches your Makkiyah surah preference');
+      } else if (madaniyahCount > makkiyahCount && surah.type === 'MADANIYAH') {
+        score += 10;
+        reasons.push('Matches your Madaniyah surah preference');
+      }
+
+      return {
+        ...surah,
+        recommendationScore: Math.max(0, score),
+        completionPercentage: Math.round(completionPercentage * 100) / 100,
+        completedAyats: completedAyats.size,
+        reasons: reasons,
+        priority: score > 60 ? 'HIGH' : score > 30 ? 'MEDIUM' : 'LOW'
+      };
+    })
+  );
+
+  // Sort by recommendation score
+  recommendations.sort((a, b) => b.recommendationScore - a.recommendationScore);
+
+  // Take top 10 recommendations
+  const topRecommendations = recommendations.slice(0, 10);
+
+  return NextResponse.json({
+    studentId,
+    studentLevel: progress?.level || 'PEMULA',
+    recommendations: topRecommendations,
+    summary: {
+      highPriority: topRecommendations.filter(r => r.priority === 'HIGH').length,
+      mediumPriority: topRecommendations.filter(r => r.priority === 'MEDIUM').length,
+      lowPriority: topRecommendations.filter(r => r.priority === 'LOW').length,
+      averageScore: Math.round(topRecommendations.reduce((sum, r) => sum + r.recommendationScore, 0) / topRecommendations.length * 100) / 100
+    },
+    generatedAt: new Date()
+  });
+}
 
 // Complete list of Quran surahs with details
 const QURAN_SURAHS = [
@@ -132,6 +313,11 @@ export async function GET(request: NextRequest) {
     const juz = searchParams.get('juz');
     const type = searchParams.get('type');
     const search = searchParams.get('search');
+    const studentId = searchParams.get('studentId'); // For student-specific progress
+    const includeProgress = searchParams.get('includeProgress') === 'true';
+    const difficulty = searchParams.get('difficulty'); // easy, medium, hard
+    const recommendations = searchParams.get('recommendations') === 'true';
+    const ayatRange = searchParams.get('ayatRange'); // short, medium, long
 
     // Check if surahs already exist in database, if not seed them
     const existingSurahs = await prisma.quranSurah.count();
@@ -153,6 +339,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Handle recommendations for a specific student
+    if (recommendations && studentId) {
+      return await getSurahRecommendations(studentId);
+    }
+
     // Build query conditions
     let where: any = { isActive: true };
     
@@ -169,6 +360,21 @@ export async function GET(request: NextRequest) {
         { name: { contains: search, mode: 'insensitive' } },
         { nameArabic: { contains: search } }
       ];
+    }
+
+    // Filter by ayat range (difficulty based on length)
+    if (ayatRange) {
+      switch (ayatRange) {
+        case 'short':
+          where.totalAyat = { lte: 20 }; // Short surahs
+          break;
+        case 'medium':
+          where.totalAyat = { gte: 21, lte: 100 }; // Medium surahs
+          break;
+        case 'long':
+          where.totalAyat = { gt: 100 }; // Long surahs
+          break;
+      }
     }
 
     const surahs = await prisma.quranSurah.findMany({
@@ -188,22 +394,130 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Add summary statistics
+    // Add progress data if requested and studentId provided
+    let surahsWithProgress: SurahWithProgress[] = surahs;
+    if (includeProgress && studentId) {
+      surahsWithProgress = await Promise.all(
+        surahs.map(async (surah) => {
+          // Get student's progress for this surah
+          const records = await prisma.hafalanRecord.findMany({
+            where: {
+              studentId,
+              surahNumber: surah.number
+            },
+            orderBy: { date: 'desc' }
+          });
+
+          // Calculate completion percentage
+          const completedAyats = new Set();
+          let latestStatus = 'BELUM_MULAI';
+          let lastStudiedDate: Date | null = null;
+          let bestQuality: string | null = null;
+
+          records.forEach(record => {
+            for (let i = record.startAyat; i <= record.endAyat; i++) {
+              completedAyats.add(i);
+            }
+            
+            if (!lastStudiedDate || record.date > lastStudiedDate) {
+              lastStudiedDate = record.date;
+              latestStatus = record.status;
+            }
+
+            if (!bestQuality || (record.quality === 'A' && bestQuality !== 'A') || 
+                (record.quality === 'B' && bestQuality === 'C')) {
+              bestQuality = record.quality;
+            }
+          });
+
+          const completionPercentage = (completedAyats.size / surah.totalAyat) * 100;
+
+          // Determine difficulty level based on surah characteristics
+          let difficultyLevel = 'MEDIUM';
+          if (surah.totalAyat <= 10) {
+            difficultyLevel = 'EASY';
+          } else if (surah.totalAyat >= 100) {
+            difficultyLevel = 'HARD';
+          }
+
+          // Check if surah is recommended for student level
+          const progress = await prisma.hafalanProgress.findUnique({
+            where: { studentId }
+          });
+
+          let isRecommended = false;
+          if (progress) {
+            // Recommend based on student level and current progress
+            if (progress.level === 'PEMULA' && surah.juz === 30) {
+              isRecommended = true; // Start with Juz Amma
+            } else if (progress.level === 'MENENGAH' && surah.totalAyat <= 50) {
+              isRecommended = true; // Medium difficulty surahs
+            } else if (progress.level === 'LANJUT' && completionPercentage === 0) {
+              isRecommended = true; // Any unstarted surah for advanced students
+            }
+          }
+
+          return {
+            ...surah,
+            studentProgress: {
+              completionPercentage: Math.round(completionPercentage * 100) / 100,
+              completedAyats: completedAyats.size,
+              latestStatus,
+              lastStudiedDate,
+              bestQuality,
+              totalSessions: records.length,
+              difficultyLevel,
+              isRecommended
+            }
+          };
+        })
+      );
+    }
+
+    // Enhanced summary statistics
     const stats = {
-      totalSurahs: surahs.length,
-      makkiyah: surahs.filter(s => s.type === 'MAKKIYAH').length,
-      madaniyah: surahs.filter(s => s.type === 'MADANIYAH').length,
-      totalAyat: surahs.reduce((sum, s) => sum + s.totalAyat, 0),
-      juzRange: juz ? [parseInt(juz)] : [...new Set(surahs.map(s => s.juz))].sort((a, b) => a - b)
+      totalSurahs: surahsWithProgress.length,
+      makkiyah: surahsWithProgress.filter(s => s.type === 'MAKKIYAH').length,
+      madaniyah: surahsWithProgress.filter(s => s.type === 'MADANIYAH').length,
+      totalAyat: surahsWithProgress.reduce((sum, s) => sum + s.totalAyat, 0),
+      juzRange: juz ? [parseInt(juz)] : [...new Set(surahsWithProgress.map(s => s.juz))].sort((a, b) => a - b),
+      ayatDistribution: {
+        short: surahsWithProgress.filter(s => s.totalAyat <= 20).length,
+        medium: surahsWithProgress.filter(s => s.totalAyat > 20 && s.totalAyat <= 100).length,
+        long: surahsWithProgress.filter(s => s.totalAyat > 100).length
+      }
     };
 
+    // Add student-specific stats if progress is included
+    let studentStats = null;
+    if (includeProgress && studentId && surahsWithProgress.length > 0) {
+      const progressSurahs = surahsWithProgress.filter(s => s.studentProgress);
+      studentStats = {
+        totalStarted: progressSurahs.filter(s => s.studentProgress && s.studentProgress.completionPercentage > 0).length,
+        totalCompleted: progressSurahs.filter(s => s.studentProgress && s.studentProgress.completionPercentage === 100).length,
+        totalRecommended: progressSurahs.filter(s => s.studentProgress && s.studentProgress.isRecommended).length,
+        averageCompletion: progressSurahs.length > 0 
+          ? Math.round((progressSurahs.reduce((sum, s) => sum + (s.studentProgress?.completionPercentage || 0), 0) / progressSurahs.length) * 100) / 100
+          : 0,
+        qualityDistribution: {
+          A: progressSurahs.filter(s => s.studentProgress && s.studentProgress.bestQuality === 'A').length,
+          B: progressSurahs.filter(s => s.studentProgress && s.studentProgress.bestQuality === 'B').length,
+          C: progressSurahs.filter(s => s.studentProgress && s.studentProgress.bestQuality === 'C').length
+        }
+      };
+    }
+
     return NextResponse.json({
-      surahs,
+      surahs: surahsWithProgress,
       stats,
+      studentStats,
       filters: {
         juz: juz ? parseInt(juz) : null,
         type: type ? type.toUpperCase() : null,
-        search: search || null
+        search: search || null,
+        ayatRange: ayatRange || null,
+        includeProgress: includeProgress,
+        studentId: studentId || null
       }
     });
 
@@ -250,6 +564,79 @@ export async function POST(request: NextRequest) {
     console.error('Error initializing surah data:', error);
     return NextResponse.json(
       { error: 'Failed to initialize surah data' },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT method for updating surah information
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { number, meaningId, meaningAr, nameTransliteration } = body;
+
+    if (!number) {
+      return NextResponse.json({ error: 'Surah number is required' }, { status: 400 });
+    }
+
+    const updatedSurah = await prisma.quranSurah.update({
+      where: { number },
+      data: {
+        ...(meaningId && { meaningId }),
+        ...(meaningAr && { meaningAr }),
+        ...(nameTransliteration && { nameTransliteration })
+      }
+    });
+
+    return NextResponse.json({
+      surah: updatedSurah,
+      message: 'Surah updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Error updating surah:', error);
+    return NextResponse.json(
+      { error: 'Failed to update surah' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE method for admin use (deactivate surah)
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const number = searchParams.get('number');
+
+    if (!number) {
+      return NextResponse.json({ error: 'Surah number is required' }, { status: 400 });
+    }
+
+    // Deactivate rather than delete to preserve data integrity
+    const updatedSurah = await prisma.quranSurah.update({
+      where: { number: parseInt(number) },
+      data: { isActive: false }
+    });
+
+    return NextResponse.json({
+      message: 'Surah deactivated successfully',
+      surah: updatedSurah
+    });
+
+  } catch (error) {
+    console.error('Error deactivating surah:', error);
+    return NextResponse.json(
+      { error: 'Failed to deactivate surah' },
       { status: 500 }
     );
   }

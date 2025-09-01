@@ -3,6 +3,19 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+// Helper function to check user permissions
+function hasPermission(userRole: string, action: 'read' | 'create' | 'update' | 'delete'): boolean {
+  const permissions: Record<string, string[]> = {
+    SUPER_ADMIN: ['read', 'create', 'update', 'delete'],
+    ADMIN: ['read', 'create', 'update', 'delete'],
+    USTADZ: ['read'],
+    STAFF: ['read'],
+    PARENT: []
+  };
+  
+  return permissions[userRole]?.includes(action) ?? false;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,6 +28,9 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const type = searchParams.get('type');
     const isActive = searchParams.get('active');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
+    const includeTeachers = searchParams.get('includeTeachers') === 'true';
 
     const whereConditions: any = {};
     
@@ -34,8 +50,13 @@ export async function GET(request: NextRequest) {
       whereConditions.isActive = true;
     }
 
-    const subjects = await prisma.subject.findMany({
-      where: whereConditions,
+    const skip = (page - 1) * limit;
+
+    const [subjects, totalCount] = await Promise.all([
+      prisma.subject.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
       include: {
         _count: {
           select: {
@@ -53,9 +74,62 @@ export async function GET(request: NextRequest) {
         { sortOrder: 'asc' },
         { name: 'asc' },
       ],
-    });
+    }),
+    prisma.subject.count({ where: whereConditions })
+  ]);
 
-    return NextResponse.json(subjects);
+    const response: any = {
+      subjects,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPreviousPage: page > 1
+      }
+    };
+
+    // Include teacher assignments if requested
+    if (includeTeachers && hasPermission(session.user?.role || '', 'read')) {
+      const teacherSubjects = await prisma.teacherSubject.findMany({
+        where: {
+          subjectId: { in: subjects.map(s => s.id) },
+          isActive: true
+        },
+        include: {
+          teacher: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
+          class: {
+            select: {
+              id: true,
+              name: true,
+              grade: true,
+              level: true
+            }
+          },
+          semester: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+      
+      response.teacherAssignments = teacherSubjects.reduce((acc: any, ts: any) => {
+        if (!acc[ts.subjectId]) acc[ts.subjectId] = [];
+        acc[ts.subjectId].push(ts);
+        return acc;
+      }, {});
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching subjects:', error);
     return NextResponse.json(
@@ -68,8 +142,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'create')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -92,6 +170,41 @@ export async function POST(request: NextRequest) {
     if (!code || !name || !level) {
       return NextResponse.json(
         { error: 'Code, name, and level are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate level
+    const validLevels = ['TK', 'SD', 'SMP', 'PONDOK'];
+    if (!validLevels.includes(level)) {
+      return NextResponse.json(
+        { error: `Level must be one of: ${validLevels.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate category
+    const validCategories = ['UMUM', 'AGAMA', 'MUATAN_LOKAL'];
+    if (category && !validCategories.includes(category)) {
+      return NextResponse.json(
+        { error: `Category must be one of: ${validCategories.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate type
+    const validTypes = ['WAJIB', 'PILIHAN'];
+    if (type && !validTypes.includes(type)) {
+      return NextResponse.json(
+        { error: `Type must be one of: ${validTypes.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate credits
+    if (credits && (credits < 1 || credits > 10)) {
+      return NextResponse.json(
+        { error: 'Credits must be between 1 and 10' },
         { status: 400 }
       );
     }
@@ -145,8 +258,12 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'update')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -230,8 +347,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user?.role || '', 'delete')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
