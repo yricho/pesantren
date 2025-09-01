@@ -517,6 +517,12 @@ model Student {
   // OTA Fields
   isOrphan     Boolean @default(false)
   monthlyNeeds Decimal? // Monthly financial needs amount
+  
+  // PPDB Relations
+  ppdbRegistrations PPDBRegistration[]
+  
+  // SPP Relations
+  sppBillings SPPBilling[]
   otaProfile   String? // Public profile text (anonymized)
 
   @@index([institutionType, status])
@@ -1284,6 +1290,7 @@ model Semester {
   attendances     Attendance[]
   reportCards     ReportCard[]
   exams           Exam[]
+  sppBillings     SPPBilling[]
 
   @@unique([academicYearId, name])
   @@index([isActive])
@@ -1314,6 +1321,7 @@ model Class {
   teacherSubjects TeacherSubject[]
   attendances     Attendance[]
   schedules       Schedule[]
+  sppBillings     SPPBilling[]
   exams           Exam[]
   reportCards     ReportCard[]     @relation("ReportCardClass")
 
@@ -2587,4 +2595,439 @@ model OTAReport {
   @@index([status, createdAt])
   @@index([reportType])
   @@map("ota_reports")
+}
+
+// ==========================================
+// PPDB (ONLINE REGISTRATION) SYSTEM MODELS
+// ==========================================
+
+model PPDBRegistration {
+  id             String   @id @default(cuid())
+  registrationNo String   @unique // Format: PPDB-2024-TK-001
+  
+  // Basic Information
+  level          String   // TK, SD, SMP, PONDOK
+  academicYear   String   // 2024/2025
+  
+  // Student Data
+  fullName       String
+  nickname       String?
+  birthPlace     String
+  birthDate      DateTime
+  gender         String   // MALE, FEMALE
+  bloodType      String?
+  religion       String   @default("ISLAM")
+  nationality    String   @default("INDONESIA")
+  
+  // Identity Documents
+  nik            String?  // Nomor Induk Kependudukan
+  nisn           String?  // Nomor Induk Siswa Nasional
+  birthCertNo    String?  // Nomor Akta Kelahiran
+  familyCardNo   String?  // Nomor Kartu Keluarga
+  
+  // Contact Information
+  phone          String?
+  email          String?
+  address        String
+  rt             String?
+  rw             String?
+  village        String
+  district       String
+  city           String
+  province       String
+  postalCode     String?
+  
+  // Previous School
+  previousSchool String?
+  previousGrade  String?
+  previousNISN   String?
+  graduationYear Int?
+  
+  // Parent/Guardian Data - Father
+  fatherName     String
+  fatherNIK      String?
+  fatherBirth    DateTime?
+  fatherEducation String?
+  fatherOccupation String?
+  fatherPhone    String?
+  fatherIncome   Decimal?
+  
+  // Parent/Guardian Data - Mother
+  motherName     String
+  motherNIK      String?
+  motherBirth    DateTime?
+  motherEducation String?
+  motherOccupation String?
+  motherPhone    String?
+  motherIncome   Decimal?
+  
+  // Guardian (if different from parents)
+  guardianName   String?
+  guardianNIK    String?
+  guardianRelation String?
+  guardianPhone  String?
+  guardianAddress String?
+  
+  // Special Needs & Health
+  hasSpecialNeeds Boolean @default(false)
+  specialNeeds   String?
+  healthConditions String?
+  allergies      String?
+  
+  // Documents Upload
+  documents      String @default("[]") // JSON array of document URLs
+  photoUrl       String?
+  birthCertUrl   String?
+  familyCardUrl  String?
+  transcriptUrl  String?
+  
+  // Registration Status
+  status         String @default("DRAFT") // DRAFT, SUBMITTED, REVIEWING, TEST_SCHEDULED, TEST_PASSED, INTERVIEW_SCHEDULED, ACCEPTED, REJECTED, ENROLLED
+  
+  // Test & Interview
+  testSchedule   DateTime?
+  testScore      Decimal?
+  testNotes      String?
+  interviewSchedule DateTime?
+  interviewScore Decimal?
+  interviewNotes String?
+  
+  // Acceptance
+  acceptedAt     DateTime?
+  acceptedBy     String?
+  acceptanceNo   String? // Nomor surat penerimaan
+  
+  // Enrollment
+  enrolledAt     DateTime?
+  studentId      String? // Link to Student model after enrollment
+  
+  // Payment
+  registrationFee Decimal?
+  paymentStatus  String @default("UNPAID") // UNPAID, PARTIAL, PAID
+  paymentProof   String?
+  
+  // Notes & Comments
+  internalNotes  String? // Admin notes
+  publicNotes    String? // Notes visible to applicant
+  
+  // Metadata
+  submittedAt    DateTime?
+  reviewedBy     String?
+  reviewedAt     DateTime?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relations
+  student        Student? @relation(fields: [studentId], references: [id])
+  activities     PPDBActivity[]
+  
+  @@index([level, academicYear, status])
+  @@index([registrationNo])
+  @@index([status, createdAt])
+  @@map("ppdb_registrations")
+}
+
+model PPDBActivity {
+  id             String   @id @default(cuid())
+  registrationId String
+  
+  activity       String   // SUBMITTED, STATUS_CHANGED, TEST_SCHEDULED, DOCUMENT_UPLOADED, etc.
+  description    String
+  metadata       String?  // JSON with additional data
+  
+  performedBy    String?  // User who performed the action
+  performedAt    DateTime @default(now())
+  
+  // Relations
+  registration   PPDBRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  
+  @@index([registrationId, performedAt])
+  @@map("ppdb_activities")
+}
+
+model PPDBSettings {
+  id             String   @id @default(cuid())
+  academicYear   String   @unique
+  
+  // Registration Period
+  openDate       DateTime
+  closeDate      DateTime
+  
+  // Quotas per level
+  quotaTK        Int @default(30)
+  quotaSD        Int @default(60)
+  quotaSMP       Int @default(40)
+  quotaPondok    Int @default(50)
+  
+  // Registration Fees
+  registrationFeeTK     Decimal @default(100000)
+  registrationFeeSD     Decimal @default(150000)
+  registrationFeeSMP    Decimal @default(200000)
+  registrationFeePondok Decimal @default(250000)
+  
+  // Test Settings
+  testEnabled    Boolean @default(true)
+  testPassScore  Decimal @default(60)
+  
+  // Interview Settings
+  interviewEnabled Boolean @default(true)
+  interviewPassScore Decimal @default(70)
+  
+  // Document Requirements (JSON)
+  requiredDocs   String @default("[]")
+  
+  // Announcement Template
+  acceptanceTemplate String?
+  rejectionTemplate  String?
+  
+  // Auto-numbering
+  lastRegistrationNo Int @default(0)
+  
+  isActive       Boolean @default(true)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@map("ppdb_settings")
+}
+
+// ==========================================
+// SPP (BILLING & PAYMENT) SYSTEM MODELS
+// ==========================================
+
+model SPPBilling {
+  id          String   @id @default(cuid())
+  billNo      String   @unique // Format: BILL-2024-01-001
+  
+  // Student & Period
+  studentId   String
+  classId     String
+  semesterId  String
+  month       Int      // 1-12
+  year        Int      // 2024
+  
+  // Billing Components
+  sppAmount   Decimal  // Monthly SPP fee
+  
+  // Additional fees (optional)
+  booksFee    Decimal? // Buku/LKS
+  uniformFee  Decimal? // Seragam
+  activityFee Decimal? // Kegiatan
+  examFee     Decimal? // Ujian
+  otherFees   String @default("[]") // JSON array of {name, amount}
+  
+  // Totals
+  subtotal    Decimal
+  discount    Decimal @default(0)
+  discountType String? // PERCENTAGE, FIXED
+  discountReason String?
+  totalAmount Decimal
+  
+  // Payment Status
+  status      String @default("UNPAID") // UNPAID, PARTIAL, PAID, OVERDUE, CANCELLED
+  paidAmount  Decimal @default(0)
+  
+  // Due Date
+  dueDate     DateTime
+  isOverdue   Boolean @default(false)
+  overdueDays Int @default(0)
+  lateFee     Decimal @default(0)
+  
+  // Payment Information
+  paidAt      DateTime?
+  paymentMethod String? // CASH, TRANSFER, VA, etc.
+  paymentRef  String? // Payment reference number
+  
+  // Notes
+  notes       String?
+  
+  // Billing Generation
+  generatedAt DateTime @default(now())
+  generatedBy String?
+  
+  // Cancellation
+  cancelledAt DateTime?
+  cancelledBy String?
+  cancelReason String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  student     Student @relation(fields: [studentId], references: [id])
+  class       Class @relation(fields: [classId], references: [id])
+  semester    Semester @relation(fields: [semesterId], references: [id])
+  payments    SPPPayment[]
+  reminders   SPPReminder[]
+  
+  @@unique([studentId, month, year])
+  @@index([status, dueDate])
+  @@index([studentId, year, month])
+  @@index([classId, status])
+  @@map("spp_billings")
+}
+
+model SPPPayment {
+  id          String   @id @default(cuid())
+  paymentNo   String   @unique // Format: PAY-2024-01-001
+  
+  // Billing Reference
+  billingId   String
+  
+  // Payment Details
+  amount      Decimal
+  paymentDate DateTime
+  paymentMethod String // CASH, TRANSFER, VA, QRIS, etc.
+  
+  // Bank/Channel Details
+  bankName    String?
+  accountNo   String?
+  accountName String?
+  
+  // Payment Proof
+  proofUrl    String? // Upload bukti transfer
+  
+  // External Payment Gateway
+  externalId  String? // Payment gateway transaction ID
+  vaNumber    String? // Virtual account number
+  paymentUrl  String? // Payment URL from gateway
+  
+  // Verification
+  status      String @default("PENDING") // PENDING, VERIFIED, REJECTED
+  verifiedBy  String?
+  verifiedAt  DateTime?
+  
+  // Receipt
+  receiptNo   String? // Generated receipt number
+  receiptUrl  String? // Generated receipt PDF URL
+  
+  // Notes
+  notes       String?
+  
+  // Cashier/Recorder
+  recordedBy  String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  billing     SPPBilling @relation(fields: [billingId], references: [id])
+  
+  @@index([billingId])
+  @@index([paymentDate])
+  @@index([status])
+  @@map("spp_payments")
+}
+
+model SPPReminder {
+  id          String   @id @default(cuid())
+  
+  // Target
+  billingId   String
+  
+  // Reminder Details
+  type        String   // WHATSAPP, EMAIL, SMS
+  recipient   String   // Phone number or email
+  
+  // Message
+  subject     String?
+  message     String
+  
+  // Status
+  status      String @default("PENDING") // PENDING, SENT, FAILED
+  sentAt      DateTime?
+  failReason  String?
+  
+  // Schedule
+  scheduledFor DateTime
+  attempts    Int @default(0)
+  maxAttempts Int @default(3)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  billing     SPPBilling @relation(fields: [billingId], references: [id])
+  
+  @@index([billingId])
+  @@index([status, scheduledFor])
+  @@map("spp_reminders")
+}
+
+model SPPSettings {
+  id          String   @id @default(cuid())
+  
+  // Fee Structure per Level
+  level       String   @unique // TK, SD, SMP, PONDOK
+  
+  // Monthly SPP
+  monthlyFee  Decimal
+  
+  // Annual/Semester Fees
+  enrollmentFee Decimal? // Uang pangkal
+  reEnrollmentFee Decimal? // Daftar ulang
+  developmentFee Decimal? // Uang pembangunan
+  
+  // Other Periodic Fees
+  booksFee    Decimal?
+  uniformFee  Decimal?
+  activityFee Decimal?
+  examFee     Decimal?
+  
+  // Payment Rules
+  dueDateDay  Int @default(10) // Due date on day X of month
+  lateFeeType String @default("FIXED") // FIXED, PERCENTAGE
+  lateFeeAmount Decimal @default(10000)
+  maxLateDays Int @default(30)
+  
+  // Discount Rules
+  discountSibling Decimal @default(10) // Percentage
+  discountOrphan  Decimal @default(50) // Percentage
+  discountStaff   Decimal @default(25) // Percentage
+  
+  // Reminder Settings
+  reminderDays String @default("[7, 3, 1, -1, -3, -7]") // Days before/after due date
+  reminderChannels String @default("[\"WHATSAPP\"]") // Enabled channels
+  
+  // Templates
+  billTemplate String?
+  receiptTemplate String?
+  reminderTemplate String?
+  
+  isActive    Boolean @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("spp_settings")
+}
+
+model SPPReport {
+  id          String   @id @default(cuid())
+  
+  // Report Info
+  reportType  String   // MONTHLY_COLLECTION, OUTSTANDING, CLASS_SUMMARY, etc.
+  period      String   // 2024-01, 2024-Q1, 2024, etc.
+  
+  // Parameters
+  filters     String @default("{}") // JSON with report filters
+  
+  // Generated Data
+  data        String   // JSON with report data
+  summary     String   // JSON with summary stats
+  
+  // Files
+  pdfUrl      String?
+  excelUrl    String?
+  
+  // Generation
+  generatedBy String
+  generatedAt DateTime @default(now())
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([reportType, period])
+  @@index([generatedBy, generatedAt])
+  @@map("spp_reports")
 }
