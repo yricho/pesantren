@@ -182,9 +182,9 @@ export function QuickRecordModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
+          <DialogTitle className="flex items-center gap-3 text-gray-900">
             <TypeIcon className={`w-6 h-6 ${typeConfig.color}`} />
             <div>
               <div>{typeConfig.title} - {surah.name}</div>

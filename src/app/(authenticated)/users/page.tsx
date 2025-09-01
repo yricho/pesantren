@@ -796,10 +796,10 @@ export default function UsersPage() {
 
       {/* Add User Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white">
           <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900">Add New User</DialogTitle>
+            <DialogDescription className="text-gray-600">
               Create a new user account with specified role and permissions.
             </DialogDescription>
           </DialogHeader>
@@ -968,10 +968,10 @@ export default function UsersPage() {
 
       {/* Edit User Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white">
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900">Edit User</DialogTitle>
+            <DialogDescription className="text-gray-600">
               Update user information and permissions.
             </DialogDescription>
           </DialogHeader>
@@ -1075,10 +1075,10 @@ export default function UsersPage() {
 
       {/* Change Password Dialog */}
       <Dialog open={showChangePasswordDialog} onOpenChange={setShowChangePasswordDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white">
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900">Change Password</DialogTitle>
+            <DialogDescription className="text-gray-600">
               {selectedUser && selectedUser.id === session?.user.id 
                 ? 'Change your password'
                 : `Change password for ${selectedUser?.name}`
@@ -1263,10 +1263,10 @@ export default function UsersPage() {
 
       {/* Reset Password Dialog (Admin Only) */}
       <Dialog open={showResetPasswordDialog} onOpenChange={setShowResetPasswordDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white">
           <DialogHeader>
-            <DialogTitle>Reset Password</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900">Reset Password</DialogTitle>
+            <DialogDescription className="text-gray-600">
               Reset password for {selectedUser?.name} ({selectedUser?.username})
             </DialogDescription>
           </DialogHeader>
@@ -1395,9 +1395,9 @@ export default function UsersPage() {
 
       {/* Generated Password Success Dialog */}
       <Dialog open={showGeneratedPasswordDialog} onOpenChange={setShowGeneratedPasswordDialog}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg bg-white">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-gray-900">
               <CheckCircle2 className="w-5 h-5 text-green-600" />
               Password Updated Successfully
             </DialogTitle>

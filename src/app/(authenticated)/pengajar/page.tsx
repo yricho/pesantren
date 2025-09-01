@@ -548,12 +548,12 @@ export default function PengajarPage() {
 
         {/* Add/Edit Modal */}
         <Dialog open={showAddModal || showEditModal} onOpenChange={handleCloseModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-gray-900">
                 {showEditModal ? 'Edit Pengajar' : 'Tambah Pengajar'}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-gray-600">
                 {showEditModal ? 'Perbarui data pengajar' : 'Tambahkan pengajar baru ke dalam sistem'}
               </DialogDescription>
             </DialogHeader>
@@ -562,7 +562,7 @@ export default function PengajarPage() {
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nama Lengkap *</Label>
+                  <Label htmlFor="name" className="text-gray-700">Nama Lengkap *</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -573,7 +573,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="nip">NIP</Label>
+                  <Label htmlFor="nip" className="text-gray-700">NIP</Label>
                   <Input
                     id="nip"
                     value={formData.nip}
@@ -582,7 +582,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="title">Gelar Akademik</Label>
+                  <Label htmlFor="title" className="text-gray-700">Gelar Akademik</Label>
                   <Input
                     id="title"
                     value={formData.title}
@@ -592,12 +592,12 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Jenis Kelamin *</Label>
+                  <Label htmlFor="gender" className="text-gray-700">Jenis Kelamin *</Label>
                   <select
                     id="gender"
                     value={formData.gender}
                     onChange={(e) => setFormData({...formData, gender: e.target.value, isUstadz: e.target.value === 'L'})}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${formErrors.gender ? 'border-red-500' : ''}`}
+                    className={`w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${formErrors.gender ? 'border-red-500' : ''}`}
                   >
                     <option value="L">Laki-laki (Ustadz)</option>
                     <option value="P">Perempuan (Ustadzah)</option>
@@ -606,7 +606,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="birthPlace">Tempat Lahir</Label>
+                  <Label htmlFor="birthPlace" className="text-gray-700">Tempat Lahir</Label>
                   <Input
                     id="birthPlace"
                     value={formData.birthPlace}
@@ -615,7 +615,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="birthDate">Tanggal Lahir</Label>
+                  <Label htmlFor="birthDate" className="text-gray-700">Tanggal Lahir</Label>
                   <Input
                     id="birthDate"
                     type="date"
@@ -625,7 +625,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">No. Telepon</Label>
+                  <Label htmlFor="phone" className="text-gray-700">No. Telepon</Label>
                   <Input
                     id="phone"
                     value={formData.phone}
@@ -634,7 +634,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-gray-700">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -647,7 +647,7 @@ export default function PengajarPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">Alamat</Label>
+                <Label htmlFor="address" className="text-gray-700">Alamat</Label>
                 <Textarea
                   id="address"
                   value={formData.address}
@@ -659,7 +659,7 @@ export default function PengajarPage() {
               {/* Professional Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="position">Jabatan *</Label>
+                  <Label htmlFor="position" className="text-gray-700">Jabatan *</Label>
                   <Input
                     id="position"
                     value={formData.position}
@@ -671,12 +671,12 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="institution">Institusi *</Label>
+                  <Label htmlFor="institution" className="text-gray-700">Institusi *</Label>
                   <select
                     id="institution"
                     value={formData.institution}
                     onChange={(e) => setFormData({...formData, institution: e.target.value})}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${formErrors.institution ? 'border-red-500' : ''}`}
+                    className={`w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${formErrors.institution ? 'border-red-500' : ''}`}
                   >
                     <option value="">Pilih Institusi</option>
                     <option value="TK">TK</option>
@@ -688,7 +688,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="specialization">Spesialisasi</Label>
+                  <Label htmlFor="specialization" className="text-gray-700">Spesialisasi</Label>
                   <Input
                     id="specialization"
                     value={formData.specialization}
@@ -698,7 +698,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="experience">Pengalaman (Tahun)</Label>
+                  <Label htmlFor="experience" className="text-gray-700">Pengalaman (Tahun)</Label>
                   <Input
                     id="experience"
                     type="number"
@@ -709,12 +709,12 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="employmentType">Jenis Kepegawaian</Label>
+                  <Label htmlFor="employmentType" className="text-gray-700">Jenis Kepegawaian</Label>
                   <select
                     id="employmentType"
                     value={formData.employmentType}
                     onChange={(e) => setFormData({...formData, employmentType: e.target.value})}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
                     <option value="TETAP">Tetap</option>
                     <option value="HONORER">Honorer</option>
@@ -723,7 +723,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="joinDate">Tanggal Bergabung</Label>
+                  <Label htmlFor="joinDate" className="text-gray-700">Tanggal Bergabung</Label>
                   <Input
                     id="joinDate"
                     type="date"
@@ -733,12 +733,12 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status" className="text-gray-700">Status</Label>
                   <select
                     id="status"
                     value={formData.status}
                     onChange={(e) => setFormData({...formData, status: e.target.value})}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
                     <option value="ACTIVE">Aktif</option>
                     <option value="INACTIVE">Tidak Aktif</option>
@@ -750,7 +750,7 @@ export default function PengajarPage() {
               {/* Education */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="education">Pendidikan Terakhir</Label>
+                  <Label htmlFor="education" className="text-gray-700">Pendidikan Terakhir</Label>
                   <Input
                     id="education"
                     value={formData.education}
@@ -760,7 +760,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="university">Universitas</Label>
+                  <Label htmlFor="university" className="text-gray-700">Universitas</Label>
                   <Input
                     id="university"
                     value={formData.university}
@@ -769,7 +769,7 @@ export default function PengajarPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="major">Jurusan</Label>
+                  <Label htmlFor="major" className="text-gray-700">Jurusan</Label>
                   <Input
                     id="major"
                     value={formData.major}
@@ -780,7 +780,7 @@ export default function PengajarPage() {
 
               {/* Subjects */}
               <div className="space-y-2">
-                <Label>Mata Pelajaran yang Diajar</Label>
+                <Label className="text-gray-700">Mata Pelajaran yang Diajar</Label>
                 {formData.subjects.map((subject, index) => (
                   <div key={index} className="flex gap-2">
                     <Input
@@ -810,7 +810,7 @@ export default function PengajarPage() {
 
               {/* Certifications */}
               <div className="space-y-2">
-                <Label>Sertifikasi</Label>
+                <Label className="text-gray-700">Sertifikasi</Label>
                 {formData.certifications.map((cert, index) => (
                   <div key={index} className="flex gap-2">
                     <Input
@@ -840,7 +840,7 @@ export default function PengajarPage() {
 
               {/* Achievements */}
               <div className="space-y-2">
-                <Label>Prestasi</Label>
+                <Label className="text-gray-700">Prestasi</Label>
                 {formData.achievements.map((achievement, index) => (
                   <div key={index} className="flex gap-2">
                     <Input
@@ -870,7 +870,7 @@ export default function PengajarPage() {
 
               {/* Bio */}
               <div className="space-y-2">
-                <Label htmlFor="bio">Biografi Singkat</Label>
+                <Label htmlFor="bio" className="text-gray-700">Biografi Singkat</Label>
                 <Textarea
                   id="bio"
                   value={formData.bio}
@@ -913,14 +913,14 @@ export default function PengajarPage() {
 
         {/* Delete Confirmation Modal */}
         <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-          <DialogContent>
+          <DialogContent className="bg-white">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-2 text-gray-900">
                 <AlertTriangle className="w-5 h-5 text-red-500" />
                 Konfirmasi Hapus
               </DialogTitle>
-              <DialogDescription>
-                Apakah Anda yakin ingin menghapus data pengajar <strong>{teacherToDelete?.name}</strong>?
+              <DialogDescription className="text-gray-600">
+                Apakah Anda yakin ingin menghapus data pengajar <strong className="text-gray-900">{teacherToDelete?.name}</strong>?
                 Tindakan ini tidak dapat dibatalkan.
               </DialogDescription>
             </DialogHeader>
@@ -945,9 +945,9 @@ export default function PengajarPage() {
 
         {/* Detail Modal */}
         <Dialog open={showDetailModal} onOpenChange={() => setShowDetailModal(false)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
             <DialogHeader>
-              <DialogTitle>Detail Pengajar</DialogTitle>
+              <DialogTitle className="text-gray-900">Detail Pengajar</DialogTitle>
             </DialogHeader>
 
             {selectedTeacher && (

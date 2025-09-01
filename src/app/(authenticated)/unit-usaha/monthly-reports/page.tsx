@@ -309,9 +309,9 @@ export default function MonthlyReportsPage() {
               Buat Laporan
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-gray-900">
                 {editingReport ? 'Edit Laporan Bulanan' : 'Buat Laporan Bulanan'}
               </DialogTitle>
               <DialogDescription>

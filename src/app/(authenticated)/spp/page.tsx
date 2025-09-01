@@ -328,9 +328,9 @@ export default function SPPManagementPage() {
             <DialogTrigger asChild>
               <Button>Record Payment</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md bg-white">
               <DialogHeader>
-                <DialogTitle>Record Payment</DialogTitle>
+                <DialogTitle className="text-gray-900">Record Payment</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleRecordPayment} className="space-y-4">
                 <div>

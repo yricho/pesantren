@@ -309,9 +309,9 @@ export default function ParentPaymentsPage() {
               Upload Payment Proof
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md bg-white">
             <DialogHeader>
-              <DialogTitle>Upload Payment Proof</DialogTitle>
+              <DialogTitle className="text-gray-900">Upload Payment Proof</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleUploadPaymentProof} className="space-y-4">
               <div>
