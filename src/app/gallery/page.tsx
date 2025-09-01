@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatActivityForWhatsApp, copyToClipboard, showCopyNotification } from '@/lib/whatsapp-formatter'
+import PublicLayout from '@/components/layout/PublicLayout'
 
 interface Activity {
   id: string
@@ -145,7 +146,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <PublicLayout>
       {/* Navigation */}
       <nav className="fixed top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -599,6 +600,6 @@ export default function GalleryPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </PublicLayout>
   )
 }

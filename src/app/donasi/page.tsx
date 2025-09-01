@@ -21,6 +21,7 @@ import {
   FireIcon 
 } from '@heroicons/react/24/solid'
 import { formatDonationForWhatsApp, copyToClipboard, showCopyNotification } from '@/lib/whatsapp-formatter'
+import PublicLayout from '@/components/layout/PublicLayout'
 
 interface DonasiPageProps {}
 
@@ -116,7 +117,7 @@ export default function DonasiPage({}: DonasiPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <PublicLayout>
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-green-600 to-green-800 text-white">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -517,6 +518,6 @@ export default function DonasiPage({}: DonasiPageProps) {
           </div>
         </div>
       </div>
-    </div>
+    </PublicLayout>
   )
 }

@@ -26,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import PublicLayout from '@/components/layout/PublicLayout'
 
 interface Statistics {
   totalSantri: number
@@ -137,18 +138,14 @@ export default function PondokPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <PublicLayout>
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Link href="/">
-            <Button variant="ghost" className="text-white hover:bg-white/20 mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Kembali
-            </Button>
-          </Link>
-          <h1 className="text-4xl font-bold">Pondok Pesantren</h1>
-          <p className="text-green-100 mt-2">Pusat Pendidikan Islam Terpadu</p>
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Pondok Pesantren</h1>
+            <p className="text-green-100 text-xl">Pusat Pendidikan Islam Terpadu</p>
+          </div>
         </div>
       </div>
 
@@ -489,6 +486,6 @@ export default function PondokPage() {
           </div>
         </div>
       </section>
-    </div>
+    </PublicLayout>
   )
 }

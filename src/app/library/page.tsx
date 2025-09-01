@@ -10,6 +10,7 @@ import {
   Bookmark, Share2, ChevronLeft, X, PlayCircle,
   Image, Users, GraduationCap, DollarSign, Volume2
 } from 'lucide-react';
+import PublicLayout from '@/components/layout/PublicLayout';
 
 interface DigitalBook {
   id: string;
@@ -240,7 +241,7 @@ export default function LibraryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <PublicLayout>
       {/* Navigation */}
       <nav className="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-40">
         <div className="container mx-auto px-4">
@@ -801,6 +802,6 @@ export default function LibraryPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </PublicLayout>
   );
 }

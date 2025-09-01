@@ -11,6 +11,7 @@ import {
   DollarSign, PlayCircle, Image, Copy
 } from 'lucide-react';
 import { formatVideoForWhatsApp, copyToClipboard, showCopyNotification } from '@/lib/whatsapp-formatter';
+import PublicLayout from '@/components/layout/PublicLayout';
 
 interface Kajian {
   id: string;
@@ -175,7 +176,7 @@ export default function KajianPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+    <PublicLayout>
       {/* Navigation */}
       <nav className="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-40">
         <div className="container mx-auto px-4">
@@ -668,6 +669,6 @@ export default function KajianPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </PublicLayout>
   );
 }

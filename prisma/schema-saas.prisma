@@ -1,0 +1,499 @@
+// SaaS Multi-Tenant Schema Extension
+// This file shows the additional models needed for SaaS transformation
+
+// ==========================================
+// TENANT MANAGEMENT MODELS
+// ==========================================
+
+model Tenant {
+  id               String   @id @default(cuid())
+  slug             String   @unique // Subdomain: ponpes-abc
+  code             String   @unique // Unique code: PSA001
+  
+  // Basic Information
+  name             String   // Pondok Pesantren Al-Hikmah
+  legalName        String   // Yayasan Al-Hikmah Indonesia
+  type             String   @default("PESANTREN") // PESANTREN, MADRASAH, TPQ
+  
+  // Contact Information
+  email            String   @unique
+  phone            String
+  whatsapp         String?
+  website          String?
+  
+  // Address
+  address          String
+  village          String?
+  district         String
+  city             String
+  province         String
+  postalCode       String?
+  country          String   @default("Indonesia")
+  
+  // Legal Documents
+  npwp             String?  // Tax ID
+  kemenkumhamNo    String?  // Legal entity number
+  kemenkagNo       String?  // Ministry of Religion number
+  akreditasi       String?  // Accreditation
+  
+  // Branding
+  logo             String?  // URL to logo
+  favicon          String?  // URL to favicon
+  primaryColor     String   @default("#10B981")
+  secondaryColor   String   @default("#059669")
+  
+  // Subscription
+  plan             String   @default("TRIAL") // TRIAL, BASIC, STANDARD, PREMIUM, ENTERPRISE
+  status           String   @default("PENDING") // PENDING, ACTIVE, SUSPENDED, CANCELLED
+  
+  // Trial Information
+  trialStartsAt    DateTime @default(now())
+  trialEndsAt      DateTime // 14 days from creation
+  
+  // Subscription Dates
+  subscribedAt     DateTime?
+  subscriptionEndsAt DateTime?
+  
+  // Limits (based on plan)
+  maxStudents      Int      @default(50)
+  maxUsers         Int      @default(5)
+  maxTeachers      Int      @default(10)
+  maxStorage       Int      @default(5) // GB
+  maxSmsCredits    Int      @default(100)
+  
+  // Usage Tracking
+  currentStudents  Int      @default(0)
+  currentUsers     Int      @default(0)
+  currentStorage   Float    @default(0) // GB
+  smsCreditsUsed   Int      @default(0)
+  
+  // Feature Flags (JSON)
+  features         Json     @default("{}")
+  // Example: {"ppdb": true, "spp": true, "hafalan": true, "unit_usaha": false}
+  
+  // Settings (JSON)
+  settings         Json     @default("{}")
+  // Example: {"language": "id", "timezone": "Asia/Jakarta", "currency": "IDR"}
+  
+  // Custom Domain
+  customDomain     String?  @unique // ponpes-alhikmah.sch.id
+  domainVerified   Boolean  @default(false)
+  domainSSL        Boolean  @default(false)
+  
+  // Metadata
+  onboardingStep   Int      @default(0) // Track onboarding progress
+  onboardingCompleted Boolean @default(false)
+  
+  // Billing Contact
+  billingName      String?
+  billingEmail     String?
+  billingPhone     String?
+  billingAddress   String?
+  
+  // Support
+  supportPriority  String   @default("STANDARD") // STANDARD, PRIORITY, VIP
+  dedicatedSupport String?  // Dedicated support person for ENTERPRISE
+  
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  lastActiveAt     DateTime @default(now())
+  
+  // Soft Delete
+  deletedAt        DateTime?
+  deletedBy        String?
+  
+  // Relations
+  subscription     TenantSubscription?
+  users            TenantUser[]
+  invoices         TenantInvoice[]
+  activities       TenantActivity[]
+  apiKeys          TenantApiKey[]
+  webhooks         TenantWebhook[]
+  
+  @@index([slug])
+  @@index([status])
+  @@index([plan])
+  @@index([customDomain])
+  @@map("tenants")
+}
+
+model TenantSubscription {
+  id                  String   @id @default(cuid())
+  tenantId            String   @unique
+  
+  // Plan Details
+  planId              String
+  planName            String
+  planPrice           Decimal
+  planInterval        String   // MONTHLY, QUARTERLY, YEARLY
+  
+  // Subscription Status
+  status              String   @default("TRIALING") // TRIALING, ACTIVE, PAST_DUE, CANCELLED, PAUSED
+  
+  // Billing Period
+  currentPeriodStart  DateTime
+  currentPeriodEnd    DateTime
+  
+  // Payment
+  paymentMethod       String?  // TRANSFER, VA, QRIS, CC
+  paymentDetails      Json?    // Store payment method details
+  
+  // Discounts
+  discountType        String?  // PERCENTAGE, FIXED
+  discountAmount      Decimal? 
+  discountReason      String?
+  couponCode          String?
+  
+  // Cancellation
+  cancelAt            DateTime? // Scheduled cancellation
+  cancelledAt         DateTime? // Actual cancellation
+  cancellationReason  String?
+  
+  // Grace Period
+  gracePeriodEnd      DateTime?
+  
+  // Auto Renewal
+  autoRenew           Boolean  @default(true)
+  renewalReminderSent Boolean  @default(false)
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  // Relations
+  tenant              Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@map("tenant_subscriptions")
+}
+
+model TenantInvoice {
+  id                String   @id @default(cuid())
+  tenantId          String
+  invoiceNo         String   @unique // INV-2024-001
+  
+  // Billing Period
+  periodStart       DateTime
+  periodEnd         DateTime
+  
+  // Amounts
+  subtotal          Decimal
+  tax               Decimal  @default(0)
+  discount          Decimal  @default(0)
+  total             Decimal
+  
+  // Payment
+  status            String   @default("PENDING") // PENDING, PAID, OVERDUE, CANCELLED
+  dueDate           DateTime
+  paidAt            DateTime?
+  paymentMethod     String?
+  paymentRef        String?
+  
+  // Items (JSON)
+  items             Json
+  // Example: [{"name": "Subscription", "amount": 599000}, {"name": "SMS Credits", "amount": 50000}]
+  
+  // Files
+  invoiceUrl        String?  // Generated PDF
+  receiptUrl        String?  // Payment receipt
+  
+  // Notes
+  notes             String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("tenant_invoices")
+}
+
+model TenantUser {
+  id                String   @id @default(cuid())
+  tenantId          String
+  userId            String
+  
+  // Role within tenant
+  role              String   @default("VIEWER") // OWNER, ADMIN, EDITOR, VIEWER
+  
+  // Permissions (JSON)
+  permissions       Json     @default("[]")
+  
+  // Status
+  status            String   @default("ACTIVE") // INVITED, ACTIVE, SUSPENDED, REMOVED
+  
+  // Invitation
+  invitedBy         String?
+  invitedAt         DateTime?
+  acceptedAt        DateTime?
+  inviteToken       String?  @unique
+  inviteExpiresAt   DateTime?
+  
+  // Last Activity
+  lastLoginAt       DateTime?
+  lastActiveAt      DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@unique([tenantId, userId])
+  @@index([userId])
+  @@index([status])
+  @@map("tenant_users")
+}
+
+model TenantActivity {
+  id                String   @id @default(cuid())
+  tenantId          String
+  
+  // Activity Details
+  action            String   // LOGIN, EXPORT, IMPORT, SETTINGS_CHANGE, etc.
+  entity            String?  // STUDENT, PAYMENT, USER, etc.
+  entityId          String?
+  
+  // Actor
+  userId            String?
+  userEmail         String?
+  userName          String?
+  
+  // Details
+  description       String
+  metadata          Json?    // Additional data
+  
+  // Request Info
+  ipAddress         String?
+  userAgent         String?
+  
+  createdAt         DateTime @default(now())
+  
+  // Relations
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId, createdAt])
+  @@index([userId])
+  @@index([action])
+  @@map("tenant_activities")
+}
+
+model TenantApiKey {
+  id                String   @id @default(cuid())
+  tenantId          String
+  
+  name              String   // API Key name
+  key               String   @unique // The actual API key
+  hashedKey         String   // For verification
+  
+  // Permissions
+  scopes            String[] // ['read:students', 'write:students', etc.]
+  
+  // Rate Limiting
+  rateLimit         Int      @default(1000) // Requests per hour
+  
+  // Usage
+  lastUsedAt        DateTime?
+  usageCount        Int      @default(0)
+  
+  // Status
+  status            String   @default("ACTIVE") // ACTIVE, REVOKED
+  expiresAt         DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([key])
+  @@index([status])
+  @@map("tenant_api_keys")
+}
+
+model TenantWebhook {
+  id                String   @id @default(cuid())
+  tenantId          String
+  
+  // Webhook Configuration
+  url               String
+  secret            String   // For signature verification
+  
+  // Events to listen
+  events            String[] // ['student.created', 'payment.received', etc.]
+  
+  // Status
+  active            Boolean  @default(true)
+  
+  // Delivery Stats
+  successCount      Int      @default(0)
+  failureCount      Int      @default(0)
+  lastTriggeredAt   DateTime?
+  lastError         String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([active])
+  @@map("tenant_webhooks")
+}
+
+// ==========================================
+// SUBSCRIPTION PLANS
+// ==========================================
+
+model SubscriptionPlan {
+  id                String   @id @default(cuid())
+  code              String   @unique // BASIC, STANDARD, PREMIUM
+  name              String   // Paket Dasar
+  description       String?
+  
+  // Pricing
+  monthlyPrice      Decimal
+  quarterlyPrice    Decimal?
+  yearlyPrice       Decimal?
+  
+  // Discounts
+  monthlyDiscount   Decimal  @default(0)
+  quarterlyDiscount Decimal  @default(10) // 10% off
+  yearlyDiscount    Decimal  @default(20) // 20% off
+  
+  // Limits
+  maxStudents       Int
+  maxUsers          Int
+  maxTeachers       Int
+  maxStorage        Int      // GB
+  maxSmsCredits     Int
+  
+  // Features (JSON)
+  features          Json
+  // {
+  //   "core": true,
+  //   "ppdb": true,
+  //   "spp": true,
+  //   "hafalan": false,
+  //   "unit_usaha": false,
+  //   "custom_domain": false,
+  //   "api_access": false,
+  //   "white_label": false
+  // }
+  
+  // Display
+  popular           Boolean  @default(false)
+  sortOrder         Int      @default(0)
+  
+  // Status
+  active            Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([code])
+  @@index([active])
+  @@map("subscription_plans")
+}
+
+// ==========================================
+// USAGE TRACKING
+// ==========================================
+
+model TenantUsage {
+  id                String   @id @default(cuid())
+  tenantId          String
+  
+  // Period
+  year              Int
+  month             Int
+  
+  // Metrics
+  activeUsers       Int      @default(0)
+  totalStudents     Int      @default(0)
+  totalTransactions Int      @default(0)
+  storageUsed       Float    @default(0) // GB
+  apiCalls          Int      @default(0)
+  smssSent          Int      @default(0)
+  emailsSent        Int      @default(0)
+  
+  // Calculated
+  totalCost         Decimal? // For usage-based billing
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([tenantId, year, month])
+  @@index([tenantId])
+  @@map("tenant_usage")
+}
+
+// ==========================================
+// SUPPORT SYSTEM
+// ==========================================
+
+model SupportTicket {
+  id                String   @id @default(cuid())
+  tenantId          String
+  
+  // Ticket Info
+  ticketNo          String   @unique
+  subject           String
+  description       String
+  category          String   // TECHNICAL, BILLING, FEATURE_REQUEST, OTHER
+  priority          String   @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  
+  // Status
+  status            String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+  
+  // Assignment
+  assignedTo        String?
+  assignedAt        DateTime?
+  
+  // Resolution
+  resolvedAt        DateTime?
+  resolution        String?
+  satisfactionScore Int?     // 1-5
+  
+  // Communication
+  messages          SupportMessage[]
+  
+  createdBy         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([tenantId])
+  @@index([status])
+  @@index([priority])
+  @@map("support_tickets")
+}
+
+model SupportMessage {
+  id                String   @id @default(cuid())
+  ticketId          String
+  
+  message           String
+  attachments       Json?    // Array of URLs
+  
+  // Sender
+  senderId          String
+  senderType        String   // USER, SUPPORT
+  senderName        String
+  
+  isInternal        Boolean  @default(false) // Internal notes
+  
+  createdAt         DateTime @default(now())
+  
+  // Relations
+  ticket            SupportTicket @relation(fields: [ticketId], references: [id])
+  
+  @@index([ticketId])
+  @@map("support_messages")
+}

@@ -19,6 +19,7 @@ import {
   Baby,
   Home,
 } from 'lucide-react';
+import PublicLayout from '@/components/layout/PublicLayout';
 
 export default function PPDBPageClient() {
   const [activeTab, setActiveTab] = useState('TK');
@@ -143,7 +144,7 @@ export default function PPDBPageClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <PublicLayout>
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-green-600 to-emerald-700 text-white">
         <div className="absolute inset-0 bg-black/20" />
@@ -401,6 +402,6 @@ export default function PPDBPageClient() {
           </div>
         </div>
       </section>
-    </div>
+    </PublicLayout>
   );
 }

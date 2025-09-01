@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import PublicLayout from '@/components/layout/PublicLayout'
 
 interface Teacher {
   id: string
@@ -304,29 +305,7 @@ export default function PengajarPage() {
   const ustadzahCount = teachers.filter(t => !t.isUstadz).length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-white">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-md sticky top-0 z-40 backdrop-blur-sm bg-white/90">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2 text-green-600 hover:text-green-700 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Kembali ke Beranda</span>
-            </Link>
-            <div className="flex items-center space-x-6">
-              <Link href="/about/yayasan" className="text-gray-600 hover:text-green-600 transition-colors">
-                Profil Yayasan
-              </Link>
-              <Link href="/about/struktur" className="text-gray-600 hover:text-green-600 transition-colors">
-                Struktur Organisasi
-              </Link>
-              <Link href="/about/pengajar" className="text-green-600 font-semibold">
-                Para Pengajar
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <PublicLayout>
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 text-white py-20 overflow-hidden">
@@ -513,6 +492,6 @@ export default function PengajarPage() {
           )}
         </div>
       </section>
-    </div>
+    </PublicLayout>
   )
 }

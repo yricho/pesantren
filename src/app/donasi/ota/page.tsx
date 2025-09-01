@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { formatOTAForWhatsApp, copyToClipboard, showCopyNotification } from '@/lib/whatsapp-formatter'
+import PublicLayout from '@/components/layout/PublicLayout'
 
 interface HafalanProgress {
   totalSurah: number
@@ -190,7 +191,7 @@ export default function OTAPublicPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <PublicLayout>
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
         <div className="container mx-auto px-6 py-16">
@@ -653,6 +654,6 @@ export default function OTAPublicPage() {
           </div>
         </div>
       )}
-    </div>
+    </PublicLayout>
   )
 }
