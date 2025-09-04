@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { z } from 'zod';
+import { cache, withETag, invalidateCache } from '@/lib/redis-cache';
+import { getPaginationParams, createPaginationResult, getSearchParams, buildPrismaWhereClause } from '@/lib/pagination';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -55,34 +57,41 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const searchParams = request.nextUrl.searchParams;
-    const institutionType = searchParams.get('institutionType');
-    const status = searchParams.get('status');
-    const grade = searchParams.get('grade');
-    const search = searchParams.get('search');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const skip = (page - 1) * limit;
-
-    const where: any = {};
-
-    if (institutionType) {
-      where.institutionType = institutionType;
+    // Get pagination and search parameters
+    const paginationParams = getPaginationParams(request);
+    const searchParams = getSearchParams(request);
+    
+    // Generate cache key
+    const cacheKey = cache.generateAPIKey('students', {
+      ...paginationParams,
+      ...searchParams,
+      userId: session.user.id
+    });
+    
+    // Check cache first
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      return withETag(cached, request);
     }
 
-    if (status) {
-      where.status = status;
+    // Build where clause with better structure
+    const where: any = buildPrismaWhereClause(searchParams);
+    
+    // Add specific student filters
+    if (searchParams.institutionType) {
+      where.institutionType = searchParams.institutionType;
     }
-
-    if (grade) {
-      where.grade = grade;
+    
+    if (searchParams.grade) {
+      where.grade = searchParams.grade;
     }
-
-    if (search) {
+    
+    // Override default search for students
+    if (searchParams.query) {
       where.OR = [
-        { fullName: { contains: search, mode: 'insensitive' } },
-        { nis: { contains: search, mode: 'insensitive' } },
-        { nisn: { contains: search, mode: 'insensitive' } },
+        { fullName: { contains: searchParams.query, mode: 'insensitive' } },
+        { nis: { contains: searchParams.query, mode: 'insensitive' } },
+        { nisn: { contains: searchParams.query, mode: 'insensitive' } },
       ];
     }
 
@@ -92,28 +101,26 @@ export async function GET(request: NextRequest) {
         include: {
           creator: {
             select: {
+              id: true,
               name: true,
             },
           },
         },
         orderBy: {
-          createdAt: 'desc',
+          [paginationParams.orderBy as string]: paginationParams.sortOrder,
         },
-        skip,
-        take: limit,
+        skip: paginationParams.offset,
+        take: paginationParams.limit,
       }),
       prisma.student.count({ where }),
     ]);
 
-    return NextResponse.json({
-      data: students,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
+    const result = createPaginationResult(students, total, paginationParams);
+    
+    // Cache the result
+    cache.set(cacheKey, result, 5 * 60 * 1000); // 5 minutes
+
+    return withETag(result, request);
   } catch (error) {
     console.error('Error fetching students:', error);
     return NextResponse.json(
@@ -146,6 +153,9 @@ export async function POST(request: NextRequest) {
         createdBy: session.user.id,
       },
     });
+    
+    // Invalidate students cache after creation
+    invalidateCache.students();
 
     return NextResponse.json(student);
   } catch (error) {

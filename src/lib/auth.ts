@@ -58,12 +58,17 @@ export const authOptions: NextAuthOptions = {
           }
 
           console.log('✅ Password match successful for user:', credentials.username)
+          
+          // Check if user has 2FA enabled
+          const requires2FA = user.twoFactorEnabled
+          
           return {
             id: user.id,
             username: user.username,
             email: user.email,
             name: user.name,
             role: user.role,
+            requires2FA,
           }
         } catch (error) {
           console.error('❌ Auth error:', error)
@@ -82,6 +87,7 @@ export const authOptions: NextAuthOptions = {
         if (user) {
           token.role = user.role
           token.username = user.username
+          token.requires2FA = user.requires2FA
         }
         return token
       } catch (error) {
@@ -95,6 +101,7 @@ export const authOptions: NextAuthOptions = {
           session.user.id = token.sub as string
           session.user.role = token.role as string
           session.user.username = token.username as string
+          session.user.requires2FA = token.requires2FA as boolean
         }
         
         // Ensure session always has a valid structure

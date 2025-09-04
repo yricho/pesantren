@@ -1,12 +1,69 @@
 {
   "name": "Pondok Imam Syafi'i Blitar",
   "short_name": "Pondok Imam",
-  "description": "Aplikasi Manajemen Pondok Imam Syafi'i Blitar",
+  "description": "Aplikasi Manajemen Pondok Imam Syafi'i Blitar - Sistem terpadu untuk pengelolaan santri, akademik, dan keuangan",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#22c55e",
   "theme_color": "#22c55e",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Akses cepat ke dashboard utama",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Hafalan",
+      "short_name": "Hafalan",
+      "description": "Kelola setoran hafalan santri",
+      "url": "/hafalan/setoran",
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Akademik",
+      "short_name": "Akademik",
+      "description": "Sistem akademik dan nilai",
+      "url": "/akademik",
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "PPDB",
+      "short_name": "PPDB",
+      "description": "Pendaftaran peserta didik baru",
+      "url": "/ppdb",
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -17,12 +74,14 @@
     {
       "src": "/icon-256x256.png",
       "sizes": "256x256",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icon-512x512.png",
@@ -31,7 +90,25 @@
       "purpose": "maskable any"
     }
   ],
-  "categories": ["education", "productivity"],
+  "categories": ["education", "productivity", "business"],
   "lang": "id",
-  "dir": "ltr"
+  "dir": "ltr",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+pondok",
+      "url": "/?protocol=%s"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard utama aplikasi Pondok Imam Syafi'i"
+    }
+  ]
 }

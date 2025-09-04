@@ -22,6 +22,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Two-Factor Authentication fields
+  twoFactorEnabled Boolean  @default(false)
+  twoFactorSecret  String?
+  backupCodes      String[] @default([])
+  phoneVerified    Boolean  @default(false)
+
   // Relations
   createdTransactions   Transaction[]
   createdJournalEntries JournalEntry[]
@@ -57,7 +63,31 @@ model User {
   hafalanTargetsCreated     HafalanTarget[]   @relation("HafalanTargetCreator")
   hafalanSessionsAsTeacher  HafalanSession[]  @relation("HafalanSessionTeacher")
 
+  // Two-Factor Authentication Relations
+  twoFactorVerification TwoFactorVerification?
+  securityAuditLogs     SecurityAuditLog[]
+
+  // Push Notification Relations
+  pushSubscriptions     PushSubscription[]
+
   @@map("users")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint])
+  @@map("push_subscriptions")
 }
 
 // Financial Management Models with Double-Entry Bookkeeping Support
@@ -724,6 +754,7 @@ model Payment {
   paymentNo String @unique // Format: PAY-2024-12-0001
 
   // Relations
+  billId         String? // Link to Bill for SPP and other recurring payments
   registrationId String?
   registration   Registration? @relation(fields: [registrationId], references: [id])
   studentId      String?
@@ -747,9 +778,21 @@ model Payment {
   verifiedAt DateTime?
 
   // External Payment Gateway
-  externalId String? // ID from payment gateway
+  externalId String? // ID from payment gateway (order_id)
+  transactionId String? // Transaction ID from gateway
+  paymentUrl String? // Snap token URL or payment URL
   vaNumber   String? // Virtual account number
+  qrString   String? // QR code string for QRIS
+  deeplink   String? // Deep link for e-wallets
   expiredAt  DateTime?
+  // Payment Gateway Response Data (JSON)
+  paymentGatewayData String @default("{}") // Store complete gateway response
+  // Additional gateway fields
+  merchantId String? // Merchant ID from gateway
+  fraudStatus String? // Fraud detection status
+  cardType String? // Credit card type if applicable
+  maskedCard String? // Masked card number if applicable
+  approvalCode String? // Approval code from bank
 
   // Timestamps
   paidAt    DateTime?
@@ -758,6 +801,8 @@ model Payment {
 
   @@index([status])
   @@index([paymentType])
+  @@index([externalId])
+  @@index([transactionId])
   @@map("payments")
 }
 
@@ -3168,4 +3213,50 @@ model BusinessTransaction {
   @@index([unitId, date])
   @@index([type])
   @@map("business_transactions")
+}
+
+// Two-Factor Authentication Models
+model TwoFactorVerification {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  
+  // SMS OTP fields
+  smsOtp           String?
+  smsOtpExpiresAt  DateTime?
+  smsAttempts      Int @default(0)
+  
+  // Rate limiting fields
+  totpAttempts        Int       @default(0)
+  totpAttemptsResetAt DateTime?
+  
+  smsAttemptsResetAt    DateTime?
+  backupAttempts        Int       @default(0)
+  backupAttemptsResetAt DateTime?
+  
+  // Tracking
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("two_factor_verifications")
+}
+
+model SecurityAuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  event     String   // TWO_FACTOR_ENABLED, TWO_FACTOR_DISABLED, TWO_FACTOR_VERIFIED, etc.
+  metadata  Json?    // Additional event data
+  ipAddress String   @default("unknown")
+  userAgent String   @default("unknown")
+  timestamp DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([event])
+  @@index([timestamp])
+  @@map("security_audit_logs")
 }

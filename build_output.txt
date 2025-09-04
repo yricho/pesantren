@@ -1,0 +1,14 @@
+npm warn exec The following package was not found and will be installed: next@15.5.2
+ ⨯ Failed to load next.config.js, see more info here https://nextjs.org/docs/messages/next-config-error
+
+> Build error occurred
+[Error: Cannot find module 'common-tags'
+Require stack:
+- /mnt/d/AI/pondok-imam-syafii/node_modules/next-pwa/node_modules/workbox-build/build/lib/validate-options.js
+- /mnt/d/AI/pondok-imam-syafii/node_modules/next-pwa/node_modules/workbox-webpack-plugin/build/generate-sw.js
+- /mnt/d/AI/pondok-imam-syafii/node_modules/next-pwa/node_modules/workbox-webpack-plugin/build/index.js
+- /mnt/d/AI/pondok-imam-syafii/node_modules/next-pwa/index.js
+- /mnt/d/AI/pondok-imam-syafii/next.config.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}

@@ -176,7 +176,26 @@ export async function POST(request: NextRequest) {
       }
 
       // Update payment with gateway response data
-      const updateData: any = {}
+      const updateData: any = {
+        paymentGatewayData: JSON.stringify(paymentResponse)
+      }
+
+      // Extract specific gateway fields
+      if (paymentResponse.transaction_id) {
+        updateData.transactionId = paymentResponse.transaction_id
+      }
+
+      if (paymentResponse.redirect_url) {
+        updateData.paymentUrl = paymentResponse.redirect_url
+      }
+
+      if (paymentResponse.qr_string) {
+        updateData.qrString = paymentResponse.qr_string
+      }
+
+      if (paymentResponse.deeplink_redirect) {
+        updateData.deeplink = paymentResponse.deeplink_redirect
+      }
 
       if (paymentResponse.va_numbers && paymentResponse.va_numbers.length > 0) {
         updateData.vaNumber = paymentResponse.va_numbers[0].va_number
@@ -194,12 +213,10 @@ export async function POST(request: NextRequest) {
         updateData.vaNumber = paymentResponse.other_va_number
       }
 
-      if (Object.keys(updateData).length > 0) {
-        await prisma.payment.update({
-          where: { id: payment.id },
-          data: updateData
-        })
-      }
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: updateData
+      })
 
       // Return payment details
       return NextResponse.json({
@@ -207,11 +224,15 @@ export async function POST(request: NextRequest) {
           id: payment.id,
           paymentNo: payment.paymentNo,
           orderId,
+          transactionId: updateData.transactionId,
           amount: Number(payment.amount),
           method: payment.method,
           channel: payment.channel,
           status: payment.status,
+          paymentUrl: updateData.paymentUrl,
           vaNumber: updateData.vaNumber,
+          qrString: updateData.qrString,
+          deeplink: updateData.deeplink,
           expiredAt: payment.expiredAt
         },
         gateway: paymentResponse

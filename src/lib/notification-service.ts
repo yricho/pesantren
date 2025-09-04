@@ -486,7 +486,7 @@ class NotificationService {
       await this.processNotification(notification.id);
     }
 
-    return notificationIds.map(n => n.id);
+    return notificationIds.map((n: { id: string }) => n.id);
   }
 
   // Announcement notifications
@@ -500,7 +500,7 @@ class NotificationService {
     // Get target users based on announcement settings
     const targetUsers = await this.getAnnouncementTargetUsers(announcement);
 
-    const notifications: NotificationData[] = targetUsers.map(user => ({
+    const notifications: NotificationData[] = targetUsers.map((user: { id: string }) => ({
       userId: user.id,
       type: 'ANNOUNCEMENT',
       title: announcement.title,
@@ -548,7 +548,7 @@ class NotificationService {
           });
           
           // Return parent users
-          return students.flatMap(s => s.parentStudents.map(ps => ps.parent.user));
+          return students.flatMap((s: any) => s.parentStudents.map((ps: any) => ps.parent.user));
         }
         break;
       case 'ALL':

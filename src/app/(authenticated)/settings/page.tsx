@@ -363,6 +363,36 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
+          {/* Two-Factor Authentication Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Two-Factor Authentication
+              </CardTitle>
+              <CardDescription>
+                Enhance your account security with 2FA
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Advanced Security Settings</p>
+                  <p className="text-sm text-gray-600">
+                    Manage 2FA, backup codes, and more security features
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => window.location.href = '/settings/security'}
+                  className="flex items-center gap-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  Manage Security
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>

@@ -1,6 +1,6 @@
 'use client';
 
-import { LucideIcon } from 'lucide-react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +9,7 @@ interface MetricCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string }>;
   trend?: {
     value: number;
     label: string;

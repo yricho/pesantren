@@ -49,6 +49,7 @@ export interface PaymentRequest {
 export interface MidtransResponse {
   token: string
   redirect_url: string
+  transaction_id: string
   va_numbers?: Array<{
     bank: string
     va_number: string

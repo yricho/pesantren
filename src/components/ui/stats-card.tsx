@@ -1,14 +1,14 @@
 'use client'
 
+import React from 'react'
 import { Card, CardContent } from './card'
 import { cn } from '@/lib/utils'
-import { LucideIcon } from 'lucide-react'
 
 interface StatsCardProps {
   title: string
   value: string | number
   subtitle?: string
-  icon?: LucideIcon
+  icon?: React.ComponentType<{ className?: string }>
   trend?: {
     value: number
     isPositive: boolean

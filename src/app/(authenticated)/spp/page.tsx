@@ -16,7 +16,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import BulkOperationsModal from '@/components/bulk-operations/bulk-operations-modal';
-import { Download } from 'lucide-react';
+import { PaymentResult } from '@/components/ui/payment-result';
+import { Download, CreditCard, QrCode, Smartphone, Building2 } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -107,6 +108,21 @@ export default function SPPManagementPage() {
     notes: '',
     autoVerify: true,
   });
+
+  // Online Payment Form State
+  const [onlinePaymentForm, setOnlinePaymentForm] = useState({
+    billId: '',
+    amount: 0,
+    paymentMethod: 'bank_transfer',
+    paymentChannel: 'bca',
+    customerEmail: '',
+    customerPhone: '',
+    customerName: '',
+  });
+
+  const [showOnlinePayment, setShowOnlinePayment] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentResult, setPaymentResult] = useState<any>(null);
 
   useEffect(() => {
     if (session) {
@@ -260,6 +276,84 @@ export default function SPPManagementPage() {
     }
   };
 
+  const handleOnlinePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!onlinePaymentForm.billId || onlinePaymentForm.amount <= 0) {
+      toast({
+        title: 'Error',
+        description: 'Please select a bill and enter a valid amount',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!onlinePaymentForm.customerEmail || !onlinePaymentForm.customerPhone || !onlinePaymentForm.customerName) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all customer details',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setPaymentLoading(true);
+      
+      // Find the selected bill for customer details
+      const selectedBill = outstandingBills.find(bill => bill.id === onlinePaymentForm.billId);
+      if (!selectedBill) {
+        throw new Error('Selected bill not found');
+      }
+
+      const response = await fetch('/api/payments/create-transaction', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          billId: onlinePaymentForm.billId,
+          amount: onlinePaymentForm.amount,
+          paymentType: 'SPP',
+          description: `SPP Payment - ${selectedBill.billType.name}`,
+          paymentMethod: onlinePaymentForm.paymentMethod,
+          paymentChannel: onlinePaymentForm.paymentChannel,
+          customerDetails: {
+            firstName: onlinePaymentForm.customerName.split(' ')[0],
+            lastName: onlinePaymentForm.customerName.split(' ').slice(1).join(' ') || '',
+            email: onlinePaymentForm.customerEmail,
+            phone: onlinePaymentForm.customerPhone
+          },
+          autoRedirect: false
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPaymentResult(data);
+        toast({
+          title: 'Success',
+          description: 'Payment transaction created successfully',
+        });
+        
+        // Refresh data
+        fetchDashboardData();
+      } else {
+        throw new Error(data.error || 'Failed to create payment transaction');
+      }
+    } catch (error) {
+      console.error('Error creating online payment:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to create payment transaction',
+        variant: 'destructive',
+      });
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const handleExportBills = async (reportType: string = 'bills') => {
     try {
       const params = new URLSearchParams();
@@ -324,9 +418,192 @@ export default function SPPManagementPage() {
           <p className="text-gray-600">Manage student payments and billing</p>
         </div>
         <div className="flex space-x-2">
+          <Dialog open={showOnlinePayment} onOpenChange={setShowOnlinePayment}>
+            <DialogTrigger asChild>
+              <Button variant="default">
+                <CreditCard className="w-4 h-4 mr-2" />
+                Online Payment
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl bg-white max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-gray-900">Create Online Payment</DialogTitle>
+              </DialogHeader>
+              {!paymentResult ? (
+                <form onSubmit={handleOnlinePayment} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="onlineBillId">Select Bill</Label>
+                      <select
+                        id="onlineBillId"
+                        value={onlinePaymentForm.billId}
+                        onChange={(e) => {
+                          const selectedBill = outstandingBills.find(b => b.id === e.target.value);
+                          setOnlinePaymentForm({ 
+                            ...onlinePaymentForm, 
+                            billId: e.target.value,
+                            amount: selectedBill ? selectedBill.remainingAmount : 0
+                          });
+                        }}
+                        className="w-full mt-1 p-2 border rounded-md"
+                        required
+                      >
+                        <option value="">Select a bill...</option>
+                        {(outstandingBills || []).map((bill) => (
+                          <option key={bill.id} value={bill.id}>
+                            {bill.student.fullName} - {bill.billType.name} - {formatCurrency(bill.remainingAmount)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <Label htmlFor="onlineAmount">Amount</Label>
+                      <Input
+                        id="onlineAmount"
+                        type="number"
+                        value={onlinePaymentForm.amount}
+                        onChange={(e) => setOnlinePaymentForm({ ...onlinePaymentForm, amount: parseFloat(e.target.value) || 0 })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Payment Method</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                        <Button
+                          type="button"
+                          variant={onlinePaymentForm.paymentMethod === 'bank_transfer' ? 'default' : 'outline'}
+                          onClick={() => setOnlinePaymentForm({ ...onlinePaymentForm, paymentMethod: 'bank_transfer' })}
+                          className="flex flex-col items-center p-4"
+                        >
+                          <Building2 className="w-6 h-6 mb-1" />
+                          <span className="text-xs">Bank Transfer</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={onlinePaymentForm.paymentMethod === 'e_wallet' ? 'default' : 'outline'}
+                          onClick={() => setOnlinePaymentForm({ ...onlinePaymentForm, paymentMethod: 'e_wallet' })}
+                          className="flex flex-col items-center p-4"
+                        >
+                          <Smartphone className="w-6 h-6 mb-1" />
+                          <span className="text-xs">E-Wallet</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={onlinePaymentForm.paymentMethod === 'qris' ? 'default' : 'outline'}
+                          onClick={() => setOnlinePaymentForm({ ...onlinePaymentForm, paymentMethod: 'qris' })}
+                          className="flex flex-col items-center p-4"
+                        >
+                          <QrCode className="w-6 h-6 mb-1" />
+                          <span className="text-xs">QRIS</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={onlinePaymentForm.paymentMethod === 'credit_card' ? 'default' : 'outline'}
+                          onClick={() => setOnlinePaymentForm({ ...onlinePaymentForm, paymentMethod: 'credit_card' })}
+                          className="flex flex-col items-center p-4"
+                        >
+                          <CreditCard className="w-6 h-6 mb-1" />
+                          <span className="text-xs">Credit Card</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {(onlinePaymentForm.paymentMethod === 'bank_transfer' || onlinePaymentForm.paymentMethod === 'e_wallet') && (
+                      <div>
+                        <Label htmlFor="paymentChannel">
+                          {onlinePaymentForm.paymentMethod === 'bank_transfer' ? 'Bank' : 'E-Wallet'} Selection
+                        </Label>
+                        <select
+                          id="paymentChannel"
+                          value={onlinePaymentForm.paymentChannel}
+                          onChange={(e) => setOnlinePaymentForm({ ...onlinePaymentForm, paymentChannel: e.target.value })}
+                          className="w-full mt-1 p-2 border rounded-md"
+                          required
+                        >
+                          {onlinePaymentForm.paymentMethod === 'bank_transfer' ? (
+                            <>
+                              <option value="bca">BCA Virtual Account</option>
+                              <option value="bni">BNI Virtual Account</option>
+                              <option value="bri">BRI Virtual Account</option>
+                              <option value="permata">Permata Virtual Account</option>
+                              <option value="echannel">Mandiri Bill Payment</option>
+                            </>
+                          ) : (
+                            <>
+                              <option value="gopay">GoPay</option>
+                              <option value="ovo">OVO</option>
+                              <option value="dana">DANA</option>
+                              <option value="linkaja">LinkAja</option>
+                              <option value="shopeepay">ShopeePay</option>
+                            </>
+                          )}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="customerName">Customer Name</Label>
+                      <Input
+                        id="customerName"
+                        value={onlinePaymentForm.customerName}
+                        onChange={(e) => setOnlinePaymentForm({ ...onlinePaymentForm, customerName: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="customerEmail">Email</Label>
+                      <Input
+                        id="customerEmail"
+                        type="email"
+                        value={onlinePaymentForm.customerEmail}
+                        onChange={(e) => setOnlinePaymentForm({ ...onlinePaymentForm, customerEmail: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="customerPhone">Phone</Label>
+                      <Input
+                        id="customerPhone"
+                        value={onlinePaymentForm.customerPhone}
+                        onChange={(e) => setOnlinePaymentForm({ ...onlinePaymentForm, customerPhone: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={paymentLoading}>
+                    {paymentLoading ? 'Creating Payment...' : 'Create Payment'}
+                  </Button>
+                </form>
+              ) : (
+                <PaymentResult 
+                  result={paymentResult}
+                  onClose={() => {
+                    setPaymentResult(null);
+                    setShowOnlinePayment(false);
+                    setOnlinePaymentForm({
+                      billId: '',
+                      amount: 0,
+                      paymentMethod: 'bank_transfer',
+                      paymentChannel: 'bca',
+                      customerEmail: '',
+                      customerPhone: '',
+                      customerName: '',
+                    });
+                  }}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+          
           <Dialog>
             <DialogTrigger asChild>
-              <Button>Record Payment</Button>
+              <Button variant="outline">Record Manual Payment</Button>
             </DialogTrigger>
             <DialogContent className="max-w-md bg-white">
               <DialogHeader>
@@ -490,13 +767,29 @@ export default function SPPManagementPage() {
                             {getStatusBadge(bill.status, bill.isOverdue)}
                           </td>
                           <td className="p-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setPaymentForm({ ...paymentForm, billId: bill.id })}
-                            >
-                              Record Payment
-                            </Button>
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setPaymentForm({ ...paymentForm, billId: bill.id })}
+                              >
+                                Record Payment
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setOnlinePaymentForm({ 
+                                    ...onlinePaymentForm, 
+                                    billId: bill.id,
+                                    amount: bill.remainingAmount,
+                                    customerName: bill.student.fullName
+                                  });
+                                  setShowOnlinePayment(true);
+                                }}
+                              >
+                                <CreditCard className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -670,7 +963,19 @@ export default function SPPManagementPage() {
                               <Button size="sm" variant="outline">
                                 View
                               </Button>
-                              <Button size="sm">
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setOnlinePaymentForm({ 
+                                    ...onlinePaymentForm, 
+                                    billId: bill.id,
+                                    amount: bill.remainingAmount,
+                                    customerName: bill.student.fullName
+                                  });
+                                  setShowOnlinePayment(true);
+                                }}
+                              >
+                                <CreditCard className="w-4 h-4 mr-1" />
                                 Pay
                               </Button>
                             </div>

@@ -7,6 +7,7 @@ declare module 'next-auth' {
     email: string
     name: string
     role: string
+    requires2FA?: boolean
   }
 
   interface Session {
@@ -14,6 +15,7 @@ declare module 'next-auth' {
       id: string
       username?: string
       role?: string
+      requires2FA?: boolean
     } & DefaultSession['user']
   }
 }
@@ -22,5 +24,6 @@ declare module 'next-auth/jwt' {
   interface JWT {
     role?: string
     username?: string
+    requires2FA?: boolean
   }
 }
