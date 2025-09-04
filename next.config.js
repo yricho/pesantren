@@ -38,16 +38,7 @@ const withPWA = require('next-pwa')({
         cacheableResponse: {
           statuses: [0, 200]
         },
-        networkTimeoutSeconds: 8,
-        plugins: [{
-          cacheKeyWillBeUsed: async ({ request }) => {
-            const url = new URL(request.url)
-            // Remove cache-busting parameters
-            url.searchParams.delete('_t')
-            url.searchParams.delete('timestamp')
-            return url.href
-          }
-        }]
+        networkTimeoutSeconds: 8
       }
     },
     // Static assets - Cache first with long expiration
