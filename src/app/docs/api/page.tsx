@@ -425,7 +425,589 @@ Development: http://localhost:3030/api"
                   </div>
                 )}
 
-                {/* Add more sections as needed */}
+                {/* Hafalan Section */}
+                {activeSection === 'hafalan' && (
+                  <div>
+                    <h2 className="text-3xl font-bold mb-6 flex items-center">
+                      <span className="mr-3">📖</span>
+                      Hafalan Management
+                    </h2>
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/hafalan"
+                      description="Get all hafalan records with pagination"
+                      response={`{
+  "success": true,
+  "data": {
+    "hafalans": [
+      {
+        "id": "123",
+        "studentId": "456",
+        "student": {
+          "fullName": "Ahmad Ibrahim",
+          "grade": "7A"
+        },
+        "surah": "Al-Fatihah",
+        "ayatStart": 1,
+        "ayatEnd": 7,
+        "quality": "BAIK",
+        "date": "2024-12-05"
+      }
+    ],
+    "total": 50,
+    "page": 1,
+    "totalPages": 5
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/hafalan"
+                      description="Record new hafalan progress"
+                      request={`{
+  "studentId": "456",
+  "surah": "Al-Baqarah",
+  "ayatStart": 1,
+  "ayatEnd": 10,
+  "quality": "BAIK",
+  "notes": "Hafalan bagus, pelafalan benar"
+}`}
+                      response={`{
+  "success": true,
+  "data": {
+    "id": "789",
+    "studentId": "456",
+    "surah": "Al-Baqarah",
+    "createdAt": "2024-12-05T10:00:00Z"
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/hafalan/progress/:studentId"
+                      description="Get hafalan progress for specific student"
+                      response={`{
+  "success": true,
+  "data": {
+    "studentId": "456",
+    "totalAyat": 150,
+    "completedSurahs": 3,
+    "currentProgress": "75%",
+    "recentHafalans": [
+      {
+        "surah": "Al-Fatihah",
+        "ayatCount": 7,
+        "quality": "BAIK",
+        "date": "2024-12-05"
+      }
+    ]
+  }
+}`}
+                    />
+                  </div>
+                )}
+
+                {/* Academic Section */}
+                {activeSection === 'academic' && (
+                  <div>
+                    <h2 className="text-3xl font-bold mb-6 flex items-center">
+                      <span className="mr-3">📚</span>
+                      Academic Management
+                    </h2>
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/academic/grades"
+                      description="Get student grades with filtering"
+                      response={`{
+  "success": true,
+  "data": {
+    "grades": [
+      {
+        "id": "123",
+        "studentId": "456",
+        "subject": "Matematika",
+        "score": 85,
+        "grade": "B",
+        "semester": "1",
+        "academicYear": "2024/2025"
+      }
+    ],
+    "total": 100
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/academic/grades"
+                      description="Add student grade"
+                      request={`{
+  "studentId": "456",
+  "subject": "Matematika",
+  "score": 85,
+  "examType": "UTS",
+  "semester": "1",
+  "academicYear": "2024/2025"
+}`}
+                      response={`{
+  "success": true,
+  "data": {
+    "id": "789",
+    "grade": "B",
+    "createdAt": "2024-12-05T10:00:00Z"
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/academic/schedule"
+                      description="Get class schedules"
+                      response={`{
+  "success": true,
+  "data": {
+    "schedules": [
+      {
+        "id": "123",
+        "grade": "7A",
+        "subject": "Matematika",
+        "teacher": "Ustadz Ahmad",
+        "day": "MONDAY",
+        "startTime": "08:00",
+        "endTime": "09:30"
+      }
+    ]
+  }
+}`}
+                    />
+                  </div>
+                )}
+
+                {/* PPDB Section */}
+                {activeSection === 'ppdb' && (
+                  <div>
+                    <h2 className="text-3xl font-bold mb-6 flex items-center">
+                      <span className="mr-3">📝</span>
+                      PPDB Registration
+                    </h2>
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/ppdb/register"
+                      description="Submit new PPDB registration"
+                      auth={false}
+                      request={`{
+  "fullName": "Ahmad Ibrahim",
+  "nisn": "1234567890",
+  "birthPlace": "Blitar",
+  "birthDate": "2010-05-15",
+  "gender": "MALE",
+  "institutionLevel": "SMP",
+  "previousSchool": "SD Negeri 1 Blitar",
+  "fatherName": "Ibrahim",
+  "motherName": "Fatimah",
+  "parentPhone": "081234567890",
+  "address": "Jl. Imam Syafi'i No. 123"
+}`}
+                      response={`{
+  "success": true,
+  "data": {
+    "id": "456",
+    "registrationNumber": "PPDB2024001",
+    "status": "SUBMITTED",
+    "submittedAt": "2024-12-05T10:00:00Z"
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/ppdb/:id/status"
+                      description="Check PPDB registration status"
+                      auth={false}
+                      response={`{
+  "success": true,
+  "data": {
+    "id": "456",
+    "registrationNumber": "PPDB2024001",
+    "status": "ACCEPTED",
+    "message": "Selamat! Pendaftaran Anda diterima",
+    "nextSteps": [
+      "Melakukan daftar ulang",
+      "Membayar biaya pendaftaran",
+      "Melengkapi berkas"
+    ]
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="PUT"
+                      path="/api/ppdb/:id/approve"
+                      description="Approve PPDB registration"
+                      request={`{
+  "status": "ACCEPTED",
+  "message": "Pendaftaran diterima",
+  "assignedGrade": "7A"
+}`}
+                      response={`{
+  "success": true,
+  "data": {
+    "id": "456",
+    "status": "ACCEPTED",
+    "updatedAt": "2024-12-05T10:00:00Z"
+  }
+}`}
+                    />
+                  </div>
+                )}
+
+                {/* Payments Section */}
+                {activeSection === 'payments' && (
+                  <div>
+                    <h2 className="text-3xl font-bold mb-6 flex items-center">
+                      <span className="mr-3">💸</span>
+                      Payments
+                    </h2>
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/payment/create"
+                      description="Create payment request"
+                      request={`{
+  "billId": "123",
+  "amount": 500000,
+  "paymentMethod": "MIDTRANS",
+  "returnUrl": "https://yourschool.com/payment/success"
+}`}
+                      response={`{
+  "success": true,
+  "data": {
+    "paymentId": "PAY123",
+    "paymentUrl": "https://app.midtrans.com/snap/v2/vtweb/456",
+    "token": "abc123",
+    "expiresAt": "2024-12-05T12:00:00Z"
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/payment/webhook"
+                      description="Payment webhook callback"
+                      auth={false}
+                      request={`{
+  "transaction_status": "settlement",
+  "order_id": "PAY123",
+  "gross_amount": "500000.00",
+  "payment_type": "bank_transfer",
+  "transaction_id": "abc123",
+  "signature_key": "def456"
+}`}
+                      response={`{
+  "success": true,
+  "message": "Payment processed"
+}`}
+                    />
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/payment/:id/status"
+                      description="Check payment status"
+                      response={`{
+  "success": true,
+  "data": {
+    "paymentId": "PAY123",
+    "status": "PAID",
+    "amount": 500000,
+    "paidAt": "2024-12-05T11:30:00Z",
+    "paymentMethod": "Bank Transfer BCA",
+    "receiptUrl": "https://yourschool.com/receipts/PAY123.pdf"
+  }
+}`}
+                    />
+                  </div>
+                )}
+
+                {/* Notifications Section */}
+                {activeSection === 'notifications' && (
+                  <div>
+                    <h2 className="text-3xl font-bold mb-6 flex items-center">
+                      <span className="mr-3">📧</span>
+                      Notifications
+                    </h2>
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/notifications/send"
+                      description="Send notification to users"
+                      request={`{
+  "type": "PAYMENT_REMINDER",
+  "recipients": ["user123", "user456"],
+  "channels": ["EMAIL", "WHATSAPP"],
+  "message": {
+    "title": "Reminder Pembayaran SPP",
+    "body": "Pembayaran SPP bulan Desember akan jatuh tempo",
+    "data": {
+      "amount": 500000,
+      "dueDate": "2024-12-10"
+    }
+  }
+}`}
+                      response={`{
+  "success": true,
+  "data": {
+    "notificationId": "NOTIF123",
+    "sent": {
+      "email": 2,
+      "whatsapp": 1
+    },
+    "failed": {
+      "email": 0,
+      "whatsapp": 1
+    }
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/notifications"
+                      description="Get user notifications"
+                      response={`{
+  "success": true,
+  "data": {
+    "notifications": [
+      {
+        "id": "123",
+        "type": "PAYMENT_REMINDER",
+        "title": "Reminder Pembayaran SPP",
+        "body": "Pembayaran SPP bulan Desember akan jatuh tempo",
+        "read": false,
+        "createdAt": "2024-12-05T10:00:00Z"
+      }
+    ],
+    "unreadCount": 5
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/notifications/subscribe"
+                      description="Subscribe to push notifications"
+                      request={`{
+  "endpoint": "https://fcm.googleapis.com/fcm/send/...",
+  "keys": {
+    "p256dh": "BEl...",
+    "auth": "k8J..."
+  }
+}`}
+                      response={`{
+  "success": true,
+  "message": "Subscribed to notifications"
+}`}
+                    />
+                  </div>
+                )}
+
+                {/* Reports Section */}
+                {activeSection === 'reports' && (
+                  <div>
+                    <h2 className="text-3xl font-bold mb-6 flex items-center">
+                      <span className="mr-3">📊</span>
+                      Reports & Analytics
+                    </h2>
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/reports/financial"
+                      description="Get financial reports"
+                      response={`{
+  "success": true,
+  "data": {
+    "summary": {
+      "totalIncome": 50000000,
+      "totalExpense": 25000000,
+      "netProfit": 25000000,
+      "period": "2024-12"
+    },
+    "breakdown": {
+      "spp": 40000000,
+      "infaq": 10000000,
+      "operational": 15000000,
+      "salary": 10000000
+    }
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/reports/academic"
+                      description="Get academic performance reports"
+                      response={`{
+  "success": true,
+  "data": {
+    "overview": {
+      "totalStudents": 200,
+      "averageGrade": 82.5,
+      "passRate": 95.5,
+      "period": "Semester 1 2024/2025"
+    },
+    "gradeDistribution": {
+      "A": 45,
+      "B": 89,
+      "C": 56,
+      "D": 8,
+      "E": 2
+    },
+    "subjectPerformance": [
+      {
+        "subject": "Matematika",
+        "average": 85.2,
+        "passRate": 92.5
+      }
+    ]
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/reports/generate"
+                      description="Generate custom report"
+                      request={`{
+  "type": "STUDENT_PROGRESS",
+  "filters": {
+    "institutionLevel": "SMP",
+    "grade": "7A",
+    "period": "2024-12"
+  },
+  "format": "PDF",
+  "email": "admin@school.com"
+}`}
+                      response={`{
+  "success": true,
+  "data": {
+    "reportId": "RPT123",
+    "status": "PROCESSING",
+    "downloadUrl": null,
+    "estimatedTime": "2-3 minutes"
+  }
+}`}
+                    />
+                  </div>
+                )}
+
+                {/* Public Endpoints Section */}
+                {activeSection === 'public' && (
+                  <div>
+                    <h2 className="text-3xl font-bold mb-6 flex items-center">
+                      <span className="mr-3">🌐</span>
+                      Public Endpoints
+                    </h2>
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/public/school-info"
+                      description="Get public school information"
+                      auth={false}
+                      response={`{
+  "success": true,
+  "data": {
+    "name": "Pondok Imam Syafi'i",
+    "address": "Jl. Raya Blitar-Malang",
+    "phone": "0342-123456",
+    "email": "info@imam-syafii-blitar.com",
+    "website": "https://imam-syafii-blitar.com",
+    "facilities": [
+      "Masjid",
+      "Asrama",
+      "Perpustakaan",
+      "Laboratorium"
+    ],
+    "programs": [
+      "TK Islam",
+      "SD Islam",
+      "SMP Islam",
+      "Pondok Pesantren"
+    ]
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/public/activities"
+                      description="Get recent school activities"
+                      auth={false}
+                      response={`{
+  "success": true,
+  "data": {
+    "activities": [
+      {
+        "id": "123",
+        "title": "Pengajian Rutin Mingguan",
+        "description": "Kajian kitab Riyadhus Shalihin",
+        "date": "2024-12-06",
+        "image": "/images/activities/pengajian.jpg",
+        "category": "Religious"
+      }
+    ],
+    "total": 10
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="GET"
+                      path="/api/public/announcements"
+                      description="Get public announcements"
+                      auth={false}
+                      response={`{
+  "success": true,
+  "data": {
+    "announcements": [
+      {
+        "id": "123",
+        "title": "Penerimaan Siswa Baru 2025",
+        "content": "Pendaftaran dibuka mulai 1 Januari 2025",
+        "type": "IMPORTANT",
+        "publishedAt": "2024-12-05T10:00:00Z",
+        "expiresAt": "2025-03-31T23:59:59Z"
+      }
+    ]
+  }
+}`}
+                    />
+
+                    <Endpoint
+                      method="POST"
+                      path="/api/public/contact"
+                      description="Submit contact form"
+                      auth={false}
+                      request={`{
+  "name": "Ahmad Ibrahim",
+  "email": "ahmad@email.com",
+  "phone": "081234567890",
+  "subject": "Pertanyaan tentang PPDB",
+  "message": "Kapan pembukaan pendaftaran siswa baru?"
+}`}
+                      response={`{
+  "success": true,
+  "data": {
+    "id": "456",
+    "message": "Pesan berhasil dikirim, akan segera kami respon"
+  }
+}`}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
