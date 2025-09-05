@@ -842,7 +842,7 @@ vercel rollback     # Rollback to previous`}
                 target="_blank"
                 className="bg-white p-4 rounded-lg hover:shadow-lg transition flex items-center"
               >
-                <MessageSquare className="h-5 w-5 mr-2 text-green-600" />
+                <Shield className="h-5 w-5 mr-2 text-green-600" />
                 <div>
                   <div className="font-semibold">Support</div>
                   <div className="text-sm text-gray-600">Get help from Vercel</div>
