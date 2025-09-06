@@ -1,15 +1,10 @@
 import { prisma } from '@/lib/prisma'
 import { replyMessage } from '../client'
 
-export const handlePengajarCommand = {
-  async create(data: any, userId: string, replyToken: string) {
-    // Implementation for creating teacher
-    await replyMessage(replyToken, [{
-      type: 'text',
-      text: 'Fitur tambah pengajar sedang dalam pengembangan.'
-    }])
-  },
+// TODO: Implement proper Teacher commands
+// The Teacher model has: name, position, subjects (relation), etc.
 
+export const handlePengajarCommand = {
   async list(userId: string, replyToken: string) {
     try {
       const teachers = await prisma.teacher.findMany({
@@ -18,9 +13,8 @@ export const handlePengajarCommand = {
         select: {
           id: true,
           name: true,
-          nip: true,
-          subject: true,
-          status: true
+          position: true,
+          isUstadz: true
         }
       })
 
@@ -32,13 +26,65 @@ export const handlePengajarCommand = {
         return
       }
 
-      const message = teachers.map((t, i) => 
-        `${i + 1}. ${t.name}\n   NIP: ${t.nip}\n   Mapel: ${t.subject || '-'}`
-      ).join('\n\n')
+      const teacherList = teachers.map(t => 
+        `${t.isUstadz ? '🕌' : '👨‍🏫'} ${t.name} - ${t.position}`
+      ).join('\n')
 
       await replyMessage(replyToken, [{
         type: 'text',
-        text: `📋 Daftar Pengajar:\n\n${message}`
+        text: `📚 Daftar Pengajar:\n\n${teacherList}`
+      }])
+    } catch (error: any) {
+      await replyMessage(replyToken, [{
+        type: 'text',
+        text: `❌ Error: ${error.message}`
+      }])
+    }
+  },
+
+  async create(data: any, userId: string, replyToken: string) {
+    try {
+      // TODO: Implement teacher creation with proper fields
+      await replyMessage(replyToken, [{
+        type: 'text',
+        text: '👨‍🏫 Fitur tambah pengajar sedang dalam pengembangan'
+      }])
+    } catch (error: any) {
+      await replyMessage(replyToken, [{
+        type: 'text',
+        text: `❌ Error: ${error.message}`
+      }])
+    }
+  },
+
+  async getDetail(id: string, userId: string, replyToken: string) {
+    try {
+      const teacher = await prisma.teacher.findUnique({
+        where: { id }
+      })
+
+      if (!teacher) {
+        await replyMessage(replyToken, [{
+          type: 'text',
+          text: 'Pengajar tidak ditemukan.'
+        }])
+        return
+      }
+
+      // Parse subjects JSON string
+      let subjectList = '-'
+      try {
+        const subjects = JSON.parse(teacher.subjects)
+        if (Array.isArray(subjects) && subjects.length > 0) {
+          subjectList = subjects.join(', ')
+        }
+      } catch (e) {
+        // subjects might be empty or invalid JSON
+      }
+
+      await replyMessage(replyToken, [{
+        type: 'text',
+        text: `👨‍🏫 ${teacher.name}\n${teacher.position}\n\nMata Pelajaran: ${subjectList}`
       }])
     } catch (error: any) {
       await replyMessage(replyToken, [{
