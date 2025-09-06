@@ -20,7 +20,13 @@ async function getLineSettings() {
   return lineSettings
 }
 
-// Webhook endpoint untuk LINE Messaging API
+// GET: LINE webhook verification
+export async function GET(request: NextRequest) {
+  // LINE will send a verification request when setting up webhook
+  return NextResponse.json({ status: 'ok' }, { status: 200 })
+}
+
+// POST: LINE webhook handler
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()

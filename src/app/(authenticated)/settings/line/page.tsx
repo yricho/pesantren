@@ -403,6 +403,59 @@ export default function LineSettingsPage() {
         </TabsList>
 
         <TabsContent value="config" className="space-y-4">
+          <Card className="p-6 border-2 border-blue-200 bg-blue-50">
+            <h3 className="font-semibold mb-4 text-blue-900">🚀 Quick Setup Guide - 5 Langkah</h3>
+            <ol className="space-y-3 text-sm">
+              <li className="flex items-start">
+                <span className="font-bold mr-2 text-blue-700">1.</span>
+                <div className="flex-1">
+                  <p className="font-medium text-blue-900">Dapatkan Credentials dari LINE Console</p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Buka <a href="https://developers.line.biz/console" target="_blank" className="underline">LINE Developers</a> → 
+                    Copy Channel ID, Secret, dan Access Token
+                  </p>
+                </div>
+              </li>
+              <li className="flex items-start">
+                <span className="font-bold mr-2 text-blue-700">2.</span>
+                <div className="flex-1">
+                  <p className="font-medium text-blue-900">Input Credentials di Bawah</p>
+                  <p className="text-xs text-blue-700 mt-1">Paste Channel ID, Secret, dan Access Token yang sudah di-copy</p>
+                </div>
+              </li>
+              <li className="flex items-start">
+                <span className="font-bold mr-2 text-blue-700">3.</span>
+                <div className="flex-1">
+                  <p className="font-medium text-blue-900">Generate Webhook URL</p>
+                  <p className="text-xs text-blue-700 mt-1">Tab "Webhook" → Klik "Generate & Copy" → URL otomatis ter-copy</p>
+                </div>
+              </li>
+              <li className="flex items-start">
+                <span className="font-bold mr-2 text-blue-700">4.</span>
+                <div className="flex-1">
+                  <p className="font-medium text-blue-900">Set di LINE Console</p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Paste URL di LINE Console → Webhook Settings → Use webhook: ON
+                  </p>
+                </div>
+              </li>
+              <li className="flex items-start">
+                <span className="font-bold mr-2 text-blue-700">5.</span>
+                <div className="flex-1">
+                  <p className="font-medium text-blue-900">Save & Test</p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Klik "Save Settings" → Klik "Test" → Status harus "Connected" ✅
+                  </p>
+                </div>
+              </li>
+            </ol>
+            <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded">
+              <p className="text-xs text-green-800">
+                <strong>✨ Setelah Connected:</strong> Chat "menu" ke bot untuk test CRUD operations!
+              </p>
+            </div>
+          </Card>
+
           <Card className="p-6">
             <h3 className="font-semibold mb-4 flex items-center">
               <MessageCircle className="w-4 h-4 mr-2" />
@@ -714,15 +767,34 @@ export default function LineSettingsPage() {
                     value={config.webhookUrl}
                     onChange={(e) => setConfig(prev => ({ ...prev, webhookUrl: e.target.value }))}
                     placeholder="https://yourdomain.com/api/webhooks/line"
+                    readOnly
                   />
                   <Button onClick={generateWebhookUrl} variant="outline">
                     <Copy className="w-4 h-4 mr-2" />
-                    Generate
+                    Generate & Copy
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500">
-                  Set this URL in LINE Developers Console > Messaging API > Webhook settings
-                </p>
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm font-medium text-blue-900 mb-2">
+                    📌 Cara Set Webhook di LINE Console:
+                  </p>
+                  <ol className="text-xs text-blue-800 space-y-1">
+                    <li>1. Klik "Generate & Copy" di atas untuk copy URL</li>
+                    <li>2. Buka <a href="https://developers.line.biz/console" target="_blank" className="underline font-medium">LINE Developers Console</a></li>
+                    <li>3. Pilih channel Anda → Tab "Messaging API"</li>
+                    <li>4. Di bagian "Webhook settings":</li>
+                    <li className="ml-3">• Paste URL yang sudah di-copy</li>
+                    <li className="ml-3">• Toggle "Use webhook" → ON ✓</li>
+                    <li className="ml-3">• Klik "Verify" untuk test koneksi</li>
+                    <li>5. Di bagian "Auto-reply messages" → OFF ✗</li>
+                    <li>6. Di bagian "Greeting messages" → OFF ✗</li>
+                  </ol>
+                  <div className="mt-2 p-2 bg-white rounded border border-blue-100">
+                    <p className="text-xs font-mono text-blue-700">
+                      {config.webhookUrl || 'Klik Generate untuk membuat URL'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2">
@@ -737,13 +809,25 @@ export default function LineSettingsPage() {
               </div>
 
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-sm font-medium text-amber-800 mb-2">Important Settings di LINE Console:</p>
+                <p className="text-sm font-medium text-amber-800 mb-2">⚠️ Checklist Settings di LINE Console:</p>
                 <ul className="text-sm text-amber-700 space-y-1">
-                  <li>✓ Use webhook: ON</li>
-                  <li>✓ Auto-reply messages: OFF</li>
-                  <li>✓ Greeting messages: OFF</li>
-                  <li>✓ Webhook redelivery: ON</li>
+                  <li>✓ Use webhook: <span className="font-bold">ON</span></li>
+                  <li>✓ Auto-reply messages: <span className="font-bold">OFF</span></li>
+                  <li>✓ Greeting messages: <span className="font-bold">OFF</span></li>
+                  <li>✓ Webhook redelivery: <span className="font-bold">ON</span></li>
                 </ul>
+                <div className="mt-3 p-2 bg-amber-100 rounded">
+                  <p className="text-xs text-amber-900">
+                    <strong>Status Webhook:</strong> {' '}
+                    {webhookStatus === 'connected' ? (
+                      <span className="text-green-700 font-medium">✅ Terhubung ke LINE</span>
+                    ) : webhookStatus === 'disconnected' ? (
+                      <span className="text-red-700 font-medium">❌ Belum terhubung (Set di LINE Console dulu)</span>
+                    ) : (
+                      <span className="text-gray-700">⏳ Checking...</span>
+                    )}
+                  </p>
+                </div>
               </div>
             </div>
           </Card>
