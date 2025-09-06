@@ -1,0 +1,95 @@
+import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
+import { prisma } from '@/lib/prisma'
+import { 
+  handleTextMessage, 
+  handlePostbackEvent,
+  handleFollowEvent,
+  handleUnfollowEvent 
+} from '@/lib/line/handlers'
+import { validateSignature } from '@/lib/line/security'
+import { LineEvent } from '@/types/line'
+
+// Webhook endpoint untuk LINE Messaging API
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.text()
+    const signature = request.headers.get('x-line-signature')
+    
+    // Validate signature
+    const channelSecret = process.env.LINE_CHANNEL_SECRET!
+    if (!validateSignature(body, channelSecret, signature!)) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
+    }
+
+    const data = JSON.parse(body)
+    const events: LineEvent[] = data.events || []
+
+    // Process each event
+    for (const event of events) {
+      try {
+        // Store user info if not exists
+        if (event.source?.userId) {
+          await storeUserInfo(event.source.userId)
+        }
+
+        // Handle different event types
+        switch (event.type) {
+          case 'message':
+            if (event.message?.type === 'text') {
+              await handleTextMessage(event)
+            }
+            break
+            
+          case 'postback':
+            await handlePostbackEvent(event)
+            break
+            
+          case 'follow':
+            await handleFollowEvent(event)
+            break
+            
+          case 'unfollow':
+            await handleUnfollowEvent(event)
+            break
+        }
+      } catch (error) {
+        console.error('Error processing event:', error)
+      }
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Webhook error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// Store or update LINE user information
+async function storeUserInfo(userId: string) {
+  try {
+    const profile = await fetch(`https://api.line.me/v2/bot/profile/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`
+      }
+    }).then(res => res.json())
+
+    await prisma.lineUser.upsert({
+      where: { userId },
+      update: {
+        displayName: profile.displayName,
+        pictureUrl: profile.pictureUrl,
+        statusMessage: profile.statusMessage,
+        lastActive: new Date()
+      },
+      create: {
+        userId,
+        displayName: profile.displayName,
+        pictureUrl: profile.pictureUrl,
+        statusMessage: profile.statusMessage
+      }
+    })
+  } catch (error) {
+    console.error('Error storing user info:', error)
+  }
+}

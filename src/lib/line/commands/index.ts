@@ -1,0 +1,5 @@
+export { handleSiswaCommand } from './siswa'
+export { handlePengajarCommand } from './pengajar'
+export { handleKeuanganCommand } from './keuangan'
+export { handleAkademikCommand } from './akademik'
+export { handleSettingsCommand } from './settings'
