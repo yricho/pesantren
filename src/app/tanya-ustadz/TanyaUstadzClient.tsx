@@ -72,18 +72,18 @@ export default function TanyaUstadzClient() {
 
   const fetchStats = async () => {
     try {
-      const [answeredResponse, pendingResponse] = await Promise.all([
-        fetch('/api/questions/public?limit=1'),
-        fetch('/api/questions/public?limit=1') // We'll get total from pagination
-      ]);
+      const response = await fetch('/api/questions/stats');
       
-      if (answeredResponse.ok) {
-        const answeredData = await answeredResponse.json();
-        setStats(prev => ({
-          ...prev,
-          totalQuestions: answeredData.pagination?.total || 0,
-          answeredQuestions: answeredData.pagination?.total || 0
-        }));
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          setStats({
+            totalQuestions: result.data.totalQuestions,
+            answeredQuestions: result.data.answeredQuestions,
+            pendingQuestions: result.data.pendingQuestions,
+            averageResponseTime: result.data.averageResponseTimeHours || 24
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -137,8 +137,10 @@ export default function TanyaUstadzClient() {
   const handleQuestionSubmitted = () => {
     // Refresh stats after question submission
     fetchStats();
-    // Switch to pending tab to show submission success
-    setActiveTab('pending');
+    // Refresh the questions list
+    fetchAnsweredQuestions();
+    fetchPendingQuestions();
+    // Stay on the same tab to see the success message
   };
 
   const handlePageChange = (newPage: number) => {
