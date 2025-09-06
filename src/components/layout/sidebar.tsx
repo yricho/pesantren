@@ -36,6 +36,8 @@ import {
   Heart,
   CreditCard,
   MessageSquare,
+  MessageCircle,
+  Send,
   Shield,
   Bell,
   Server,
@@ -267,6 +269,16 @@ const menuItems: MenuItem[] = [
         title: 'WhatsApp API',
         href: '/settings/whatsapp',
         icon: MessageSquare
+      },
+      {
+        title: 'Telegram Bot',
+        href: '/settings/telegram',
+        icon: Send
+      },
+      {
+        title: 'LINE Messaging',
+        href: '/settings/line',
+        icon: MessageCircle
       },
       {
         title: 'Manajemen Role',
