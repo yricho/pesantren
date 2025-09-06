@@ -145,7 +145,7 @@ export default function QuestionForm({ onSuccess }: QuestionFormProps) {
         </label>
         <p className="text-xs text-gray-500 mt-1 ml-7">
           {formData.isAnonymous 
-            ? 'Pertanyaan Anda akan ditampilkan tanpa nama'
+            ? 'Pertanyaan akan ditampilkan dengan nama "Hamba Allah"'
             : 'Nama Anda akan ditampilkan bersama pertanyaan'
           }
         </p>
@@ -165,7 +165,7 @@ export default function QuestionForm({ onSuccess }: QuestionFormProps) {
             onChange={(e) => handleInputChange('askerName', e.target.value)}
           />
           <p className="text-xs text-gray-500 mt-1">
-            Opsional. Jika kosong, akan ditampilkan sebagai "Anonim"
+            Opsional. Jika kosong, akan ditampilkan sebagai "Hamba Allah"
           </p>
         </div>
       )}

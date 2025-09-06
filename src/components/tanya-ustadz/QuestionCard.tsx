@@ -52,7 +52,7 @@ export default function QuestionCard({ question }: QuestionCardProps) {
             </Badge>
             <div className="flex items-center text-sm text-gray-500">
               <User className="w-4 h-4 mr-1" />
-              {question.askerName || 'Anonim'}
+              {question.askerName || 'Hamba Allah'}
             </div>
             <div className="flex items-center text-sm text-gray-500">
               <Calendar className="w-4 h-4 mr-1" />
