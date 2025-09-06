@@ -323,6 +323,62 @@ model Activity {
   @@map("activities")
 }
 
+model LineSettings {
+  id                   String   @id @default(cuid())
+  enabled              Boolean  @default(false)
+  channelId            String?
+  channelSecret        String?
+  channelAccessToken   String?
+  webhookUrl           String?
+  liffId               String?
+  richMenuId           String?
+  
+  // Features
+  richMenuEnabled      Boolean  @default(true)
+  flexMessagesEnabled  Boolean  @default(true)
+  quickReplyEnabled    Boolean  @default(true)
+  broadcastEnabled     Boolean  @default(true)
+  liffEnabled          Boolean  @default(false)
+  multicastEnabled     Boolean  @default(true)
+  pushMessagesEnabled  Boolean  @default(true)
+  
+  // Rate Limits
+  messagesPerMinute    Int      @default(60)
+  broadcastDelay       Int      @default(500)
+  
+  // Messages
+  welcomeMessage       String   @default("Selamat datang di LINE Official Account Pondok Imam Syafii!")
+  unknownMessage       String   @default("Maaf, pesan tidak dikenali. Ketik 'menu' untuk bantuan.")
+  errorMessage         String   @default("Maaf, terjadi kesalahan. Silakan coba lagi.")
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  @@map("line_settings")
+}
+
+model LineUser {
+  id            String   @id @default(cuid())
+  userId        String   @unique // LINE user ID
+  displayName   String?
+  pictureUrl    String?
+  statusMessage String?
+  language      String?
+  
+  // Permissions
+  isAdmin       Boolean  @default(false)
+  canCRUD       Boolean  @default(false)
+  
+  // Activity
+  lastActive    DateTime @default(now())
+  messageCount  Int      @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("line_users")
+}
+
 model Teacher {
   id            String   @id @default(cuid())
   nip           String?  @unique // Nomor Induk Pegawai

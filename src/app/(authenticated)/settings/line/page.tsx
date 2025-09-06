@@ -124,21 +124,72 @@ export default function LineSettingsPage() {
 
   useEffect(() => {
     fetchConfig()
+  }, [])
+
+  useEffect(() => {
     if (config.channelId) {
       generateQrCode()
+    }
+    if (config.channelAccessToken) {
       checkWebhookStatus()
     }
-  }, [])
+  }, [config.channelId, config.channelAccessToken])
 
   const fetchConfig = async () => {
     try {
       const response = await fetch('/api/settings/line')
       if (response.ok) {
         const data = await response.json()
-        setConfig(data)
+        // Map from database format
+        setConfig({
+          enabled: data.enabled,
+          channelId: data.channelId || '',
+          channelSecret: data.hasChannelSecret ? '••••••••' : '',
+          channelAccessToken: data.hasChannelAccessToken ? '••••••••' : '',
+          webhookUrl: data.webhookUrl || '',
+          liffId: data.liffId || '',
+          features: {
+            richMenu: data.richMenuEnabled,
+            flexMessages: data.flexMessagesEnabled,
+            quickReply: data.quickReplyEnabled,
+            broadcast: data.broadcastEnabled,
+            liff: data.liffEnabled,
+            multicast: data.multicastEnabled,
+            pushMessages: data.pushMessagesEnabled
+          },
+          richMenu: {
+            enabled: data.richMenuEnabled,
+            menuId: data.richMenuId || '',
+            items: []
+          },
+          messages: {
+            welcome: data.welcomeMessage,
+            unknown: data.unknownMessage,
+            error: data.errorMessage,
+            payment: 'Untuk mengecek tagihan SPP, silakan masukkan NIS siswa.',
+            attendance: 'Untuk mengecek kehadiran, silakan masukkan NIS siswa.',
+            schedule: 'Jadwal pelajaran akan ditampilkan sesuai kelas.'
+          },
+          quickReplies: [
+            { label: '📚 Info Sekolah', text: 'info' },
+            { label: '💰 Cek Tagihan', text: 'payment' },
+            { label: '📅 Jadwal', text: 'schedule' },
+            { label: '✅ Kehadiran', text: 'attendance' },
+            { label: '💬 Bantuan', text: 'help' }
+          ],
+          rateLimits: {
+            messagesPerMinute: data.messagesPerMinute,
+            broadcastDelay: data.broadcastDelay
+          }
+        })
       }
     } catch (error) {
       console.error('Failed to fetch config:', error)
+      toast({
+        title: 'Error',
+        description: 'Gagal memuat konfigurasi',
+        variant: 'destructive'
+      })
     }
   }
 
@@ -150,14 +201,19 @@ export default function LineSettingsPage() {
 
   const checkWebhookStatus = async () => {
     try {
-      const response = await fetch('/api/line/webhook/status', {
-        headers: {
-          'Authorization': `Bearer ${config.channelAccessToken}`
-        }
+      const response = await fetch('/api/settings/line', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'webhook-status' })
       })
       
       if (response.ok) {
-        setWebhookStatus('connected')
+        const data = await response.json()
+        if (data.success && data.webhook?.endpoint === config.webhookUrl) {
+          setWebhookStatus('connected')
+        } else {
+          setWebhookStatus('disconnected')
+        }
       } else {
         setWebhookStatus('disconnected')
       }
@@ -210,10 +266,10 @@ export default function LineSettingsPage() {
   }
 
   const handleTestBot = async () => {
-    if (!config.channelAccessToken) {
+    if (!config.channelAccessToken || config.channelAccessToken.includes('•')) {
       toast({
         title: 'Error',
-        description: 'Channel Access Token harus diisi',
+        description: 'Channel Access Token harus diisi dengan token yang valid',
         variant: 'destructive'
       })
       return
@@ -221,20 +277,28 @@ export default function LineSettingsPage() {
 
     setTesting(true)
     try {
-      const response = await fetch('https://api.line.me/v2/bot/info', {
-        headers: {
-          'Authorization': `Bearer ${config.channelAccessToken}`
-        }
+      // First save the token
+      await handleSave()
+      
+      // Then test it
+      const response = await fetch('/api/settings/line', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'test' })
       })
       
       if (response.ok) {
         const data = await response.json()
-        toast({
-          title: 'Bot Connected',
-          description: `Bot ${data.displayName} aktif!`
-        })
+        if (data.success) {
+          toast({
+            title: 'Bot Connected',
+            description: `Bot ${data.botInfo.displayName} aktif!`
+          })
+        } else {
+          throw new Error(data.error || 'Invalid access token')
+        }
       } else {
-        throw new Error('Invalid access token')
+        throw new Error('Failed to test bot')
       }
     } catch (error: any) {
       toast({
@@ -261,6 +325,8 @@ export default function LineSettingsPage() {
           title: 'Success',
           description: 'Pengaturan LINE berhasil disimpan'
         })
+        // Refresh config to get masked values
+        await fetchConfig()
       } else {
         throw new Error('Failed to save settings')
       }

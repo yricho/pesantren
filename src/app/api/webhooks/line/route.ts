@@ -10,16 +10,37 @@ import {
 import { validateSignature } from '@/lib/line/security'
 import { LineEvent } from '@/types/line'
 
+// Initialize LINE settings on startup
+let lineSettings: any = null
+
+async function getLineSettings() {
+  if (!lineSettings) {
+    lineSettings = await prisma.lineSettings.findFirst()
+  }
+  return lineSettings
+}
+
 // Webhook endpoint untuk LINE Messaging API
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
     const signature = request.headers.get('x-line-signature')
     
+    // Get settings from database
+    const settings = await getLineSettings()
+    if (!settings || !settings.enabled) {
+      return NextResponse.json({ error: 'LINE not enabled' }, { status: 503 })
+    }
+    
     // Validate signature
-    const channelSecret = process.env.LINE_CHANNEL_SECRET!
+    const channelSecret = settings.channelSecret || process.env.LINE_CHANNEL_SECRET!
     if (!validateSignature(body, channelSecret, signature!)) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
+    }
+    
+    // Update env for LINE client
+    if (settings.channelAccessToken) {
+      process.env.LINE_CHANNEL_ACCESS_TOKEN = settings.channelAccessToken
     }
 
     const data = JSON.parse(body)
