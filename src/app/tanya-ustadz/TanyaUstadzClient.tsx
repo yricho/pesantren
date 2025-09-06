@@ -37,10 +37,11 @@ interface TanyaUstadzStats {
 
 export default function TanyaUstadzClient() {
   const [activeTab, setActiveTab] = useState<'form' | 'answered' | 'pending'>('form');
-  const [stats, setStats] = useState<TanyaUstadzStats>({ 
+  const [stats, setStats] = useState({ 
     totalQuestions: 0, 
     answeredQuestions: 0, 
-    pendingQuestions: 0 
+    pendingQuestions: 0,
+    averageResponseTime: 24
   });
   const [answeredQuestions, setAnsweredQuestions] = useState<QuestionWithAnswer[]>([]);
   const [pendingQuestions, setPendingQuestions] = useState<any[]>([]);
@@ -365,7 +366,7 @@ export default function TanyaUstadzClient() {
                 
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 max-w-2xl mx-auto">
                   <h3 className="font-semibold text-orange-900 mb-2">Waktu Respon Rata-rata:</h3>
-                  <div className="text-3xl font-bold text-orange-600 mb-2">24 Jam</div>
+                  <div className="text-3xl font-bold text-orange-600 mb-2">{stats.averageResponseTime} Jam</div>
                   <p className="text-orange-700 text-sm">
                     Kami berusaha menjawab setiap pertanyaan dengan cepat dan akurat
                   </p>

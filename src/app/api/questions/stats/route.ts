@@ -57,14 +57,6 @@ export async function GET(request: NextRequest) {
         }
       },
       include: {
-        answer: {
-          select: {
-            createdAt: true
-          }
-        }
-      },
-      select: {
-        createdAt: true,
         answer: true
       }
     })
