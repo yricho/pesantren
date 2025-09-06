@@ -144,7 +144,7 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   // Remove 'export' for development - only use for static build
   // output: 'export',
-  trailingSlash: true,
+  trailingSlash: false, // Changed to false to fix LINE webhook 308 redirect issue
   images: {
     unoptimized: false,
     formats: ['image/webp', 'image/avif'],

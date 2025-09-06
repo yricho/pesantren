@@ -88,10 +88,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true })
+    // LINE requires exactly 200 status code
+    return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
     console.error('Webhook error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    // Even on error, LINE prefers 200 status to avoid retries
+    return NextResponse.json({ error: 'Internal server error' }, { status: 200 })
   }
 }
 
