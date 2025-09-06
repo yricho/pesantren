@@ -18,7 +18,8 @@ import {
   User,
   Tag,
   TrendingUp,
-  BookOpen
+  BookOpen,
+  Trash2
 } from 'lucide-react';
 import { QuestionCategory, QUESTION_CATEGORIES, PaginatedResponse } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -186,6 +187,37 @@ export default function TanyaUstadzDashboard({ user }: TanyaUstadzDashboardProps
     }
   };
 
+  const handleDeleteQuestion = async (questionId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus pertanyaan ini? Tindakan ini tidak dapat dibatalkan.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/questions/${questionId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Refresh questions list
+        fetchQuestions();
+        fetchStats();
+        
+        // Close modal if deleting selected question
+        if (selectedQuestion?.id === questionId) {
+          setSelectedQuestion(null);
+        }
+        
+        alert('Pertanyaan berhasil dihapus');
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Terjadi kesalahan saat menghapus pertanyaan');
+      }
+    } catch (error) {
+      console.error('Error deleting question:', error);
+      alert('Terjadi kesalahan saat menghapus pertanyaan');
+    }
+  };
+
   const handlePageChange = (newPage: number) => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
@@ -328,24 +360,34 @@ export default function TanyaUstadzDashboard({ user }: TanyaUstadzDashboardProps
                       {formatDate(question.createdAt)}
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => fetchQuestionDetails(question.id)}
-                    className="flex items-center gap-2"
-                  >
-                    {activeTab === 'pending' ? (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Jawab
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="w-4 h-4" />
-                        Lihat
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => fetchQuestionDetails(question.id)}
+                      className="flex items-center gap-2"
+                    >
+                      {activeTab === 'pending' ? (
+                        <>
+                          <Send className="w-4 h-4" />
+                          Jawab
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="w-4 h-4" />
+                          Lihat
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteQuestion(question.id)}
+                      title="Hapus pertanyaan"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-gray-700 mb-2">
                   {truncateText(question.question)}
