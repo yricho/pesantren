@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
+import { handleModeTextMessage, handleModePostback } from '@/lib/line/handlers/ModeHandler'
+import { handleImageMessage } from '@/lib/line/handlers/image'
 import { 
-  handleTextMessage, 
-  handlePostbackEvent,
   handleFollowEvent,
   handleUnfollowEvent 
 } from '@/lib/line/handlers'
-import { handleImageMessage } from '@/lib/line/handlers/image'
 import { validateSignature } from '@/lib/line/security'
 import { LineEvent } from '@/types/line'
 
@@ -94,7 +93,7 @@ export async function POST(request: NextRequest) {
           case 'message':
             if (event.message?.type === 'text') {
               console.log('Handling text message:', event.message.text)
-              await handleTextMessage(event)
+              await handleModeTextMessage(event)
             } else if (event.message?.type === 'image') {
               console.log('Handling image message')
               await handleImageMessage(event)
@@ -102,7 +101,8 @@ export async function POST(request: NextRequest) {
             break
             
           case 'postback':
-            await handlePostbackEvent(event)
+            console.log('Handling postback:', event.postback?.data)
+            await handleModePostback(event)
             break
             
           case 'follow':

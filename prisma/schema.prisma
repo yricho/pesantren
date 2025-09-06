@@ -37,6 +37,7 @@ model User {
   createdActivities     Activity[]
   createdCourses        Course[]
   createdVideos         Video[]
+  lineAdmin             LineAdmin?
   createdEbooks         Ebook[]
   createdStudents       Student[]
   createdAlumni         Alumni[]
@@ -377,6 +378,51 @@ model LineUser {
   updatedAt     DateTime @updatedAt
   
   @@map("line_users")
+}
+
+model LineUserSession {
+  id            String   @id @default(cuid())
+  userId        String   @unique // LINE user ID
+  mode          String   @default("PUBLIC") // PUBLIC, ADMIN
+  isAdmin       Boolean  @default(false)
+  permissions   String[] @default([])
+  
+  // Flow Management
+  activeFlowId  String?
+  flowType      String?  // STUDENT_ADD, PAYMENT_CHECK, etc
+  flowData      Json     @default("{}")
+  currentStep   Int      @default(0)
+  totalSteps    Int      @default(0)
+  stepHistory   String[] @default([])
+  
+  // State
+  state         Json     @default("{}")
+  breadcrumb    String[] @default([])
+  waitingFor    String?  // What input we're waiting for
+  
+  // Control
+  canAbort      Boolean  @default(true)
+  retryCount    Int      @default(0)
+  lockedUntil   DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  expiresAt     DateTime?
+  
+  @@map("line_user_sessions")
+}
+
+model LineAdmin {
+  id          String   @id @default(cuid())
+  lineUserId  String   @unique
+  userId      String?  @unique // Link to User model
+  permissions String[] @default(["BASIC"])
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  @@map("line_admins")
 }
 
 model Teacher {
