@@ -64,10 +64,12 @@ export default function TanyaUstadzClient() {
     fetchPendingQuestions();
   }, []);
 
-  // Fetch answered questions when filters change
+  // Fetch questions when filters change
   useEffect(() => {
     if (activeTab === 'answered') {
       fetchAnsweredQuestions();
+    } else if (activeTab === 'pending') {
+      fetchPendingQuestions();
     }
   }, [activeTab, selectedCategory, searchTerm, pagination.page]);
 
@@ -118,20 +120,29 @@ export default function TanyaUstadzClient() {
   };
 
   const fetchPendingQuestions = async () => {
+    setLoading(true);
     try {
-      // For public view, we'll just show a count or basic info
-      // without actual question content for privacy
       const params = new URLSearchParams({
-        page: '1',
-        limit: '50'
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString(),
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
       });
       
       if (selectedCategory) params.append('category', selectedCategory);
 
-      // Since this is public, we won't show actual pending questions
-      // Just show a count or placeholder
+      const response = await fetch(`/api/questions/pending-public?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPendingQuestions(data.data || []);
+        if (activeTab === 'pending') {
+          setPagination(data.pagination);
+        }
+      }
     } catch (error) {
       console.error('Error fetching pending questions:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -353,34 +364,85 @@ export default function TanyaUstadzClient() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center py-12"
               >
-                <Clock className="w-16 h-16 text-orange-500 mx-auto mb-6" />
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  Pertanyaan Menunggu Jawaban
-                </h2>
-                <p className="text-gray-600 max-w-2xl mx-auto mb-8">
-                  Saat ini terdapat <strong>{stats.pendingQuestions}</strong> pertanyaan yang sedang menunggu jawaban dari para ustadz kami. 
-                  Mohon bersabar, pertanyaan akan dijawab sesuai antrian dalam 1-3 hari kerja.
-                </p>
-                
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 max-w-2xl mx-auto">
-                  <h3 className="font-semibold text-orange-900 mb-2">Waktu Respon Rata-rata:</h3>
-                  <div className="text-3xl font-bold text-orange-600 mb-2">{stats.averageResponseTime} Jam</div>
-                  <p className="text-orange-700 text-sm">
-                    Kami berusaha menjawab setiap pertanyaan dengan cepat dan akurat
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    Pertanyaan Menunggu Jawaban
+                  </h2>
+                  <p className="text-gray-600">
+                    Berikut adalah pertanyaan-pertanyaan yang sedang menunggu jawaban dari para ustadz kami.
                   </p>
                 </div>
-                
-                <div className="mt-8">
+
+                {/* Category Filter */}
+                <div className="mb-6 flex flex-wrap gap-2">
                   <Button
-                    onClick={() => setActiveTab('form')}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    variant={selectedCategory === '' ? 'default' : 'outline'}
+                    onClick={() => setSelectedCategory('')}
+                    size="sm"
                   >
-                    <HelpCircle className="w-4 h-4 mr-2" />
-                    Ajukan Pertanyaan Baru
+                    Semua Kategori
                   </Button>
+                  {QUESTION_CATEGORIES.map((category) => (
+                    <Button
+                      key={category.value}
+                      variant={selectedCategory === category.value ? 'default' : 'outline'}
+                      onClick={() => setSelectedCategory(category.value)}
+                      size="sm"
+                    >
+                      {category.label}
+                    </Button>
+                  ))}
                 </div>
+
+                {/* Questions List */}
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                    <p className="mt-2 text-gray-600">Memuat pertanyaan...</p>
+                  </div>
+                ) : pendingQuestions.length > 0 ? (
+                  <div className="space-y-4">
+                    {pendingQuestions.map((question: any) => (
+                      <QuestionCard key={question.id} question={question} />
+                    ))}
+                    
+                    {/* Pagination */}
+                    {pagination.totalPages > 1 && (
+                      <div className="flex justify-center gap-2 mt-8">
+                        <Button
+                          variant="outline"
+                          onClick={() => handlePageChange(pagination.page - 1)}
+                          disabled={!pagination.hasPrev}
+                        >
+                          Sebelumnya
+                        </Button>
+                        <span className="px-4 py-2">
+                          Halaman {pagination.page} dari {pagination.totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          onClick={() => handlePageChange(pagination.page + 1)}
+                          disabled={!pagination.hasNext}
+                        >
+                          Selanjutnya
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">Belum ada pertanyaan yang menunggu jawaban</p>
+                    <Button
+                      onClick={() => setActiveTab('form')}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Ajukan Pertanyaan Pertama
+                    </Button>
+                  </div>
+                )}
               </motion.div>
             )}
           </div>
