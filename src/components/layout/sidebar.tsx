@@ -180,7 +180,7 @@ const menuItems: MenuItem[] = [
   },
   {
     title: 'Tanya Ustadz',
-    href: '/tanya-ustadz',
+    href: '/ustadz-dashboard',
     icon: MessageCircleQuestion,
     ustadzOnly: true
   },
