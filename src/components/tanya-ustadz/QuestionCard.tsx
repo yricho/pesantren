@@ -107,7 +107,7 @@ export default function QuestionCard({ question }: QuestionCardProps) {
               </div>
               <div className="flex items-center">
                 <Calendar className="w-4 h-4 mr-1" />
-                {formatDate(question.answer.answeredAt)}
+                {formatDate(question.answer.createdAt)}
               </div>
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function QuestionCard({ question }: QuestionCardProps) {
 
           {/* Answer Updated Info */}
           {question.answer.updatedAt && 
-           new Date(question.answer.updatedAt).getTime() !== new Date(question.answer.answeredAt).getTime() && (
+           new Date(question.answer.updatedAt).getTime() !== new Date(question.answer.createdAt).getTime() && (
             <p className="text-xs text-gray-500 mt-2 italic">
               Jawaban diperbarui {formatDate(question.answer.updatedAt)}
             </p>

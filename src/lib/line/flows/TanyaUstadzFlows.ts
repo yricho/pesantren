@@ -8,7 +8,7 @@ export const askUstadzFlow: FlowDefinition = {
   id: 'ask_ustadz',
   name: 'Tanya Ustadz',
   description: 'Mengajukan pertanyaan kepada ustadz tentang agama Islam',
-  requiredPermission: null, // Public flow
+  requiredPermission: undefined, // Public flow
   steps: [
     {
       id: 'category',
@@ -103,7 +103,7 @@ export const askUstadzFlow: FlowDefinition = {
       id: 'askerName',
       prompt: '📝 Masukkan nama Anda:',
       inputType: 'text',
-      condition: (data: any) => data.isAnonymous === 'false', // Only ask if not anonymous
+      skipIf: (data: any) => data.isAnonymous === 'true', // Skip if anonymous
       validation: (input: string) => {
         if (!input || input.trim().length < 2) {
           return '❌ Nama harus minimal 2 karakter'
@@ -137,7 +137,7 @@ export const askUstadzFlow: FlowDefinition = {
       transform: (input: string) => input.trim()
     }
   ],
-  onComplete: async (data: any, userId: string, replyToken: string) => {
+  onComplete: async (data: any, userId: string) => {
     try {
       console.log('Submitting Tanya Ustadz question:', data)
       
@@ -162,41 +162,15 @@ export const askUstadzFlow: FlowDefinition = {
         const categoryInfo = QUESTION_CATEGORIES.find(cat => cat.value === data.category)
         const categoryLabel = categoryInfo?.label || data.category
         
-        return [
-          {
-            type: 'text',
-            text: '✅ Pertanyaan berhasil dikirim!\n\n' +
-                  `📚 Kategori: ${categoryLabel}\n` +
-                  `👤 Penanya: ${data.isAnonymous === 'true' ? 'Anonim' : data.askerName}\n` +
-                  `❓ Pertanyaan: ${data.question.substring(0, 100)}${data.question.length > 100 ? '...' : ''}\n\n` +
-                  '⏰ Pertanyaan Anda akan dijawab oleh ustadz dalam 1-3 hari kerja.\n' +
-                  '📱 Anda akan mendapat notifikasi jika pertanyaan sudah dijawab.\n\n' +
-                  '🔍 Untuk melihat jawaban, kunjungi: ' + process.env.NEXTAUTH_URL + '/tanya-ustadz'
-          }
-        ]
+        console.log('Question submitted successfully:', result.questionId)
+        // Success - FlowManager will handle the success message
       } else {
         console.error('Failed to submit question:', result)
-        return [
-          {
-            type: 'text',
-            text: '❌ Maaf, terjadi kesalahan saat mengirim pertanyaan.\n\n' +
-                  '🔄 Silakan coba lagi atau kunjungi website kami:\n' +
-                  process.env.NEXTAUTH_URL + '/tanya-ustadz\n\n' +
-                  'Jika masalah berlanjut, hubungi admin.'
-          }
-        ]
+        throw new Error('Gagal mengirim pertanyaan. Silakan coba lagi.')
       }
     } catch (error) {
       console.error('Error in askUstadzFlow completion:', error)
-      return [
-        {
-          type: 'text',
-          text: '❌ Terjadi kesalahan sistem.\n\n' +
-                '🌐 Silakan ajukan pertanyaan melalui website:\n' +
-                process.env.NEXTAUTH_URL + '/tanya-ustadz\n\n' +
-                'Mohon maaf atas ketidaknyamanan ini.'
-        }
-      ]
+      throw new Error('Terjadi kesalahan sistem. Silakan coba lagi.')
     }
   }
 }
