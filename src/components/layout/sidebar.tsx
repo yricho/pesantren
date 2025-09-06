@@ -33,7 +33,13 @@ import {
   Award,
   Clock,
   BookMarked,
-  Heart
+  Heart,
+  CreditCard,
+  MessageSquare,
+  Shield,
+  Bell,
+  Server,
+  UserCog
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -237,9 +243,52 @@ const menuItems: MenuItem[] = [
     adminOnly: true
   },
   {
+    title: 'Staff',
+    href: '/staff',
+    icon: UserCog,
+    adminOnly: true
+  },
+  {
     title: 'Pengaturan',
     href: '/settings',
-    icon: Settings
+    icon: Settings,
+    children: [
+      {
+        title: 'Umum',
+        href: '/settings',
+        icon: Settings
+      },
+      {
+        title: 'Pembayaran',
+        href: '/settings/payment',
+        icon: CreditCard
+      },
+      {
+        title: 'WhatsApp API',
+        href: '/settings/whatsapp',
+        icon: MessageSquare
+      },
+      {
+        title: 'Manajemen Role',
+        href: '/settings/roles',
+        icon: Shield
+      },
+      {
+        title: 'Notifikasi',
+        href: '/settings/notifications',
+        icon: Bell
+      },
+      {
+        title: 'Sistem',
+        href: '/settings/system',
+        icon: Server
+      },
+      {
+        title: 'Keamanan 2FA',
+        href: '/settings/security',
+        icon: Shield
+      }
+    ]
   }
 ]
 
