@@ -4,11 +4,16 @@ const LINE_API_URL = 'https://api.line.me/v2/bot'
 
 export async function replyMessage(replyToken: string, messages: any[]) {
   try {
+    const token = process.env.LINE_CHANNEL_ACCESS_TOKEN
+    console.log('Replying with token:', token ? `${token.substring(0, 10)}...` : 'NO TOKEN')
+    console.log('Reply token:', replyToken)
+    console.log('Messages:', JSON.stringify(messages, null, 2))
+    
     const response = await fetch(`${LINE_API_URL}/message/reply`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         replyToken,
@@ -16,8 +21,11 @@ export async function replyMessage(replyToken: string, messages: any[]) {
       })
     })
 
+    const responseText = await response.text()
+    console.log('LINE API Response:', response.status, responseText)
+
     if (!response.ok) {
-      throw new Error(`LINE API error: ${response.status}`)
+      throw new Error(`LINE API error: ${response.status} - ${responseText}`)
     }
 
     return true

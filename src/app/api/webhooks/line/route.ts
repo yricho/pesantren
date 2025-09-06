@@ -69,10 +69,21 @@ export async function POST(request: NextRequest) {
 
     const data = JSON.parse(body)
     const events: LineEvent[] = data.events || []
+    
+    console.log('LINE webhook received:', {
+      eventsCount: events.length,
+      events: events.map(e => ({
+        type: e.type,
+        message: e.message?.text,
+        userId: e.source?.userId
+      }))
+    })
 
     // Process each event
     for (const event of events) {
       try {
+        console.log('Processing event:', event.type, event.message?.text)
+        
         // Store user info if not exists
         if (event.source?.userId) {
           await storeUserInfo(event.source.userId)
@@ -82,8 +93,10 @@ export async function POST(request: NextRequest) {
         switch (event.type) {
           case 'message':
             if (event.message?.type === 'text') {
+              console.log('Handling text message:', event.message.text)
               await handleTextMessage(event)
             } else if (event.message?.type === 'image') {
+              console.log('Handling image message')
               await handleImageMessage(event)
             }
             break

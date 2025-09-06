@@ -34,20 +34,28 @@ export async function handleTextMessage(event: LineEvent) {
   const userId = event.source?.userId || ''
   const replyToken = event.replyToken || ''
   
+  console.log('handleTextMessage:', { text, userId, replyToken })
+  
   // Get user session
   const session = await getUserSession(userId)
   
   // If user is in input mode, handle the input
   if (session?.waitingFor) {
+    console.log('User in input mode:', session.waitingFor)
     return await handleUserInput(userId, text, replyToken, session)
   }
   
   // Check for basic keywords
   const command = KEYWORDS[text as keyof typeof KEYWORDS]
+  console.log('Command detected:', command)
   
   if (command === 'SHOW_MENU') {
+    console.log('Showing main menu')
     // Always show main flex menu
-    await replyMessage(replyToken, [getMainFlexMenu()])
+    const menu = getMainFlexMenu()
+    console.log('Menu created, sending reply...')
+    const result = await replyMessage(replyToken, [menu])
+    console.log('Reply result:', result)
     return
   }
   
