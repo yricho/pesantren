@@ -15,6 +15,7 @@ import {
   ChevronDownIcon,
   AcademicCapIcon,
   UserIcon,
+  ChatBubbleBottomCenterTextIcon,
 } from '@heroicons/react/24/outline';
 
 export default function PublicNavbar() {
@@ -79,6 +80,11 @@ export default function PublicNavbar() {
       label: 'Perpustakaan',
       href: '/library',
       icon: BookOpenIcon,
+    },
+    {
+      label: 'Tanya Ustadz',
+      href: '/tanya-ustadz',
+      icon: ChatBubbleBottomCenterTextIcon,
     },
     {
       label: 'PPDB',

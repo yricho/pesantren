@@ -28,6 +28,7 @@ export default function PublicFooter() {
     layanan: [
       { label: 'Portal Wali', href: '/parent-portal/dashboard' },
       { label: 'Perpustakaan Digital', href: '/library' },
+      { label: 'Tanya Ustadz', href: '/tanya-ustadz' },
       { label: 'Video Kajian', href: '/kajian' },
       { label: 'Galeri Kegiatan', href: '/gallery' },
     ],
@@ -85,15 +86,15 @@ export default function PublicFooter() {
               </div>
               <div className="flex items-center space-x-3">
                 <PhoneIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <p className="text-sm text-gray-300">(0342) 123456 / 0812-3456-7890</p>
+                <p className="text-sm text-gray-300">(0342) 801234 / 0812-3456-7890</p>
               </div>
               <div className="flex items-center space-x-3">
                 <EnvelopeIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <p className="text-sm text-gray-300">info@pondok-imam-syafii.sch.id</p>
+                <p className="text-sm text-gray-300">info@imamsyafii-blitar.sch.id</p>
               </div>
               <div className="flex items-center space-x-3">
                 <GlobeAltIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <p className="text-sm text-gray-300">www.pondok-imam-syafii.sch.id</p>
+                <p className="text-sm text-gray-300">imam-syafii-blitar.vercel.app</p>
               </div>
             </div>
           </div>
@@ -213,7 +214,7 @@ export default function PublicFooter() {
         <div className="border-t border-gray-700 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-400 text-center md:text-left">
-              © {currentYear} Pondok Pesantren Imam Syafi'i Blitar. Hak Cipta Dilindungi.
+              © 2025 Pondok Pesantren Imam Syafi'i Blitar. Hak Cipta Dilindungi.
             </p>
             <div className="flex items-center space-x-6 text-sm text-gray-400">
               <Link href="/privacy" className="hover:text-green-400 transition-colors">

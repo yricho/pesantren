@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Pertanyaan berhasil dikirim dan akan dijawab oleh ustadz kami',
+      questionId: question.id,
       data: {
         id: question.id,
         status: question.status,
