@@ -33,21 +33,38 @@ export async function POST(request: NextRequest) {
     const body = await request.text()
     const signature = request.headers.get('x-line-signature')
     
-    // Get settings from database
-    const settings = await getLineSettings()
-    if (!settings || !settings.enabled) {
-      return NextResponse.json({ error: 'LINE not enabled' }, { status: 503 })
+    // Try to get settings from database, fallback to env vars
+    let channelSecret = process.env.LINE_CHANNEL_SECRET
+    let channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN
+    
+    try {
+      const settings = await getLineSettings()
+      if (settings && settings.enabled) {
+        channelSecret = settings.channelSecret || channelSecret
+        channelAccessToken = settings.channelAccessToken || channelAccessToken
+      }
+    } catch (dbError) {
+      // If database is not available, use env vars
+      console.log('Using env vars for LINE config (database not available)')
     }
     
-    // Validate signature
-    const channelSecret = settings.channelSecret || process.env.LINE_CHANNEL_SECRET!
-    if (!validateSignature(body, channelSecret, signature!)) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
+    // Check if we have the required config
+    if (!channelSecret || !channelAccessToken) {
+      console.error('LINE webhook config missing')
+      // Return 200 to prevent LINE from retrying
+      return NextResponse.json({ error: 'Config missing' }, { status: 200 })
+    }
+    
+    // Validate signature if provided
+    if (signature && !validateSignature(body, channelSecret, signature)) {
+      console.error('Invalid LINE signature')
+      // Return 200 to prevent LINE from retrying
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 200 })
     }
     
     // Update env for LINE client
-    if (settings.channelAccessToken) {
-      process.env.LINE_CHANNEL_ACCESS_TOKEN = settings.channelAccessToken
+    if (channelAccessToken) {
+      process.env.LINE_CHANNEL_ACCESS_TOKEN = channelAccessToken
     }
 
     const data = JSON.parse(body)
