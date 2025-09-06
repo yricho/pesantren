@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,68 +9,52 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  name      String
-  role      String   @default("STAFF") // SUPER_ADMIN, ADMIN, USTADZ, STAFF, PARENT
-  isUstadz  Boolean  @default(false) // Flag to identify ustadz users
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Two-Factor Authentication fields
-  twoFactorEnabled Boolean  @default(false)
-  twoFactorSecret  String?
-  backupCodes      String[] @default([])
-  phoneVerified    Boolean  @default(false)
-
-  // Relations
-  createdTransactions   Transaction[]
-  createdJournalEntries JournalEntry[]
-  createdBudgets        Budget[]
-  createdReports        FinancialReport[]
-  auditTrails           AuditTrail[]
-  createdActivities     Activity[]
-  createdCourses        Course[]
-  createdVideos         Video[]
-  lineAdmin             LineAdmin?
-  createdEbooks         Ebook[]
-  createdStudents       Student[]
-  createdAlumni         Alumni[]
-  createdCampaigns      DonationCampaign[]
-  createdPurchaseOrders PurchaseOrder[]
-  createdTeachers       Teacher[]
-
-  // Academic Relations
-  homeroom_classes  Class[]          @relation("ClassTeacher")
-  teacherSubjects   TeacherSubject[] @relation("TeacherSubject")
-  attendancesMarked Attendance[]     @relation("AttendanceMarker")
-  schedules         Schedule[]       @relation("ScheduleTeacher")
-  exams             Exam[]           @relation("ExamTeacher")
-
-  // Parent Portal Relations
-  parentAccount    ParentAccount?
-  sentMessages     Message[]      @relation("MessageSender")
-  receivedMessages Message[]      @relation("MessageReceiver")
-  notifications    Notification[]
-
-  // Hafalan Relations
-  hafalanRecordsAsTeacher   HafalanRecord[]   @relation("HafalanTeacher")
-  setoranSchedulesAsTeacher SetoranSchedule[] @relation("SetoranTeacher")
-  hafalanTargetsCreated     HafalanTarget[]   @relation("HafalanTargetCreator")
-  hafalanSessionsAsTeacher  HafalanSession[]  @relation("HafalanSessionTeacher")
-
-  // Two-Factor Authentication Relations
-  twoFactorVerification TwoFactorVerification?
-  securityAuditLogs     SecurityAuditLog[]
-
-  // Push Notification Relations
-  pushSubscriptions     PushSubscription[]
-  
-  // Tanya Ustadz Relations
-  answeredQuestions     Answer[]         @relation("UstadzAnswers")
+  id                        String                 @id @default(cuid())
+  username                  String                 @unique
+  email                     String                 @unique
+  password                  String
+  name                      String
+  role                      String                 @default("STAFF")
+  isUstadz                  Boolean                @default(false)
+  isActive                  Boolean                @default(true)
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+  twoFactorEnabled          Boolean                @default(false)
+  twoFactorSecret           String?
+  backupCodes               String[]               @default([])
+  phoneVerified             Boolean                @default(false)
+  createdActivities         Activity[]
+  createdAlumni             Alumni[]
+  answeredQuestions         Answer[]               @relation("UstadzAnswers")
+  attendancesMarked         Attendance[]           @relation("AttendanceMarker")
+  auditTrails               AuditTrail[]
+  createdBudgets            Budget[]
+  homeroom_classes          Class[]                @relation("ClassTeacher")
+  createdCourses            Course[]
+  createdCampaigns          DonationCampaign[]
+  createdEbooks             Ebook[]
+  exams                     Exam[]                 @relation("ExamTeacher")
+  createdReports            FinancialReport[]
+  hafalanRecordsAsTeacher   HafalanRecord[]        @relation("HafalanTeacher")
+  hafalanSessionsAsTeacher  HafalanSession[]       @relation("HafalanSessionTeacher")
+  hafalanTargetsCreated     HafalanTarget[]        @relation("HafalanTargetCreator")
+  createdJournalEntries     JournalEntry[]
+  lineAdmin                 LineAdmin?
+  receivedMessages          Message[]              @relation("MessageReceiver")
+  sentMessages              Message[]              @relation("MessageSender")
+  notifications             Notification[]
+  parentAccount             ParentAccount?
+  createdPurchaseOrders     PurchaseOrder[]
+  pushSubscriptions         PushSubscription[]
+  schedules                 Schedule[]             @relation("ScheduleTeacher")
+  securityAuditLogs         SecurityAuditLog[]
+  setoranSchedulesAsTeacher SetoranSchedule[]      @relation("SetoranTeacher")
+  createdStudents           Student[]
+  teacherSubjects           TeacherSubject[]       @relation("TeacherSubject")
+  createdTeachers           Teacher[]
+  createdTransactions       Transaction[]
+  twoFactorVerification     TwoFactorVerification?
+  createdVideos             Video[]
 
   @@map("users")
 }
@@ -87,59 +68,51 @@ model PushSubscription {
   userAgent String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, endpoint])
   @@map("push_subscriptions")
 }
 
-// Financial Management Models with Double-Entry Bookkeeping Support
-
 model FinancialAccount {
-  id          String   @id @default(cuid())
-  code        String   @unique // Account code like "1001", "2001", etc.
+  id          String              @id @default(cuid())
+  code        String              @unique
   name        String
-  type        String // ASSET, LIABILITY, EQUITY, INCOME, EXPENSE
-  subtype     String? // CASH, BANK, AR, AP, etc.
+  type        String
+  subtype     String?
   parentId    String?
-  isActive    Boolean  @default(true)
-  balance     Float    @default(0)
+  isActive    Boolean             @default(true)
+  balance     Float               @default(0)
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  parent     FinancialAccount?   @relation("AccountHierarchy", fields: [parentId], references: [id])
-  children   FinancialAccount[]  @relation("AccountHierarchy")
-  entryLines JournalEntryLine[]  @relation("AccountEntries")
-  categories FinancialCategory[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  parent      FinancialAccount?   @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children    FinancialAccount[]  @relation("AccountHierarchy")
+  categories  FinancialCategory[]
+  entryLines  JournalEntryLine[]  @relation("AccountEntries")
 
   @@index([type, isActive])
   @@map("financial_accounts")
 }
 
 model FinancialCategory {
-  id          String   @id @default(cuid())
-  name        String
-  type        String // INCOME, EXPENSE, DONATION
-  code        String? // Category code
-  accountId   String // Link to chart of accounts
-  color       String? // UI color for charts
-  icon        String? // UI icon
-  isActive    Boolean  @default(true)
-  description String?
-  parentId    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
+  id           String              @id @default(cuid())
+  name         String
+  type         String
+  code         String?
+  accountId    String
+  color        String?
+  icon         String?
+  isActive     Boolean             @default(true)
+  description  String?
+  parentId     String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  budgetItems  BudgetItem[]
   account      FinancialAccount    @relation(fields: [accountId], references: [id])
   parent       FinancialCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children     FinancialCategory[] @relation("CategoryHierarchy")
   transactions Transaction[]
-  budgetItems  BudgetItem[]
 
   @@unique([name, type])
   @@index([type, isActive])
@@ -147,29 +120,27 @@ model FinancialCategory {
 }
 
 model Transaction {
-  id            String    @id @default(cuid())
-  transactionNo String    @unique // Format: TRX-2024-001
-  type          String // INCOME, EXPENSE, DONATION
+  id            String            @id @default(cuid())
+  transactionNo String            @unique
+  type          String
   categoryId    String
   amount        Float
   description   String
-  reference     String? // Invoice no, receipt no, etc.
+  reference     String?
   date          DateTime
-  dueDate       DateTime? // For receivables/payables
-  status        String    @default("POSTED") // DRAFT, POSTED, CANCELLED, REVERSED
-  tags          String    @default("[]") // JSON array of tags
-  attachments   String    @default("[]") // JSON array of attachment URLs
+  dueDate       DateTime?
+  status        String            @default("POSTED")
+  tags          String            @default("[]")
+  attachments   String            @default("[]")
   notes         String?
   createdBy     String
   approvedBy    String?
   approvedAt    DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
-  category     FinancialCategory @relation(fields: [categoryId], references: [id])
-  creator      User              @relation(fields: [createdBy], references: [id])
-  journalEntry JournalEntry?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  journalEntry  JournalEntry?
+  category      FinancialCategory @relation(fields: [categoryId], references: [id])
+  creator       User              @relation(fields: [createdBy], references: [id])
 
   @@index([type, status, date])
   @@index([categoryId])
@@ -177,90 +148,82 @@ model Transaction {
 }
 
 model JournalEntry {
-  id            String    @id @default(cuid())
-  entryNo       String    @unique // Format: JE-2024-001
-  transactionId String?   @unique
+  id            String             @id @default(cuid())
+  entryNo       String             @unique
+  transactionId String?            @unique
   description   String
   date          DateTime
   reference     String?
-  status        String    @default("POSTED") // DRAFT, POSTED, REVERSED
-  totalDebit    Float     @default(0)
-  totalCredit   Float     @default(0)
-  isBalanced    Boolean   @default(false)
+  status        String             @default("POSTED")
+  totalDebit    Float              @default(0)
+  totalCredit   Float              @default(0)
+  isBalanced    Boolean            @default(false)
   createdBy     String
   approvedBy    String?
   approvedAt    DateTime?
   reversedBy    String?
   reversedAt    DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
-  transaction Transaction?       @relation(fields: [transactionId], references: [id])
-  creator     User               @relation(fields: [createdBy], references: [id])
-  entries     JournalEntryLine[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  creator       User               @relation(fields: [createdBy], references: [id])
+  transaction   Transaction?       @relation(fields: [transactionId], references: [id])
+  entries       JournalEntryLine[]
 
   @@index([status, date])
   @@map("journal_entries")
 }
 
 model JournalEntryLine {
-  id           String   @id @default(cuid())
+  id           String           @id @default(cuid())
   journalId    String
   accountId    String
-  debitAmount  Float    @default(0)
-  creditAmount Float    @default(0)
+  debitAmount  Float            @default(0)
+  creditAmount Float            @default(0)
   description  String?
-  lineOrder    Int      @default(0)
-  createdAt    DateTime @default(now())
-
-  // Relations
-  journal JournalEntry     @relation(fields: [journalId], references: [id], onDelete: Cascade)
-  account FinancialAccount @relation("AccountEntries", fields: [accountId], references: [id])
+  lineOrder    Int              @default(0)
+  createdAt    DateTime         @default(now())
+  account      FinancialAccount @relation("AccountEntries", fields: [accountId], references: [id])
+  journal      JournalEntry     @relation(fields: [journalId], references: [id], onDelete: Cascade)
 
   @@index([journalId, lineOrder])
   @@map("journal_entry_lines")
 }
 
 model Budget {
-  id          String    @id @default(cuid())
+  id          String            @id @default(cuid())
   name        String
-  type        String    @default("ANNUAL") // MONTHLY, QUARTERLY, ANNUAL
+  type        String            @default("ANNUAL")
   startDate   DateTime
   endDate     DateTime
-  totalBudget Float     @default(0)
-  status      String    @default("DRAFT") // DRAFT, ACTIVE, CLOSED
+  totalBudget Float             @default(0)
+  status      String            @default("DRAFT")
   description String?
   createdBy   String
   approvedBy  String?
   approvedAt  DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relations
-  creator User              @relation(fields: [createdBy], references: [id])
-  items   BudgetItem[]
-  reports FinancialReport[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  items       BudgetItem[]
+  creator     User              @relation(fields: [createdBy], references: [id])
+  reports     FinancialReport[]
 
   @@index([status, startDate])
   @@map("budgets")
 }
 
 model BudgetItem {
-  id           String   @id @default(cuid())
+  id           String            @id @default(cuid())
   budgetId     String
   categoryId   String
   budgetAmount Float
-  actualAmount Float    @default(0)
-  variance     Float    @default(0)
-  percentage   Float    @default(0)
+  actualAmount Float             @default(0)
+  variance     Float             @default(0)
+  percentage   Float             @default(0)
   notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Relations
-  budget   Budget            @relation(fields: [budgetId], references: [id], onDelete: Cascade)
-  category FinancialCategory @relation(fields: [categoryId], references: [id])
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  budget       Budget            @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category     FinancialCategory @relation(fields: [categoryId], references: [id])
 
   @@unique([budgetId, categoryId])
   @@map("budget_items")
@@ -269,21 +232,19 @@ model BudgetItem {
 model FinancialReport {
   id        String   @id @default(cuid())
   name      String
-  type      String // INCOME_STATEMENT, BALANCE_SHEET, CASH_FLOW, BUDGET_VARIANCE
-  period    String // MONTHLY, QUARTERLY, ANNUAL
+  type      String
+  period    String
   startDate DateTime
   endDate   DateTime
   budgetId  String?
-  data      String // JSON data of the report
-  fileUrl   String? // Generated PDF/Excel file
-  status    String   @default("GENERATED") // DRAFT, GENERATED, EXPORTED
+  data      String
+  fileUrl   String?
+  status    String   @default("GENERATED")
   createdBy String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  creator User    @relation(fields: [createdBy], references: [id])
-  budget  Budget? @relation(fields: [budgetId], references: [id])
+  budget    Budget?  @relation(fields: [budgetId], references: [id])
+  creator   User     @relation(fields: [createdBy], references: [id])
 
   @@index([type, period, startDate])
   @@map("financial_reports")
@@ -291,18 +252,16 @@ model FinancialReport {
 
 model AuditTrail {
   id        String   @id @default(cuid())
-  tableName String // Table that was modified
-  recordId  String // ID of the modified record
-  action    String // CREATE, UPDATE, DELETE
-  oldValues String? // JSON of old values
-  newValues String? // JSON of new values
+  tableName String
+  recordId  String
+  action    String
+  oldValues String?
+  newValues String?
   userId    String
   ipAddress String?
   userAgent String?
   timestamp DateTime @default(now())
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@index([tableName, recordId])
   @@index([userId, timestamp])
@@ -316,161 +275,128 @@ model Activity {
   type        String
   date        DateTime
   location    String?
-  photos      String   @default("[]") // JSON string of photo URLs
-  status      String   @default("planned") // planned, ongoing, completed
+  photos      String   @default("[]")
+  status      String   @default("planned")
   createdBy   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  creator User @relation(fields: [createdBy], references: [id])
+  creator     User     @relation(fields: [createdBy], references: [id])
 
   @@map("activities")
 }
 
 model LineSettings {
-  id                   String   @id @default(cuid())
-  enabled              Boolean  @default(false)
-  channelId            String?
-  channelSecret        String?
-  channelAccessToken   String?
-  webhookUrl           String?
-  liffId               String?
-  richMenuId           String?
-  
-  // Features
-  richMenuEnabled      Boolean  @default(true)
-  flexMessagesEnabled  Boolean  @default(true)
-  quickReplyEnabled    Boolean  @default(true)
-  broadcastEnabled     Boolean  @default(true)
-  liffEnabled          Boolean  @default(false)
-  multicastEnabled     Boolean  @default(true)
-  pushMessagesEnabled  Boolean  @default(true)
-  
-  // Rate Limits
-  messagesPerMinute    Int      @default(60)
-  broadcastDelay       Int      @default(500)
-  
-  // Messages
-  welcomeMessage       String   @default("Selamat datang di LINE Official Account Pondok Imam Syafii!")
-  unknownMessage       String   @default("Maaf, pesan tidak dikenali. Ketik 'menu' untuk bantuan.")
-  errorMessage         String   @default("Maaf, terjadi kesalahan. Silakan coba lagi.")
-  
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  
+  id                  String   @id @default(cuid())
+  enabled             Boolean  @default(false)
+  channelId           String?
+  channelSecret       String?
+  channelAccessToken  String?
+  webhookUrl          String?
+  liffId              String?
+  richMenuId          String?
+  richMenuEnabled     Boolean  @default(true)
+  flexMessagesEnabled Boolean  @default(true)
+  quickReplyEnabled   Boolean  @default(true)
+  broadcastEnabled    Boolean  @default(true)
+  liffEnabled         Boolean  @default(false)
+  multicastEnabled    Boolean  @default(true)
+  pushMessagesEnabled Boolean  @default(true)
+  messagesPerMinute   Int      @default(60)
+  broadcastDelay      Int      @default(500)
+  welcomeMessage      String   @default("Selamat datang di LINE Official Account Pondok Imam Syafii!")
+  unknownMessage      String   @default("Maaf, pesan tidak dikenali. Ketik 'menu' untuk bantuan.")
+  errorMessage        String   @default("Maaf, terjadi kesalahan. Silakan coba lagi.")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
   @@map("line_settings")
 }
 
 model LineUser {
   id            String   @id @default(cuid())
-  userId        String   @unique // LINE user ID
+  userId        String   @unique
   displayName   String?
   pictureUrl    String?
   statusMessage String?
   language      String?
-  
-  // Permissions
   isAdmin       Boolean  @default(false)
   canCRUD       Boolean  @default(false)
-  
-  // Activity
   lastActive    DateTime @default(now())
   messageCount  Int      @default(0)
-  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
+
   @@map("line_users")
 }
 
 model LineUserSession {
-  id            String   @id @default(cuid())
-  userId        String   @unique // LINE user ID
-  mode          String   @default("PUBLIC") // PUBLIC, ADMIN
-  isAdmin       Boolean  @default(false)
-  permissions   String[] @default([])
-  
-  // Flow Management
-  activeFlowId  String?
-  flowType      String?  // STUDENT_ADD, PAYMENT_CHECK, etc
-  flowData      Json     @default("{}")
-  currentStep   Int      @default(0)
-  totalSteps    Int      @default(0)
-  stepHistory   String[] @default([])
-  
-  // State
-  state         Json     @default("{}")
-  breadcrumb    String[] @default([])
-  waitingFor    String?  // What input we're waiting for
-  
-  // Control
-  canAbort      Boolean  @default(true)
-  retryCount    Int      @default(0)
-  lockedUntil   DateTime?
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  expiresAt     DateTime?
-  
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  mode         String    @default("PUBLIC")
+  isAdmin      Boolean   @default(false)
+  permissions  String[]  @default([])
+  activeFlowId String?
+  flowType     String?
+  flowData     Json      @default("{}")
+  currentStep  Int       @default(0)
+  totalSteps   Int       @default(0)
+  stepHistory  String[]  @default([])
+  state        Json      @default("{}")
+  breadcrumb   String[]  @default([])
+  waitingFor   String?
+  canAbort     Boolean   @default(true)
+  retryCount   Int       @default(0)
+  lockedUntil  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  expiresAt    DateTime?
+
   @@map("line_user_sessions")
 }
 
 model LineAdmin {
   id          String   @id @default(cuid())
   lineUserId  String   @unique
-  userId      String?  @unique // Link to User model
+  userId      String?  @unique
   permissions String[] @default(["BASIC"])
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  
   user        User?    @relation(fields: [userId], references: [id])
-  
+
   @@map("line_admins")
 }
 
 model Teacher {
-  id            String   @id @default(cuid())
-  nip           String?  @unique // Nomor Induk Pegawai
-  name          String
-  title         String?  // Gelar akademik (S.Pd, M.Pd, etc)
-  gender        String   // L/P
-  birthPlace    String?
-  birthDate     DateTime?
-  phone         String?
-  email         String?
-  address       String?
-  
-  // Professional Info
-  position      String   // Jabatan (Guru Kelas, Guru Mapel, etc)
-  subjects      String   @default("[]") // JSON array of subjects taught
-  education     String?  // Pendidikan terakhir
-  university    String?  // Universitas
-  major         String?  // Jurusan
-  certifications String  @default("[]") // JSON array of certifications
-  
-  // Employment Info
-  employmentType String  @default("TETAP") // TETAP, HONORER, KONTRAK
-  joinDate      DateTime?
-  status        String   @default("ACTIVE") // ACTIVE, INACTIVE, LEAVE
-  
-  // Teaching Assignment
-  institution   String   // TK, SD, PONDOK, ALL
-  specialization String? // Tahfidz, Kitab, Bahasa Arab, etc
-  experience    Int?     // Years of experience
-  
-  // Additional Info
-  photo         String?
-  bio           String?  // Short biography
-  achievements  String   @default("[]") // JSON array of achievements
-  isUstadz      Boolean  @default(true) // true for Ustadz, false for Ustadzah
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  createdBy     String?
-
-  // Relations
-  creator       User?    @relation(fields: [createdBy], references: [id])
+  id             String    @id @default(cuid())
+  nip            String?   @unique
+  name           String
+  title          String?
+  gender         String
+  birthPlace     String?
+  birthDate      DateTime?
+  phone          String?
+  email          String?
+  address        String?
+  position       String
+  subjects       String    @default("[]")
+  education      String?
+  university     String?
+  major          String?
+  certifications String    @default("[]")
+  employmentType String    @default("TETAP")
+  joinDate       DateTime?
+  status         String    @default("ACTIVE")
+  institution    String
+  specialization String?
+  experience     Int?
+  photo          String?
+  bio            String?
+  achievements   String    @default("[]")
+  isUstadz       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  createdBy      String?
+  creator        User?     @relation(fields: [createdBy], references: [id])
 
   @@index([institution, status])
   @@index([isUstadz, status])
@@ -481,19 +407,17 @@ model Course {
   id          String   @id @default(cuid())
   name        String
   description String
-  level       String // beginner, intermediate, advanced
+  level       String
   schedule    String
   teacher     String
   duration    String
   capacity    Int
   enrolled    Int      @default(0)
-  status      String   @default("active") // active, inactive, completed
+  status      String   @default("active")
   createdBy   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  creator User @relation(fields: [createdBy], references: [id])
+  creator     User     @relation(fields: [createdBy], references: [id])
 
   @@map("courses")
 }
@@ -513,9 +437,7 @@ model Video {
   createdBy   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  creator User @relation(fields: [createdBy], references: [id])
+  creator     User     @relation(fields: [createdBy], references: [id])
 
   @@map("videos")
 }
@@ -525,17 +447,17 @@ model Ebook {
   title         String
   author        String
   description   String
-  category      String // Fiqh, Hadith, Tafsir, Akhlak, etc.
-  subcategory   String? // More specific categorization
-  fileUrl       String // URL to PDF file
-  coverImage    String? // Cover image URL
-  fileSize      Int? // File size in bytes
-  pageCount     Int? // Number of pages
-  language      String   @default("id") // id, ar, en
+  category      String
+  subcategory   String?
+  fileUrl       String
+  coverImage    String?
+  fileSize      Int?
+  pageCount     Int?
+  language      String   @default("id")
   publisher     String?
   publishYear   String?
   isbn          String?
-  tags          String   @default("[]") // JSON string of tags
+  tags          String   @default("[]")
   downloadCount Int      @default(0)
   viewCount     Int      @default(0)
   isFeatured    Boolean  @default(false)
@@ -543,9 +465,7 @@ model Ebook {
   createdBy     String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  // Relations
-  creator User @relation(fields: [createdBy], references: [id])
+  creator       User     @relation(fields: [createdBy], references: [id])
 
   @@map("ebooks")
 }
@@ -559,107 +479,78 @@ model Setting {
 }
 
 model Student {
-  id          String   @id @default(cuid())
-  nisn        String?  @unique // Nomor Induk Siswa Nasional
-  nis         String   @unique // Nomor Induk Siswa
-  fullName    String
-  nickname    String?
-  birthPlace  String
-  birthDate   DateTime
-  gender      String // MALE or FEMALE
-  bloodType   String? // A, B, AB, O
-  religion    String   @default("Islam")
-  nationality String   @default("Indonesia")
-
-  // Contact Information
-  address    String
-  village    String? // Desa/Kelurahan
-  district   String? // Kecamatan
-  city       String // Kota/Kabupaten
-  province   String  @default("Jawa Timur")
-  postalCode String?
-  phone      String?
-  email      String?
-
-  // Parent Information
-  fatherName       String
-  fatherJob        String?
-  fatherPhone      String?
-  fatherEducation  String?
-  motherName       String
-  motherJob        String?
-  motherPhone      String?
-  motherEducation  String?
-  guardianName     String? // Wali if different from parents
-  guardianJob      String?
-  guardianPhone    String?
-  guardianRelation String? // Hubungan dengan wali
-
-  // Academic Information
-  institutionType String // TK, SD, PONDOK
-  grade           String? // Kelas
-  enrollmentDate  DateTime
-  enrollmentYear  String // Tahun ajaran
-  previousSchool  String?
-
-  // Additional Information
-  specialNeeds String? // Kebutuhan khusus
-  achievements String  @default("[]") // JSON array of achievements
-  notes        String?
-  photo        String? // URL to photo
-  documents    String  @default("[]") // JSON array of document URLs
-
-  // Status
-  status         String    @default("ACTIVE") // ACTIVE, GRADUATED, TRANSFERRED, DROPPED
-  isActive       Boolean   @default(true)
-  graduationDate DateTime?
-
-  createdBy String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  creator        User          @relation(fields: [createdBy], references: [id])
-  registrationId String?       @unique
-  registration   Registration? @relation(fields: [registrationId], references: [id])
-  payments       Payment[]
-
-  // Academic Relations
-  studentClasses StudentClass[]
-  grades         Grade[]
-  attendances    Attendance[]
-  reportCards    ReportCard[]
-  examResults    ExamResult[]
-
-  // Parent Portal Relations
-  parentStudents ParentStudent[]
-
-  // Hafalan Relations
-  hafalanRecords      HafalanRecord[]
-  hafalanProgress     HafalanProgress?
-  hafalanTargets      HafalanTarget[]
-  setoranSchedules    SetoranSchedule[]
+  id                  String               @id @default(cuid())
+  nisn                String?              @unique
+  nis                 String               @unique
+  fullName            String
+  nickname            String?
+  birthPlace          String
+  birthDate           DateTime
+  gender              String
+  bloodType           String?
+  religion            String               @default("Islam")
+  nationality         String               @default("Indonesia")
+  address             String
+  village             String?
+  district            String?
+  city                String
+  province            String               @default("Jawa Timur")
+  postalCode          String?
+  phone               String?
+  email               String?
+  fatherName          String
+  fatherJob           String?
+  fatherPhone         String?
+  fatherEducation     String?
+  motherName          String
+  motherJob           String?
+  motherPhone         String?
+  motherEducation     String?
+  guardianName        String?
+  guardianJob         String?
+  guardianPhone       String?
+  guardianRelation    String?
+  institutionType     String
+  grade               String?
+  enrollmentDate      DateTime
+  enrollmentYear      String
+  previousSchool      String?
+  specialNeeds        String?
+  achievements        String               @default("[]")
+  notes               String?
+  photo               String?
+  documents           String               @default("[]")
+  status              String               @default("ACTIVE")
+  isActive            Boolean              @default(true)
+  graduationDate      DateTime?
+  createdBy           String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  registrationId      String?              @unique
+  isOrphan            Boolean              @default(false)
+  monthlyNeeds        Decimal?
+  otaProfile          String?
+  attendances         Attendance[]
+  bills               Bill[]
+  examResults         ExamResult[]
+  grades              Grade[]
   hafalanAchievements HafalanAchievement[]
+  hafalanProgress     HafalanProgress?
+  hafalanRecords      HafalanRecord[]
   hafalanSessions     HafalanSession[]
-
-  // Billing Relations
-  bills            Bill[]
-  paymentHistory   PaymentHistory[]
-  paymentReminders PaymentReminder[]
-
-  // OTA (Orang Tua Asuh) Relations
-  otaProgram OTAProgram?
-
-  // OTA Fields
-  isOrphan     Boolean @default(false)
-  monthlyNeeds Decimal? // Monthly financial needs amount
-  
-  // PPDB Relations
-  ppdbRegistrations PPDBRegistration[]
-  
-  // SPP Relations
-  sppBillings SPPBilling[]
-  otaProfile   String? // Public profile text (anonymized)
+  hafalanTargets      HafalanTarget[]
+  otaProgram          OTAProgram?
+  parentStudents      ParentStudent[]
+  paymentHistory      PaymentHistory[]
+  paymentReminders    PaymentReminder[]
+  payments            Payment[]
+  ppdbRegistrations   PPDBRegistration[]
+  reportCards         ReportCard[]
+  setoranSchedules    SetoranSchedule[]
+  sppBillings         SPPBilling[]
+  studentClasses      StudentClass[]
+  creator             User                 @relation(fields: [createdBy], references: [id])
+  registration        Registration?        @relation(fields: [registrationId], references: [id])
 
   @@index([institutionType, status])
   @@index([enrollmentYear])
@@ -668,71 +559,52 @@ model Student {
 }
 
 model Alumni {
-  id          String   @id @default(cuid())
-  nisn        String? // Nomor Induk Siswa Nasional
-  nis         String? // Nomor Induk Siswa (lama)
-  fullName    String
-  nickname    String?
-  birthPlace  String
-  birthDate   DateTime
-  gender      String // MALE or FEMALE
-  bloodType   String?
-  religion    String   @default("Islam")
-  nationality String   @default("Indonesia")
-
-  // Contact Information (Current)
-  currentAddress  String
-  currentCity     String
-  currentProvince String?
-  currentCountry  String  @default("Indonesia")
-  phone           String?
-  whatsapp        String? // WhatsApp number for easy contact
-  email           String?
-  facebook        String? // Facebook profile
-  instagram       String? // Instagram handle
-  linkedin        String? // LinkedIn profile
-
-  // Parent Information
-  fatherName String?
-  motherName String?
-
-  // Alumni Information
-  institutionType String // TK, SD, PONDOK
-  graduationYear  String // Tahun lulus
-  generation      String? // Angkatan
-
-  // Current Status
-  currentJob       String? // Pekerjaan sekarang
-  jobPosition      String? // Jabatan
-  company          String? // Perusahaan/Institusi
-  furtherEducation String? // Pendidikan lanjutan
-  university       String? // Universitas
-  major            String? // Jurusan
-
-  // Achievements After Graduation
-  achievements String @default("[]") // JSON array of achievements
-
-  // Family Information
-  maritalStatus String? // SINGLE, MARRIED, DIVORCED
-  spouseName    String?
-  childrenCount Int     @default(0)
-
-  // Additional Information
-  notes    String?
-  photo    String? // Recent photo URL
-  memories String? // Kenangan di sekolah/pondok
-  message  String? // Pesan untuk juniors
-
-  // Availability for Events
-  availableForEvents Boolean   @default(true) // Bisa diundang acara
+  id                 String    @id @default(cuid())
+  nisn               String?
+  nis                String?
+  fullName           String
+  nickname           String?
+  birthPlace         String
+  birthDate          DateTime
+  gender             String
+  bloodType          String?
+  religion           String    @default("Islam")
+  nationality        String    @default("Indonesia")
+  currentAddress     String
+  currentCity        String
+  currentProvince    String?
+  currentCountry     String    @default("Indonesia")
+  phone              String?
+  whatsapp           String?
+  email              String?
+  facebook           String?
+  instagram          String?
+  linkedin           String?
+  fatherName         String?
+  motherName         String?
+  institutionType    String
+  graduationYear     String
+  generation         String?
+  currentJob         String?
+  jobPosition        String?
+  company            String?
+  furtherEducation   String?
+  university         String?
+  major              String?
+  achievements       String    @default("[]")
+  maritalStatus      String?
+  spouseName         String?
+  childrenCount      Int       @default(0)
+  notes              String?
+  photo              String?
+  memories           String?
+  message            String?
+  availableForEvents Boolean   @default(true)
   lastContactDate    DateTime?
-
-  createdBy String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  creator User @relation(fields: [createdBy], references: [id])
+  createdBy          String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  creator            User      @relation(fields: [createdBy], references: [id])
 
   @@index([institutionType, graduationYear])
   @@index([generation])
@@ -740,113 +612,77 @@ model Alumni {
   @@map("alumni")
 }
 
-// ==========================================
-// PPDB (Penerimaan Peserta Didik Baru)
-// ==========================================
-
 model Registration {
-  id             String @id @default(cuid())
-  registrationNo String @unique // Format: PPDB-2024-001
-
-  // Personal Data
-  fullName   String
-  nickname   String?
-  gender     String // L/P
-  birthPlace String
-  birthDate  DateTime
-  nik        String?
-  nisn       String?
-
-  // Address
-  address    String
-  rt         String?
-  rw         String?
-  village    String
-  district   String
-  city       String
-  province   String  @default("Jawa Timur")
-  postalCode String?
-
-  // Education
-  level          String // TK, SD, PONDOK
-  previousSchool String?
-  gradeTarget    String? // Kelas yang dituju
-  programType    String? // REGULER, TAHFIDZ, KITAB
-  boardingType   String? // MONDOK, PULANG
-
-  // Parent Data - Father
-  fatherName      String
-  fatherNik       String?
-  fatherJob       String?
-  fatherPhone     String?
-  fatherEducation String?
-  fatherIncome    String? // Range pendapatan
-
-  // Parent Data - Mother
-  motherName      String
-  motherNik       String?
-  motherJob       String?
-  motherPhone     String?
-  motherEducation String?
-  motherIncome    String? // Range pendapatan
-
-  // Guardian (if different from parents)
+  id               String    @id @default(cuid())
+  registrationNo   String    @unique
+  fullName         String
+  nickname         String?
+  gender           String
+  birthPlace       String
+  birthDate        DateTime
+  nik              String?
+  nisn             String?
+  address          String
+  rt               String?
+  rw               String?
+  village          String
+  district         String
+  city             String
+  province         String    @default("Jawa Timur")
+  postalCode       String?
+  level            String
+  previousSchool   String?
+  gradeTarget      String?
+  programType      String?
+  boardingType     String?
+  fatherName       String
+  fatherNik        String?
+  fatherJob        String?
+  fatherPhone      String?
+  fatherEducation  String?
+  fatherIncome     String?
+  motherName       String
+  motherNik        String?
+  motherJob        String?
+  motherPhone      String?
+  motherEducation  String?
+  motherIncome     String?
   guardianName     String?
   guardianRelation String?
   guardianPhone    String?
   guardianAddress  String?
-
-  // Contact
-  phoneNumber String
-  whatsapp    String
-  email       String?
-
-  // Health Information
-  bloodType      String?
-  height         Int? // cm
-  weight         Int? // kg
-  specialNeeds   String? // Kebutuhan khusus
-  medicalHistory String? // Riwayat penyakit
-
-  // Status Tracking
-  status        String @default("DRAFT") // DRAFT, SUBMITTED, DOCUMENT_CHECK, VERIFIED, TEST_SCHEDULED, TEST_TAKEN, PASSED, FAILED, REGISTERED
-  paymentStatus String @default("UNPAID") // UNPAID, PAID, VERIFIED
-
-  // Documents (JSON array of document info)
-  documents String @default("[]") // {type, fileName, url, status}
-
-  // Test & Selection
-  testSchedule DateTime?
-  testVenue    String?
-  testScore    String? // JSON: {quran: 80, arabic: 75, interview: 85}
-  testResult   String? // PASSED, FAILED, WAITING
-  ranking      Int?
-
-  // Registration Fee
-  registrationFee Decimal   @default(150000)
-  paymentMethod   String?
-  paymentDate     DateTime?
-  paymentProof    String? // URL bukti transfer
-
-  // Re-registration (Daftar Ulang)
-  reregStatus  String? // WAITING, COMPLETED
-  reregDate    DateTime?
-  reregPayment String? // JSON payment details
-
-  // Admin Notes
-  notes           String?
-  verifiedBy      String?
-  verifiedAt      DateTime?
-  rejectionReason String?
-
-  // Timestamps
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  submittedAt DateTime?
-
-  // Relations
-  payments Payment[]
-  student  Student?
+  phoneNumber      String
+  whatsapp         String
+  email            String?
+  bloodType        String?
+  height           Int?
+  weight           Int?
+  specialNeeds     String?
+  medicalHistory   String?
+  status           String    @default("DRAFT")
+  paymentStatus    String    @default("UNPAID")
+  documents        String    @default("[]")
+  testSchedule     DateTime?
+  testVenue        String?
+  testScore        String?
+  testResult       String?
+  ranking          Int?
+  registrationFee  Decimal   @default(150000)
+  paymentMethod    String?
+  paymentDate      DateTime?
+  paymentProof     String?
+  reregStatus      String?
+  reregDate        DateTime?
+  reregPayment     String?
+  notes            String?
+  verifiedBy       String?
+  verifiedAt       DateTime?
+  rejectionReason  String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  submittedAt      DateTime?
+  payments         Payment[]
+  student          Student?
 
   @@index([status])
   @@index([level])
@@ -856,54 +692,38 @@ model Registration {
 }
 
 model Payment {
-  id        String @id @default(cuid())
-  paymentNo String @unique // Format: PAY-2024-12-0001
-
-  // Relations
-  billId         String? // Link to Bill for SPP and other recurring payments
-  registrationId String?
-  registration   Registration? @relation(fields: [registrationId], references: [id])
-  studentId      String?
-  student        Student?      @relation(fields: [studentId], references: [id])
-
-  // Payment Details
-  amount      Decimal
-  paymentType String // REGISTRATION, SPP, DAFTAR_ULANG, UNIFORM, etc
-  description String?
-
-  // Payment Method
-  method  String // TRANSFER, CASH, VA, EWALLET, QRIS
-  channel String? // BCA, MANDIRI, GOPAY, OVO, etc
-
-  // Status
-  status String @default("PENDING") // PENDING, SUCCESS, FAILED, EXPIRED, REFUNDED
-
-  // Verification (for manual transfer)
-  proofUrl   String? // Bukti transfer
-  verifiedBy String?
-  verifiedAt DateTime?
-
-  // External Payment Gateway
-  externalId String? // ID from payment gateway (order_id)
-  transactionId String? // Transaction ID from gateway
-  paymentUrl String? // Snap token URL or payment URL
-  vaNumber   String? // Virtual account number
-  qrString   String? // QR code string for QRIS
-  deeplink   String? // Deep link for e-wallets
-  expiredAt  DateTime?
-  // Payment Gateway Response Data (JSON)
-  paymentGatewayData String @default("{}") // Store complete gateway response
-  // Additional gateway fields
-  merchantId String? // Merchant ID from gateway
-  fraudStatus String? // Fraud detection status
-  cardType String? // Credit card type if applicable
-  maskedCard String? // Masked card number if applicable
-  approvalCode String? // Approval code from bank
-
-  // Timestamps
-  paidAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                 String        @id @default(cuid())
+  paymentNo          String        @unique
+  billId             String?
+  registrationId     String?
+  studentId          String?
+  amount             Decimal
+  paymentType        String
+  description        String?
+  method             String
+  channel            String?
+  status             String        @default("PENDING")
+  proofUrl           String?
+  verifiedBy         String?
+  verifiedAt         DateTime?
+  externalId         String?
+  transactionId      String?
+  paymentUrl         String?
+  vaNumber           String?
+  qrString           String?
+  deeplink           String?
+  expiredAt          DateTime?
+  paymentGatewayData String        @default("{}")
+  merchantId         String?
+  fraudStatus        String?
+  cardType           String?
+  maskedCard         String?
+  approvalCode       String?
+  paidAt             DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  registration       Registration? @relation(fields: [registrationId], references: [id])
+  student            Student?      @relation(fields: [studentId], references: [id])
 
   @@index([status])
   @@index([paymentType])
@@ -912,72 +732,50 @@ model Payment {
   @@map("payments")
 }
 
-// ==========================================
-// DONATION SYSTEM
-// ==========================================
-
 model DonationCategory {
-  id          String  @id @default(cuid())
-  name        String  @unique // Infaq, Sedekah, Wakaf, Zakat
+  id          String             @id @default(cuid())
+  name        String             @unique
   description String?
-  icon        String? // Icon name for UI
-  color       String? // Color code for UI
-  isActive    Boolean @default(true)
-  sortOrder   Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  campaigns DonationCampaign[]
-  donations Donation[]
+  icon        String?
+  color       String?
+  isActive    Boolean            @default(true)
+  sortOrder   Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  campaigns   DonationCampaign[]
+  donations   Donation[]
 
   @@map("donation_categories")
 }
 
 model DonationCampaign {
-  id          String  @id @default(cuid())
-  title       String
-  slug        String  @unique
-  description String
-  story       String? // Detailed campaign story
-  categoryId  String
-
-  // Financial targets
-  targetAmount  Decimal
-  currentAmount Decimal @default(0)
-
-  // Campaign period
-  startDate DateTime  @default(now())
-  endDate   DateTime?
-
-  // Media
-  mainImage String? // Main campaign image
-  images    String  @default("[]") // JSON array of additional images
-  video     String? // Video URL
-
-  // Status and settings
-  status         String  @default("DRAFT") // DRAFT, ACTIVE, PAUSED, COMPLETED, CANCELLED
-  isFeatured     Boolean @default(false)
-  isUrgent       Boolean @default(false)
-  allowAnonymous Boolean @default(true)
-
-  // Social sharing
-  shareCount Int @default(0)
-
-  // Admin fields
-  createdBy  String
-  approvedBy String?
-  approvedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  category  DonationCategory @relation(fields: [categoryId], references: [id])
-  creator   User             @relation(fields: [createdBy], references: [id])
-  donations Donation[]
-  updates   CampaignUpdate[]
+  id             String           @id @default(cuid())
+  title          String
+  slug           String           @unique
+  description    String
+  story          String?
+  categoryId     String
+  targetAmount   Decimal
+  currentAmount  Decimal          @default(0)
+  startDate      DateTime         @default(now())
+  endDate        DateTime?
+  mainImage      String?
+  images         String           @default("[]")
+  video          String?
+  status         String           @default("DRAFT")
+  isFeatured     Boolean          @default(false)
+  isUrgent       Boolean          @default(false)
+  allowAnonymous Boolean          @default(true)
+  shareCount     Int              @default(0)
+  createdBy      String
+  approvedBy     String?
+  approvedAt     DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  updates        CampaignUpdate[]
+  category       DonationCategory @relation(fields: [categoryId], references: [id])
+  creator        User             @relation(fields: [createdBy], references: [id])
+  donations      Donation[]
 
   @@index([status, isFeatured])
   @@index([categoryId])
@@ -986,73 +784,53 @@ model DonationCampaign {
 }
 
 model CampaignUpdate {
-  id         String  @id @default(cuid())
+  id         String           @id @default(cuid())
   campaignId String
   title      String
   content    String
-  images     String  @default("[]") // JSON array of image URLs
-  isPublic   Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  campaign DonationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  images     String           @default("[]")
+  isPublic   Boolean          @default(true)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  campaign   DonationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@index([campaignId, createdAt])
   @@map("campaign_updates")
 }
 
 model Donation {
-  id         String @id @default(cuid())
-  donationNo String @unique // Format: DON-2024-001
-
-  // Basic donation info
-  campaignId String?
-  categoryId String
-  amount     Decimal
-  message    String? // Message to beneficiaries
-
-  // Donor information
-  donorName   String?
-  donorEmail  String?
-  donorPhone  String?
-  isAnonymous Boolean @default(false)
-
-  // Payment details
-  paymentMethod  String? // TRANSFER, VA, EWALLET, QRIS, CASH
-  paymentChannel String? // BCA, MANDIRI, GOPAY, etc.
-  paymentStatus  String  @default("PENDING") // PENDING, PAID, VERIFIED, FAILED
-
-  // External payment gateway
-  externalId String? // Payment gateway transaction ID
-  vaNumber   String? // Virtual account number
-  qrisCode   String? // QRIS payment code
-  paymentUrl String? // Payment URL from gateway
-  expiredAt  DateTime?
-  paidAt     DateTime?
-
-  // Verification (for manual payments)
-  proofUrl   String? // Payment proof image
-  verifiedBy String?
-  verifiedAt DateTime?
-
-  // Certificate
-  certificateNo  String? // Generated certificate number
-  certificateUrl String? // Generated certificate PDF URL
-
-  // Metadata
-  source    String  @default("WEB") // WEB, MOBILE, WHATSAPP, MANUAL
-  ipAddress String?
-  userAgent String?
-  referrer  String? // UTM tracking
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  campaign DonationCampaign? @relation(fields: [campaignId], references: [id])
-  category DonationCategory  @relation(fields: [categoryId], references: [id])
+  id             String            @id @default(cuid())
+  donationNo     String            @unique
+  campaignId     String?
+  categoryId     String
+  amount         Decimal
+  message        String?
+  donorName      String?
+  donorEmail     String?
+  donorPhone     String?
+  isAnonymous    Boolean           @default(false)
+  paymentMethod  String?
+  paymentChannel String?
+  paymentStatus  String            @default("PENDING")
+  externalId     String?
+  vaNumber       String?
+  qrisCode       String?
+  paymentUrl     String?
+  expiredAt      DateTime?
+  paidAt         DateTime?
+  proofUrl       String?
+  verifiedBy     String?
+  verifiedAt     DateTime?
+  certificateNo  String?
+  certificateUrl String?
+  source         String            @default("WEB")
+  ipAddress      String?
+  userAgent      String?
+  referrer       String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  campaign       DonationCampaign? @relation(fields: [campaignId], references: [id])
+  category       DonationCategory  @relation(fields: [categoryId], references: [id])
 
   @@index([paymentStatus, createdAt])
   @@index([campaignId])
@@ -1062,146 +840,112 @@ model Donation {
 }
 
 model ZakatCalculation {
-  id              String @id @default(cuid())
-  calculationType String // FITRAH, MAL, EMAS, PERAK, PERDAGANGAN
-
-  // Input values (stored as JSON for flexibility)
-  inputs String // JSON object with calculation inputs
-
-  // Results
-  zakatAmount Decimal
-  nisabAmount Decimal?
-
-  // Optional donor info
-  donorName  String?
-  donorEmail String?
-  donorPhone String?
-
-  // Did they proceed to donate?
-  donationId String? // Link to actual donation if they proceeded
-
-  createdAt DateTime @default(now())
+  id              String   @id @default(cuid())
+  calculationType String
+  inputs          String
+  zakatAmount     Decimal
+  nisabAmount     Decimal?
+  donorName       String?
+  donorEmail      String?
+  donorPhone      String?
+  donationId      String?
+  createdAt       DateTime @default(now())
 
   @@index([calculationType, createdAt])
   @@map("zakat_calculations")
 }
 
 model DonorProfile {
-  id    String  @id @default(cuid())
-  email String  @unique
-  name  String
-  phone String?
-
-  // Preferences
-  preferredCategories String  @default("[]") // JSON array of preferred category IDs
-  allowMarketing      Boolean @default(true)
-  allowNewsletter     Boolean @default(true)
-
-  // Stats
-  totalDonated   Decimal   @default(0)
-  donationCount  Int       @default(0)
-  lastDonationAt DateTime?
-
-  // Verification
-  isVerified        Boolean   @default(false)
-  verificationToken String?
-  verifiedAt        DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  name                String
+  phone               String?
+  preferredCategories String    @default("[]")
+  allowMarketing      Boolean   @default(true)
+  allowNewsletter     Boolean   @default(true)
+  totalDonated        Decimal   @default(0)
+  donationCount       Int       @default(0)
+  lastDonationAt      DateTime?
+  isVerified          Boolean   @default(false)
+  verificationToken   String?
+  verifiedAt          DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   @@index([email])
   @@index([isVerified])
   @@map("donor_profiles")
 }
 
-// ==========================================
-// BUSINESS UNIT / UNIT USAHA MODELS
-// ==========================================
-
 model ProductCategory {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String            @id @default(cuid())
+  name        String            @unique
   description String?
-  icon        String? // Icon name for UI
-  color       String? // Color for UI
-  isActive    Boolean  @default(true)
+  icon        String?
+  color       String?
+  isActive    Boolean           @default(true)
   parentId    String?
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  parent   ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children ProductCategory[] @relation("CategoryHierarchy")
-  products Product[]
+  sortOrder   Int               @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  parent      ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    ProductCategory[] @relation("CategoryHierarchy")
+  products    Product[]
 
   @@index([isActive, sortOrder])
   @@map("product_categories")
 }
 
 model Product {
-  id          String  @id @default(cuid())
-  name        String
-  code        String  @unique // SKU/Barcode
-  description String?
-  categoryId  String
-  price       Decimal
-  cost        Decimal @default(0) // Cost price for profit calculation
-  stock       Int     @default(0) // Current stock level
-  minStock    Int     @default(5) // Minimum stock alert level
-  unit        String  @default("pcs") // Unit of measurement (pcs, kg, liter, etc.)
-  image       String? // Product image URL
-  isActive    Boolean @default(true)
-
-  // Additional product info
-  brand    String?
-  supplier String? // Default supplier name
-  location String  @default("UMUM") // Storage location (KOPERASI, KANTIN, KATERING)
-  tags     String  @default("[]") // JSON array of tags
-  notes    String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  category              ProductCategory        @relation(fields: [categoryId], references: [id])
+  id                    String                 @id @default(cuid())
+  name                  String
+  code                  String                 @unique
+  description           String?
+  categoryId            String
+  price                 Decimal
+  cost                  Decimal                @default(0)
+  stock                 Int                    @default(0)
+  minStock              Int                    @default(5)
+  unit                  String                 @default("pcs")
+  image                 String?
+  isActive              Boolean                @default(true)
+  brand                 String?
+  supplier              String?
+  location              String                 @default("UMUM")
+  tags                  String                 @default("[]")
+  notes                 String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
   inventoryRecords      Inventory[]
   inventoryTransactions InventoryTransaction[]
-  saleItems             SaleItem[]
+  category              ProductCategory        @relation(fields: [categoryId], references: [id])
   purchaseItems         PurchaseOrderItem[]
+  saleItems             SaleItem[]
 
   @@index([code])
   @@index([categoryId, isActive])
   @@index([location, isActive])
-  @@index([stock]) // For low stock queries
+  @@index([stock])
   @@map("products")
 }
 
 model Supplier {
-  id       String  @id @default(cuid())
-  name     String
-  code     String? @unique // Supplier code
-  contact  String? // Contact person name
-  address  String?
-  phone    String?
-  email    String?
-  whatsapp String? // WhatsApp number
-
-  // Business info
-  taxId        String? // NPWP
-  bankAccount  String? // Bank account info
-  paymentTerms String? // Payment terms (e.g., "NET 30")
-
-  // Status
-  isActive Boolean @default(true)
-  rating   Int     @default(5) // Supplier rating 1-5
-  notes    String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
+  id             String          @id @default(cuid())
+  name           String
+  code           String?         @unique
+  contact        String?
+  address        String?
+  phone          String?
+  email          String?
+  whatsapp       String?
+  taxId          String?
+  bankAccount    String?
+  paymentTerms   String?
+  isActive       Boolean         @default(true)
+  rating         Int             @default(5)
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   purchaseOrders PurchaseOrder[]
 
   @@index([isActive])
@@ -1209,22 +953,17 @@ model Supplier {
 }
 
 model Inventory {
-  id        String @id @default(cuid())
-  productId String
-  quantity  Int
-  location  String // KOPERASI, KANTIN, KATERING, GUDANG
-
-  // FIFO tracking
-  unitCost   Decimal   @default(0) // Cost per unit for this batch
-  batchNo    String? // Batch number for tracking
-  expiryDate DateTime? // For perishable items
-
-  lastUpdated DateTime @default(now())
+  id          String    @id @default(cuid())
+  productId   String
+  quantity    Int
+  location    String
+  unitCost    Decimal   @default(0)
+  batchNo     String?
+  expiryDate  DateTime?
+  lastUpdated DateTime  @default(now())
   updatedBy   String?
   notes       String?
-
-  // Relations
-  product Product @relation(fields: [productId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
 
   @@unique([productId, location, batchNo])
   @@index([productId, location])
@@ -1233,29 +972,21 @@ model Inventory {
 }
 
 model InventoryTransaction {
-  id        String @id @default(cuid())
-  productId String
-  type      String // IN, OUT, ADJUSTMENT, TRANSFER
-  quantity  Int // Positive for IN, negative for OUT
-  location  String // Where the transaction happened
-
-  // Cost tracking
-  unitCost  Decimal @default(0)
-  totalCost Decimal @default(0)
-
-  // Reference information
-  reference   String? // Reference to sale, purchase, etc.
-  referenceId String? // ID of related transaction
-  batchNo     String? // Batch number
-
-  reason String? // Reason for adjustment/transfer
-  notes  String?
-
-  createdAt DateTime @default(now())
-  createdBy String?
-
-  // Relations
-  product Product @relation(fields: [productId], references: [id])
+  id          String   @id @default(cuid())
+  productId   String
+  type        String
+  quantity    Int
+  location    String
+  unitCost    Decimal  @default(0)
+  totalCost   Decimal  @default(0)
+  reference   String?
+  referenceId String?
+  batchNo     String?
+  reason      String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  createdBy   String?
+  product     Product  @relation(fields: [productId], references: [id])
 
   @@index([productId, type, createdAt])
   @@index([type, createdAt])
@@ -1264,39 +995,28 @@ model InventoryTransaction {
 }
 
 model PurchaseOrder {
-  id         String @id @default(cuid())
-  orderNo    String @unique // Format: PO-2024-001
-  supplierId String
-
-  // Order details
-  status       String    @default("DRAFT") // DRAFT, SENT, CONFIRMED, PARTIALLY_RECEIVED, RECEIVED, CANCELLED
-  orderDate    DateTime  @default(now())
-  expectedDate DateTime? // Expected delivery date
-  receivedDate DateTime? // Actual received date
-
-  // Totals
-  subtotal       Decimal @default(0)
-  taxAmount      Decimal @default(0)
-  discountAmount Decimal @default(0)
-  shippingCost   Decimal @default(0)
-  totalAmount    Decimal @default(0)
-
-  // Payment
-  paymentStatus String  @default("UNPAID") // UNPAID, PARTIALLY_PAID, PAID
-  paidAmount    Decimal @default(0)
-
-  // Additional info
-  notes String?
-  terms String? // Payment terms
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy String
-
-  // Relations
-  supplier Supplier            @relation(fields: [supplierId], references: [id])
-  items    PurchaseOrderItem[]
-  creator  User                @relation(fields: [createdBy], references: [id])
+  id             String              @id @default(cuid())
+  orderNo        String              @unique
+  supplierId     String
+  status         String              @default("DRAFT")
+  orderDate      DateTime            @default(now())
+  expectedDate   DateTime?
+  receivedDate   DateTime?
+  subtotal       Decimal             @default(0)
+  taxAmount      Decimal             @default(0)
+  discountAmount Decimal             @default(0)
+  shippingCost   Decimal             @default(0)
+  totalAmount    Decimal             @default(0)
+  paymentStatus  String              @default("UNPAID")
+  paidAmount     Decimal             @default(0)
+  notes          String?
+  terms          String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  createdBy      String
+  items          PurchaseOrderItem[]
+  creator        User                @relation(fields: [createdBy], references: [id])
+  supplier       Supplier            @relation(fields: [supplierId], references: [id])
 
   @@index([status, orderDate])
   @@index([supplierId])
@@ -1304,68 +1024,45 @@ model PurchaseOrder {
 }
 
 model PurchaseOrderItem {
-  id              String @id @default(cuid())
+  id              String        @id @default(cuid())
   purchaseOrderId String
   productId       String
-
-  quantity  Int
-  unitCost  Decimal
-  totalCost Decimal
-
-  // Receiving tracking
-  receivedQty  Int @default(0)
-  remainingQty Int // Calculated field: quantity - receivedQty
-
-  notes String?
-
-  createdAt DateTime @default(now())
-
-  // Relations
-  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-  product       Product       @relation(fields: [productId], references: [id])
+  quantity        Int
+  unitCost        Decimal
+  totalCost       Decimal
+  receivedQty     Int           @default(0)
+  remainingQty    Int
+  notes           String?
+  createdAt       DateTime      @default(now())
+  product         Product       @relation(fields: [productId], references: [id])
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
 
   @@unique([purchaseOrderId, productId])
   @@map("purchase_order_items")
 }
 
 model Sale {
-  id     String @id @default(cuid())
-  saleNo String @unique // Format: SAL-2024-001
-
-  // Customer info (optional for cash sales)
-  customerName  String?
-  customerPhone String?
-  customerEmail String?
-
-  // Sale details
-  location String   @default("KOPERASI") // KOPERASI, KANTIN, KATERING
-  saleDate DateTime @default(now())
-
-  // Totals
-  subtotal       Decimal
-  taxAmount      Decimal @default(0)
-  discountAmount Decimal @default(0)
-  totalAmount    Decimal
-
-  // Payment
-  paymentMethod    String  @default("CASH") // CASH, CARD, TRANSFER, QRIS
+  id               String     @id @default(cuid())
+  saleNo           String     @unique
+  customerName     String?
+  customerPhone    String?
+  customerEmail    String?
+  location         String     @default("KOPERASI")
+  saleDate         DateTime   @default(now())
+  subtotal         Decimal
+  taxAmount        Decimal    @default(0)
+  discountAmount   Decimal    @default(0)
+  totalAmount      Decimal
+  paymentMethod    String     @default("CASH")
   paidAmount       Decimal
-  changeAmount     Decimal @default(0)
-  paymentReference String? // For non-cash payments
-
-  // Staff info
-  cashier String // User ID of cashier
-
-  // Status
-  status String @default("COMPLETED") // DRAFT, COMPLETED, CANCELLED, REFUNDED
-
-  notes String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  items SaleItem[]
+  changeAmount     Decimal    @default(0)
+  paymentReference String?
+  cashier          String
+  status           String     @default("COMPLETED")
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  items            SaleItem[]
 
   @@index([saleDate, location])
   @@index([status])
@@ -1374,46 +1071,34 @@ model Sale {
 }
 
 model SaleItem {
-  id        String @id @default(cuid())
-  saleId    String
-  productId String
-
-  quantity  Int
-  unitPrice Decimal // Price at time of sale
-  unitCost  Decimal // Cost at time of sale (for profit calculation)
-  subtotal  Decimal // quantity * unitPrice
-
-  // Discount if applied to specific item
-  discountAmount Decimal @default(0)
-  finalAmount    Decimal // subtotal - discountAmount
-
-  createdAt DateTime @default(now())
-
-  // Relations
-  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  id             String   @id @default(cuid())
+  saleId         String
+  productId      String
+  quantity       Int
+  unitPrice      Decimal
+  unitCost       Decimal
+  subtotal       Decimal
+  discountAmount Decimal  @default(0)
+  finalAmount    Decimal
+  createdAt      DateTime @default(now())
+  product        Product  @relation(fields: [productId], references: [id])
+  sale           Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@unique([saleId, productId])
   @@map("sale_items")
 }
 
-// ==========================================
-// ACADEMIC MANAGEMENT MODELS
-// ==========================================
-
 model AcademicYear {
-  id          String   @id @default(cuid())
-  name        String   @unique // e.g., "2024/2025"
-  startDate   DateTime
-  endDate     DateTime
-  isActive    Boolean  @default(false) // Only one can be active at a time
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  semesters      Semester[]
+  id             String         @id @default(cuid())
+  name           String         @unique
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean        @default(false)
+  description    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   classes        Class[]
+  semesters      Semester[]
   studentClasses StudentClass[]
 
   @@index([isActive])
@@ -1422,26 +1107,24 @@ model AcademicYear {
 }
 
 model Semester {
-  id              String    @id @default(cuid())
+  id              String           @id @default(cuid())
   academicYearId  String
-  name            String // "Semester 1", "Semester 2"
-  shortName       String? // "S1", "S2"
+  name            String
+  shortName       String?
   startDate       DateTime
   endDate         DateTime
-  isActive        Boolean   @default(false)
-  gradingDeadline DateTime? // Deadline for grade input
-  reportDeadline  DateTime? // Deadline for report card generation
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  // Relations
-  academicYear    AcademicYear     @relation(fields: [academicYearId], references: [id])
-  teacherSubjects TeacherSubject[]
-  grades          Grade[]
+  isActive        Boolean          @default(false)
+  gradingDeadline DateTime?
+  reportDeadline  DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   attendances     Attendance[]
-  reportCards     ReportCard[]
   exams           Exam[]
+  grades          Grade[]
+  reportCards     ReportCard[]
+  academicYear    AcademicYear     @relation(fields: [academicYearId], references: [id])
   sppBillings     SPPBilling[]
+  teacherSubjects TeacherSubject[]
 
   @@unique([academicYearId, name])
   @@index([isActive])
@@ -1450,31 +1133,29 @@ model Semester {
 }
 
 model Class {
-  id             String   @id @default(cuid())
-  name           String // "1A", "2B", "VII-A", "VIII-B"
-  grade          String // "1", "2", "3", "VII", "VIII", "IX", "X", "XI", "XII"
-  section        String? // "A", "B", "C"
-  academicYearId String
-  teacherId      String? // Homeroom teacher
-  capacity       Int      @default(30)
-  room           String? // Classroom location
-  level          String // "TK", "SD", "SMP", "PONDOK"
-  program        String? // "REGULER", "TAHFIDZ", "KITAB"
-  description    String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Relations
+  id              String           @id @default(cuid())
+  name            String
+  grade           String
+  section         String?
+  academicYearId  String
+  teacherId       String?
+  capacity        Int              @default(30)
+  room            String?
+  level           String
+  program         String?
+  description     String?
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  attendances     Attendance[]
   academicYear    AcademicYear     @relation(fields: [academicYearId], references: [id])
   teacher         User?            @relation("ClassTeacher", fields: [teacherId], references: [id])
-  studentClasses  StudentClass[]
-  teacherSubjects TeacherSubject[]
-  attendances     Attendance[]
-  schedules       Schedule[]
-  sppBillings     SPPBilling[]
   exams           Exam[]
   reportCards     ReportCard[]     @relation("ReportCardClass")
+  schedules       Schedule[]
+  sppBillings     SPPBilling[]
+  studentClasses  StudentClass[]
+  teacherSubjects TeacherSubject[]
 
   @@unique([academicYearId, name])
   @@index([grade, level])
@@ -1483,28 +1164,26 @@ model Class {
 }
 
 model Subject {
-  id          String   @id @default(cuid())
-  code        String   @unique // "MTK01", "BIN01", "QUR01"
-  name        String // "Matematika", "Bahasa Indonesia", "Al-Quran"
-  nameArabic  String? // Arabic name for Islamic subjects
-  description String?
-  credits     Int      @default(2) // SKS/Credit hours
-  type        String   @default("WAJIB") // "WAJIB", "PILIHAN"
-  category    String   @default("UMUM") // "UMUM", "AGAMA", "MUATAN_LOKAL"
-  level       String // "TK", "SD", "SMP", "PONDOK"
-  minGrade    String? // Minimum grade this subject is taught
-  maxGrade    String? // Maximum grade this subject is taught
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  teacherSubjects    TeacherSubject[]
+  id                 String              @id @default(cuid())
+  code               String              @unique
+  name               String
+  nameArabic         String?
+  description        String?
+  credits            Int                 @default(2)
+  type               String              @default("WAJIB")
+  category           String              @default("UMUM")
+  level              String
+  minGrade           String?
+  maxGrade           String?
+  isActive           Boolean             @default(true)
+  sortOrder          Int                 @default(0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   curriculumSubjects CurriculumSubject[]
+  exams              Exam[]
   grades             Grade[]
   schedules          Schedule[]
-  exams              Exam[]
+  teacherSubjects    TeacherSubject[]
 
   @@index([level, category])
   @@index([isActive])
@@ -1520,12 +1199,10 @@ model TeacherSubject {
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-  // Relations
-  teacher  User     @relation("TeacherSubject", fields: [teacherId], references: [id])
-  subject  Subject  @relation(fields: [subjectId], references: [id])
-  class    Class    @relation(fields: [classId], references: [id])
-  semester Semester @relation(fields: [semesterId], references: [id])
+  class      Class    @relation(fields: [classId], references: [id])
+  semester   Semester @relation(fields: [semesterId], references: [id])
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+  teacher    User     @relation("TeacherSubject", fields: [teacherId], references: [id])
 
   @@unique([teacherId, subjectId, classId, semesterId])
   @@index([teacherId, semesterId])
@@ -1534,21 +1211,19 @@ model TeacherSubject {
 }
 
 model StudentClass {
-  id             String    @id @default(cuid())
+  id             String       @id @default(cuid())
   studentId      String
   classId        String
   academicYearId String
-  rollNumber     String? // Student number in class
-  status         String    @default("ACTIVE") // "ACTIVE", "TRANSFERRED", "GRADUATED"
-  joinDate       DateTime  @default(now())
+  rollNumber     String?
+  status         String       @default("ACTIVE")
+  joinDate       DateTime     @default(now())
   leaveDate      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  // Relations
-  student      Student      @relation(fields: [studentId], references: [id])
-  class        Class        @relation(fields: [classId], references: [id])
-  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  class          Class        @relation(fields: [classId], references: [id])
+  student        Student      @relation(fields: [studentId], references: [id])
 
   @@unique([studentId, classId, academicYearId])
   @@index([classId, status])
@@ -1557,39 +1232,35 @@ model StudentClass {
 }
 
 model Curriculum {
-  id          String    @id @default(cuid())
-  name        String // "Kurikulum 2013", "Kurikulum Merdeka", "Kurikulum Pondok"
-  code        String    @unique
-  level       String // "TK", "SD", "SMP", "PONDOK"
+  id          String              @id @default(cuid())
+  name        String
+  code        String              @unique
+  level       String
   description String?
-  isActive    Boolean   @default(true)
+  isActive    Boolean             @default(true)
   validFrom   DateTime
   validUntil  DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relations
-  subjects CurriculumSubject[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  subjects    CurriculumSubject[]
 
   @@index([level, isActive])
   @@map("curriculums")
 }
 
 model CurriculumSubject {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   curriculumId String
   subjectId    String
-  grade        String // Which grade this subject is taught
-  semester     Int? // Which semester (1 or 2, null for full year)
-  credits      Int      @default(2)
-  isRequired   Boolean  @default(true)
-  minScore     Int      @default(60) // Minimum passing score
-  sortOrder    Int      @default(0)
-  createdAt    DateTime @default(now())
-
-  // Relations
-  curriculum Curriculum @relation(fields: [curriculumId], references: [id])
-  subject    Subject    @relation(fields: [subjectId], references: [id])
+  grade        String
+  semester     Int?
+  credits      Int        @default(2)
+  isRequired   Boolean    @default(true)
+  minScore     Int        @default(60)
+  sortOrder    Int        @default(0)
+  createdAt    DateTime   @default(now())
+  curriculum   Curriculum @relation(fields: [curriculumId], references: [id])
+  subject      Subject    @relation(fields: [subjectId], references: [id])
 
   @@unique([curriculumId, subjectId, grade])
   @@index([curriculumId, grade])
@@ -1597,41 +1268,32 @@ model CurriculumSubject {
 }
 
 model Grade {
-  id         String  @id @default(cuid())
-  studentId  String
-  subjectId  String
-  semesterId String
-  classId    String? // For reference
-
-  // Grade components
-  midterm       Decimal? // Mid-semester exam
-  final         Decimal? // Final exam
-  assignment    Decimal? // Assignment/homework average
-  quiz          Decimal? // Quiz average
-  participation Decimal? // Class participation
-  project       Decimal? // Project score
-  daily         Decimal? // Daily assessment
-
-  // Final calculations
-  total Decimal? // Calculated total score
-  grade String? // Letter grade (A, B+, B, C+, C, D, E)
-  point Decimal? // Grade point (4.0, 3.7, 3.0, etc.)
-
-  // Islamic character assessment
-  akhlak      String? // "A", "B", "C" for behavior
-  quranMemory String? // Quran memorization progress
-
-  notes     String?
-  isLocked  Boolean   @default(false) // Lock grades after report card generation
-  enteredBy String? // Teacher who entered the grade
-  enteredAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  // Relations
-  student  Student  @relation(fields: [studentId], references: [id])
-  subject  Subject  @relation(fields: [subjectId], references: [id])
-  semester Semester @relation(fields: [semesterId], references: [id])
+  id            String    @id @default(cuid())
+  studentId     String
+  subjectId     String
+  semesterId    String
+  classId       String?
+  midterm       Decimal?
+  final         Decimal?
+  assignment    Decimal?
+  quiz          Decimal?
+  participation Decimal?
+  project       Decimal?
+  daily         Decimal?
+  total         Decimal?
+  grade         String?
+  point         Decimal?
+  akhlak        String?
+  quranMemory   String?
+  notes         String?
+  isLocked      Boolean   @default(false)
+  enteredBy     String?
+  enteredAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  semester      Semester  @relation(fields: [semesterId], references: [id])
+  student       Student   @relation(fields: [studentId], references: [id])
+  subject       Subject   @relation(fields: [subjectId], references: [id])
 
   @@unique([studentId, subjectId, semesterId])
   @@index([semesterId, subjectId])
@@ -1645,19 +1307,17 @@ model Attendance {
   classId    String
   semesterId String
   date       DateTime  @db.Date
-  status     String // "HADIR", "IZIN", "SAKIT", "ALPHA", "TERLAMBAT"
+  status     String
   timeIn     DateTime?
   notes      String?
-  markedBy   String // Teacher who marked attendance
+  markedBy   String
   markedAt   DateTime  @default(now())
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-
-  // Relations
-  student  Student  @relation(fields: [studentId], references: [id])
-  class    Class    @relation(fields: [classId], references: [id])
-  semester Semester @relation(fields: [semesterId], references: [id])
-  marker   User     @relation("AttendanceMarker", fields: [markedBy], references: [id])
+  class      Class     @relation(fields: [classId], references: [id])
+  marker     User      @relation("AttendanceMarker", fields: [markedBy], references: [id])
+  semester   Semester  @relation(fields: [semesterId], references: [id])
+  student    Student   @relation(fields: [studentId], references: [id])
 
   @@unique([studentId, classId, date])
   @@index([date, classId])
@@ -1666,54 +1326,39 @@ model Attendance {
 }
 
 model ReportCard {
-  id         String @id @default(cuid())
-  studentId  String
-  semesterId String
-  classId    String
-
-  // Academic performance
-  totalScore    Decimal? // Overall average
-  rank          Int? // Class rank
-  totalSubjects Int      @default(0)
-
-  // Attendance summary
-  totalDays            Int      @default(0)
-  presentDays          Int      @default(0)
-  sickDays             Int      @default(0)
-  permittedDays        Int      @default(0)
-  absentDays           Int      @default(0)
-  lateDays             Int      @default(0)
-  attendancePercentage Decimal? // Calculated percentage
-
-  // Character assessment
-  behavior        String? // Overall behavior assessment
-  personality     String  @default("{}") // JSON: {religious, honest, discipline, responsible, etc.}
-  extracurricular String  @default("[]") // JSON array of activities
-  achievements    String  @default("[]") // JSON array of achievements
-
-  // Notes and recommendations
-  notes           String? // Teacher's notes
-  recommendations String? // Recommendations for improvement
-  parentNotes     String? // Notes from parents
-
-  // Report generation
-  generatedAt DateTime?
-  generatedBy String? // Teacher who generated the report
-  printedAt   DateTime?
-  signedAt    DateTime?
-  signedBy    String? // Principal/head teacher signature
-
-  // File URLs
-  pdfUrl String? // Generated PDF URL
-
-  status    String   @default("DRAFT") // "DRAFT", "FINAL", "SIGNED", "DISTRIBUTED"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  student  Student  @relation(fields: [studentId], references: [id])
-  semester Semester @relation(fields: [semesterId], references: [id])
-  class    Class    @relation("ReportCardClass", fields: [classId], references: [id])
+  id                   String    @id @default(cuid())
+  studentId            String
+  semesterId           String
+  classId              String
+  totalScore           Decimal?
+  rank                 Int?
+  totalSubjects        Int       @default(0)
+  totalDays            Int       @default(0)
+  presentDays          Int       @default(0)
+  sickDays             Int       @default(0)
+  permittedDays        Int       @default(0)
+  absentDays           Int       @default(0)
+  lateDays             Int       @default(0)
+  attendancePercentage Decimal?
+  behavior             String?
+  personality          String    @default("{}")
+  extracurricular      String    @default("[]")
+  achievements         String    @default("[]")
+  notes                String?
+  recommendations      String?
+  parentNotes          String?
+  generatedAt          DateTime?
+  generatedBy          String?
+  printedAt            DateTime?
+  signedAt             DateTime?
+  signedBy             String?
+  pdfUrl               String?
+  status               String    @default("DRAFT")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  class                Class     @relation("ReportCardClass", fields: [classId], references: [id])
+  semester             Semester  @relation(fields: [semesterId], references: [id])
+  student              Student   @relation(fields: [studentId], references: [id])
 
   @@unique([studentId, semesterId])
   @@index([semesterId, status])
@@ -1725,20 +1370,18 @@ model Schedule {
   classId   String
   subjectId String
   teacherId String
-  day       String // "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"
-  startTime String // "07:00"
-  endTime   String // "08:30"
-  room      String? // Classroom or location
-  period    Int? // Period number (1st period, 2nd period, etc.)
+  day       String
+  startTime String
+  endTime   String
+  room      String?
+  period    Int?
   isActive  Boolean  @default(true)
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  class   Class   @relation(fields: [classId], references: [id])
-  subject Subject @relation(fields: [subjectId], references: [id])
-  teacher User    @relation("ScheduleTeacher", fields: [teacherId], references: [id])
+  class     Class    @relation(fields: [classId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  teacher   User     @relation("ScheduleTeacher", fields: [teacherId], references: [id])
 
   @@unique([classId, day, startTime])
   @@index([teacherId, day])
@@ -1747,43 +1390,33 @@ model Schedule {
 }
 
 model Exam {
-  id         String  @id @default(cuid())
-  name       String // "Ujian Tengah Semester 1"
-  code       String? // "UTS1-2024"
-  type       String // "UTS", "UAS", "QUIZ", "PRAKTIK"
-  subjectId  String
-  classId    String
-  semesterId String
-  teacherId  String
-
-  // Exam schedule
-  date      DateTime
-  startTime String // "08:00"
-  endTime   String // "10:00"
-  duration  Int // Duration in minutes
-  room      String?
-
-  // Exam settings
-  maxScore     Decimal @default(100)
-  minScore     Decimal @default(0)
-  passingScore Decimal @default(60)
-
-  // Instructions and materials
+  id           String       @id @default(cuid())
+  name         String
+  code         String?
+  type         String
+  subjectId    String
+  classId      String
+  semesterId   String
+  teacherId    String
+  date         DateTime
+  startTime    String
+  endTime      String
+  duration     Int
+  room         String?
+  maxScore     Decimal      @default(100)
+  minScore     Decimal      @default(0)
+  passingScore Decimal      @default(60)
   instructions String?
-  materials    String  @default("[]") // JSON array of required materials
-
-  status      String  @default("SCHEDULED") // "SCHEDULED", "ONGOING", "COMPLETED", "CANCELLED"
-  isPublished Boolean @default(false) // Whether results are published
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  subject  Subject      @relation(fields: [subjectId], references: [id])
-  class    Class        @relation(fields: [classId], references: [id])
-  semester Semester     @relation(fields: [semesterId], references: [id])
-  teacher  User         @relation("ExamTeacher", fields: [teacherId], references: [id])
-  results  ExamResult[]
+  materials    String       @default("[]")
+  status       String       @default("SCHEDULED")
+  isPublished  Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  results      ExamResult[]
+  class        Class        @relation(fields: [classId], references: [id])
+  semester     Semester     @relation(fields: [semesterId], references: [id])
+  subject      Subject      @relation(fields: [subjectId], references: [id])
+  teacher      User         @relation("ExamTeacher", fields: [teacherId], references: [id])
 
   @@index([date, classId])
   @@index([subjectId, semesterId])
@@ -1795,18 +1428,16 @@ model ExamResult {
   examId    String
   studentId String
   score     Decimal
-  grade     String? // Letter grade
-  point     Decimal? // Grade point
-  status    String    @default("COMPLETED") // "ABSENT", "COMPLETED", "CHEATING"
+  grade     String?
+  point     Decimal?
+  status    String    @default("COMPLETED")
   notes     String?
-  enteredBy String? // Teacher who entered the result
+  enteredBy String?
   enteredAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-
-  // Relations
-  exam    Exam    @relation(fields: [examId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
+  exam      Exam      @relation(fields: [examId], references: [id])
+  student   Student   @relation(fields: [studentId], references: [id])
 
   @@unique([examId, studentId])
   @@index([examId])
@@ -1814,52 +1445,39 @@ model ExamResult {
   @@map("exam_results")
 }
 
-// ==========================================
-// PARENT PORTAL MODELS
-// ==========================================
-
 model ParentAccount {
-  id               String  @id @default(cuid())
-  userId           String  @unique // Links to User with role="PARENT"
-  phoneNumber      String?
-  whatsapp         String?
-  emergencyContact String?
-
-  // Notification Settings (JSON)
-  notificationSettings String @default("{\"grades\": true, \"attendance\": true, \"payments\": true, \"announcements\": true, \"messages\": true, \"pushNotifications\": true, \"emailNotifications\": true}")
-
-  // Profile Settings
-  preferredLanguage String @default("id") // "id", "ar", "en"
-  timezone          String @default("Asia/Jakarta")
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user           User            @relation(fields: [userId], references: [id])
-  parentStudents ParentStudent[]
+  id                   String          @id @default(cuid())
+  userId               String          @unique
+  phoneNumber          String?
+  whatsapp             String?
+  emergencyContact     String?
+  notificationSettings String          @default("{\"grades\": true, \"attendance\": true, \"payments\": true, \"announcements\": true, \"messages\": true, \"pushNotifications\": true, \"emailNotifications\": true}")
+  preferredLanguage    String          @default("id")
+  timezone             String          @default("Asia/Jakarta")
+  isActive             Boolean         @default(true)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  user                 User            @relation(fields: [userId], references: [id])
+  parentStudents       ParentStudent[]
 
   @@index([userId])
   @@map("parent_accounts")
 }
 
 model ParentStudent {
-  id                 String   @id @default(cuid())
+  id                 String        @id @default(cuid())
   parentId           String
   studentId          String
-  relationship       String // "FATHER", "MOTHER", "GUARDIAN", "GRANDPARENT", "OTHER"
-  isPrimary          Boolean  @default(false) // Primary contact for this student
-  canViewGrades      Boolean  @default(true)
-  canViewAttendance  Boolean  @default(true)
-  canViewPayments    Boolean  @default(true)
-  canReceiveMessages Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  // Relations
-  parent  ParentAccount @relation(fields: [parentId], references: [id], onDelete: Cascade)
-  student Student       @relation(fields: [studentId], references: [id])
+  relationship       String
+  isPrimary          Boolean       @default(false)
+  canViewGrades      Boolean       @default(true)
+  canViewAttendance  Boolean       @default(true)
+  canViewPayments    Boolean       @default(true)
+  canReceiveMessages Boolean       @default(true)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  parent             ParentAccount @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student            Student       @relation(fields: [studentId], references: [id])
 
   @@unique([parentId, studentId])
   @@index([studentId])
@@ -1867,43 +1485,29 @@ model ParentStudent {
 }
 
 model Announcement {
-  id      String  @id @default(cuid())
-  title   String
-  content String
-  summary String? // Short summary for notifications
-
-  // Targeting
-  targetAudience String @default("ALL") // "ALL", "PARENTS", "TEACHERS", "STUDENTS", "SPECIFIC_CLASS", "SPECIFIC_GRADE"
-  targetClasses  String @default("[]") // JSON array of class IDs for specific targeting
-  targetGrades   String @default("[]") // JSON array of grades for specific targeting
-
-  // Priority and Classification
-  priority String @default("NORMAL") // "LOW", "NORMAL", "HIGH", "URGENT"
-  category String @default("GENERAL") // "GENERAL", "ACADEMIC", "EVENT", "PAYMENT", "EMERGENCY"
-  tags     String @default("[]") // JSON array of tags
-
-  // Media attachments
-  attachments   String  @default("[]") // JSON array of {type, url, fileName, size}
-  featuredImage String? // Main image URL
-
-  // Publishing
-  status      String    @default("DRAFT") // "DRAFT", "PUBLISHED", "ARCHIVED"
-  publishDate DateTime  @default(now())
-  expiryDate  DateTime?
-  isPinned    Boolean   @default(false)
-
-  // Analytics
-  viewCount Int @default(0)
-
-  // Metadata
-  createdBy   String
-  approvedBy  String?
-  approvedAt  DateTime?
-  publishedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relations - Note: createdBy references User but we don't add the relation here to avoid conflicts
+  id             String    @id @default(cuid())
+  title          String
+  content        String
+  summary        String?
+  targetAudience String    @default("ALL")
+  targetClasses  String    @default("[]")
+  targetGrades   String    @default("[]")
+  priority       String    @default("NORMAL")
+  category       String    @default("GENERAL")
+  tags           String    @default("[]")
+  attachments    String    @default("[]")
+  featuredImage  String?
+  status         String    @default("DRAFT")
+  publishDate    DateTime  @default(now())
+  expiryDate     DateTime?
+  isPinned       Boolean   @default(false)
+  viewCount      Int       @default(0)
+  createdBy      String
+  approvedBy     String?
+  approvedAt     DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([status, publishDate])
   @@index([targetAudience, priority])
@@ -1913,43 +1517,29 @@ model Announcement {
 }
 
 model Message {
-  id         String @id @default(cuid())
-  senderId   String
-  receiverId String
-  subject    String
-  content    String
-
-  // Threading support
-  parentMessageId String? // For reply threads
-  threadId        String? // All messages in same thread share this ID
-
-  // Message type and priority
-  type     String @default("NORMAL") // "NORMAL", "APPOINTMENT", "COMPLAINT", "URGENT"
-  priority String @default("NORMAL") // "LOW", "NORMAL", "HIGH", "URGENT"
-
-  // Attachments
-  attachments String @default("[]") // JSON array of {type, url, fileName, size}
-
-  // Status tracking
-  status    String    @default("SENT") // "DRAFT", "SENT", "DELIVERED", "READ", "REPLIED", "ARCHIVED"
-  isRead    Boolean   @default(false)
-  readAt    DateTime?
-  repliedAt DateTime?
-
-  // Auto-reply and scheduling
-  isAutoReply  Boolean   @default(false)
-  scheduledFor DateTime? // For scheduled messages
-
-  // Metadata
-  sentAt    DateTime @default(now())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  sender        User      @relation("MessageSender", fields: [senderId], references: [id])
-  receiver      User      @relation("MessageReceiver", fields: [receiverId], references: [id])
-  parentMessage Message?  @relation("MessageThread", fields: [parentMessageId], references: [id])
-  replies       Message[] @relation("MessageThread")
+  id              String    @id @default(cuid())
+  senderId        String
+  receiverId      String
+  subject         String
+  content         String
+  parentMessageId String?
+  threadId        String?
+  type            String    @default("NORMAL")
+  priority        String    @default("NORMAL")
+  attachments     String    @default("[]")
+  status          String    @default("SENT")
+  isRead          Boolean   @default(false)
+  readAt          DateTime?
+  repliedAt       DateTime?
+  isAutoReply     Boolean   @default(false)
+  scheduledFor    DateTime?
+  sentAt          DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  parentMessage   Message?  @relation("MessageThread", fields: [parentMessageId], references: [id])
+  replies         Message[] @relation("MessageThread")
+  receiver        User      @relation("MessageReceiver", fields: [receiverId], references: [id])
+  sender          User      @relation("MessageSender", fields: [senderId], references: [id])
 
   @@index([senderId, sentAt])
   @@index([receiverId, isRead])
@@ -1960,42 +1550,28 @@ model Message {
 }
 
 model Notification {
-  id      String @id @default(cuid())
-  userId  String // Recipient user ID
-  type    String // "GRADE_UPDATE", "ATTENDANCE_ALERT", "PAYMENT_DUE", "ANNOUNCEMENT", "MESSAGE", "APPOINTMENT"
-  title   String
-  message String
-
-  // Additional data (JSON)
-  data String @default("{}") // Context-specific data like studentId, gradeId, etc.
-
-  // Action URLs
-  actionUrl  String? // URL to navigate when notification is clicked
-  actionText String? // Text for action button
-
-  // Status
-  isRead Boolean   @default(false)
-  readAt DateTime?
-
-  // Delivery channels
-  channels    String    @default("[\"in_app\"]") // JSON array: ["in_app", "email", "push", "sms"]
-  emailSent   Boolean   @default(false)
-  emailSentAt DateTime?
-  pushSent    Boolean   @default(false)
-  pushSentAt  DateTime?
-  smsSent     Boolean   @default(false)
-  smsSentAt   DateTime?
-
-  // Scheduling and expiry
-  scheduledFor DateTime? // For scheduled notifications
-  expiresAt    DateTime? // When notification becomes irrelevant
-
-  // Metadata
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
+  id           String    @id @default(cuid())
+  userId       String
+  type         String
+  title        String
+  message      String
+  data         String    @default("{}")
+  actionUrl    String?
+  actionText   String?
+  isRead       Boolean   @default(false)
+  readAt       DateTime?
+  channels     String    @default("[\"in_app\"]")
+  emailSent    Boolean   @default(false)
+  emailSentAt  DateTime?
+  pushSent     Boolean   @default(false)
+  pushSentAt   DateTime?
+  smsSent      Boolean   @default(false)
+  smsSentAt    DateTime?
+  scheduledFor DateTime?
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id])
 
   @@index([userId, isRead])
   @@index([type, createdAt])
@@ -2004,31 +1580,25 @@ model Notification {
   @@map("notifications")
 }
 
-// ==========================================
-// QURAN MEMORIZATION TRACKING SYSTEM
-// ==========================================
-
 model QuranSurah {
-  id                  String   @id @default(cuid())
-  number              Int      @unique // 1-114
-  name                String // Al-Fatihah, Al-Baqarah, etc.
-  nameArabic          String // الفاتحة، البقرة، etc.
-  nameTransliteration String? // Al-Faatihah alternative spelling
-  totalAyat           Int // Total verses in this surah
-  juz                 Int // Juz number (1-30)
-  page                Int? // Starting page in Mushaf
-  type                String // MAKKIYAH, MADANIYAH
-  revelation          Int? // Revelation order
-  meaningId           String? // Indonesian meaning/theme
-  meaningAr           String? // Arabic meaning/theme
-  isActive            Boolean  @default(true)
-  sortOrder           Int      @default(0)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  // Relations
-  hafalanRecords HafalanRecord[]
-  hafalanTargets HafalanTarget[]
+  id                  String          @id @default(cuid())
+  number              Int             @unique
+  name                String
+  nameArabic          String
+  nameTransliteration String?
+  totalAyat           Int
+  juz                 Int
+  page                Int?
+  type                String
+  revelation          Int?
+  meaningId           String?
+  meaningAr           String?
+  isActive            Boolean         @default(true)
+  sortOrder           Int             @default(0)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  hafalanRecords      HafalanRecord[]
+  hafalanTargets      HafalanTarget[]
 
   @@index([juz, number])
   @@index([type])
@@ -2036,41 +1606,30 @@ model QuranSurah {
 }
 
 model HafalanRecord {
-  id          String   @id @default(cuid())
-  studentId   String
-  surahNumber Int // Reference to surah (1-114)
-  startAyat   Int      @default(1) // Starting verse
-  endAyat     Int // Ending verse
-  status      String // BARU, MURAJA'AH, LANCAR, MUTQIN
-  quality     String   @default("B") // A=Excellent, B=Good, C=Needs Improvement
-  teacherId   String
-  date        DateTime @default(now())
-
-  // Additional assessment details
-  fluency    String? // LANCAR, TERBATA, TERPUTUS
-  tajweed    String? // SANGAT_BAIK, BAIK, CUKUP, KURANG
-  makharijul String? // SANGAT_BAIK, BAIK, CUKUP, KURANG (pronunciation)
-
-  // Voice recording and notes
-  voiceNoteUrl String? // URL to voice recording
-  notes        String?
-  corrections  String? // Notes about corrections needed
-
-  // Timing and method
-  duration Int? // Duration in minutes for this session
-  method   String @default("INDIVIDUAL") // INDIVIDUAL, GROUP, PEER_TO_PEER
-
-  // Progress tracking
-  previousRecord String? // ID of previous record for this surah section
-  nextTarget     String? // What to memorize next
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  student Student    @relation(fields: [studentId], references: [id])
-  surah   QuranSurah @relation(fields: [surahNumber], references: [number])
-  teacher User       @relation("HafalanTeacher", fields: [teacherId], references: [id])
+  id             String     @id @default(cuid())
+  studentId      String
+  surahNumber    Int
+  startAyat      Int        @default(1)
+  endAyat        Int
+  status         String
+  quality        String     @default("B")
+  teacherId      String
+  date           DateTime   @default(now())
+  fluency        String?
+  tajweed        String?
+  makharijul     String?
+  voiceNoteUrl   String?
+  notes          String?
+  corrections    String?
+  duration       Int?
+  method         String     @default("INDIVIDUAL")
+  previousRecord String?
+  nextTarget     String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  student        Student    @relation(fields: [studentId], references: [id])
+  surah          QuranSurah @relation(fields: [surahNumber], references: [number])
+  teacher        User       @relation("HafalanTeacher", fields: [teacherId], references: [id])
 
   @@index([studentId, date])
   @@index([surahNumber, status])
@@ -2080,47 +1639,30 @@ model HafalanRecord {
 }
 
 model HafalanProgress {
-  id        String @id @default(cuid())
-  studentId String @unique
-
-  // Overall statistics
-  totalSurah Int     @default(0) // Number of surahs completed (MUTQIN status)
-  totalAyat  Int     @default(0) // Total verses memorized (all MUTQIN)
-  totalJuz   Decimal @default(0) // Calculated juz completion (can be partial)
-
-  // Current focus
-  currentSurah  Int? // Current surah being memorized
-  currentAyat   Int     @default(1) // Current verse position
-  currentTarget String? // Current memorization target description
-
-  // Achievement levels
-  level String @default("PEMULA") // PEMULA, MENENGAH, LANJUT, HAFIDZ
-  badge String @default("[]") // JSON array of earned badges
-
-  // Progress percentages
-  juz30Progress   Decimal @default(0) // Juz Amma (most common starting point)
-  overallProgress Decimal @default(0) // Overall Quran completion percentage
-
-  // Last activity
-  lastSetoranDate  DateTime? // Last memorization session
-  lastMurajaahDate DateTime? // Last review session
+  id               String    @id @default(cuid())
+  studentId        String    @unique
+  totalSurah       Int       @default(0)
+  totalAyat        Int       @default(0)
+  totalJuz         Decimal   @default(0)
+  currentSurah     Int?
+  currentAyat      Int       @default(1)
+  currentTarget    String?
+  level            String    @default("PEMULA")
+  badge            String    @default("[]")
+  juz30Progress    Decimal   @default(0)
+  overallProgress  Decimal   @default(0)
+  lastSetoranDate  DateTime?
+  lastMurajaahDate DateTime?
   lastUpdated      DateTime  @default(now())
-
-  // Streaks and consistency
-  currentStreak Int @default(0) // Days of consecutive activity
-  longestStreak Int @default(0) // Best streak achieved
-  totalSessions Int @default(0) // Total memorization sessions
-
-  // Quality metrics (averages)
-  avgQuality Decimal @default(0) // Average quality score
-  avgFluency Decimal @default(0) // Average fluency score
-  avgTajweed Decimal @default(0) // Average tajweed score
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  student Student @relation(fields: [studentId], references: [id])
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  totalSessions    Int       @default(0)
+  avgQuality       Decimal   @default(0)
+  avgFluency       Decimal   @default(0)
+  avgTajweed       Decimal   @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  student          Student   @relation(fields: [studentId], references: [id])
 
   @@index([level])
   @@index([totalSurah, totalAyat])
@@ -2128,38 +1670,27 @@ model HafalanProgress {
 }
 
 model SetoranSchedule {
-  id        String @id @default(cuid())
-  studentId String
-  teacherId String
-  dayOfWeek String // SENIN, SELASA, RABU, KAMIS, JUMAT, SABTU, MINGGU
-  time      String // "07:00", "13:30", etc.
-  type      String @default("SETORAN_BARU") // SETORAN_BARU, MURAJA'AH, MIXED
-
-  // Schedule details
-  duration    Int     @default(15) // Duration in minutes
-  location    String? // Classroom, mosque, etc.
-  maxStudents Int     @default(1) // For group sessions
-
-  // Settings
-  isActive  Boolean   @default(true)
-  startDate DateTime  @default(now())
-  endDate   DateTime? // If temporary schedule
-
-  // Recurrence
-  isRecurring Boolean @default(true)
-  frequency   String  @default("WEEKLY") // DAILY, WEEKLY, BIWEEKLY
-
-  // Notifications
-  reminderMinutes Int     @default(60) // Remind X minutes before
-  notifyParent    Boolean @default(true)
-
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  student Student @relation(fields: [studentId], references: [id])
-  teacher User    @relation("SetoranTeacher", fields: [teacherId], references: [id])
+  id              String    @id @default(cuid())
+  studentId       String
+  teacherId       String
+  dayOfWeek       String
+  time            String
+  type            String    @default("SETORAN_BARU")
+  duration        Int       @default(15)
+  location        String?
+  maxStudents     Int       @default(1)
+  isActive        Boolean   @default(true)
+  startDate       DateTime  @default(now())
+  endDate         DateTime?
+  isRecurring     Boolean   @default(true)
+  frequency       String    @default("WEEKLY")
+  reminderMinutes Int       @default(60)
+  notifyParent    Boolean   @default(true)
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  student         Student   @relation(fields: [studentId], references: [id])
+  teacher         User      @relation("SetoranTeacher", fields: [teacherId], references: [id])
 
   @@unique([studentId, teacherId, dayOfWeek, time])
   @@index([teacherId, dayOfWeek])
@@ -2168,41 +1699,30 @@ model SetoranSchedule {
 }
 
 model HafalanTarget {
-  id          String   @id @default(cuid())
-  studentId   String
-  targetSurah Int // Surah number to complete
-  startAyat   Int      @default(1)
-  endAyat     Int? // If null, means entire surah
-  targetDate  DateTime
-
-  // Target details
-  priority      String @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
-  difficulty    String @default("MEDIUM") // EASY, MEDIUM, HARD
-  estimatedDays Int? // Estimated days to complete
-
-  // Progress tracking
-  status      String    @default("ACTIVE") // ACTIVE, COMPLETED, PAUSED, CANCELLED
-  progress    Decimal   @default(0) // Percentage completed
-  startedAt   DateTime?
-  completedAt DateTime?
-
-  // Motivation and rewards
-  reward         String? // What student gets upon completion
-  motivation     String? // Motivational note
-  parentInformed Boolean @default(false) // Has parent been notified?
-
-  // Assignment details
-  createdBy  String // Teacher who set the target
-  approvedBy String? // Principal/supervisor approval if needed
-  notes      String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  student Student    @relation(fields: [studentId], references: [id])
-  surah   QuranSurah @relation(fields: [targetSurah], references: [number])
-  creator User       @relation("HafalanTargetCreator", fields: [createdBy], references: [id])
+  id             String     @id @default(cuid())
+  studentId      String
+  targetSurah    Int
+  startAyat      Int        @default(1)
+  endAyat        Int?
+  targetDate     DateTime
+  priority       String     @default("MEDIUM")
+  difficulty     String     @default("MEDIUM")
+  estimatedDays  Int?
+  status         String     @default("ACTIVE")
+  progress       Decimal    @default(0)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  reward         String?
+  motivation     String?
+  parentInformed Boolean    @default(false)
+  createdBy      String
+  approvedBy     String?
+  notes          String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  creator        User       @relation("HafalanTargetCreator", fields: [createdBy], references: [id])
+  student        Student    @relation(fields: [studentId], references: [id])
+  surah          QuranSurah @relation(fields: [targetSurah], references: [number])
 
   @@index([studentId, status])
   @@index([targetDate, status])
@@ -2211,36 +1731,25 @@ model HafalanTarget {
 }
 
 model HafalanAchievement {
-  id          String @id @default(cuid())
+  id          String    @id @default(cuid())
   studentId   String
-  type        String // SURAH_COMPLETE, JUZ_COMPLETE, STREAK, QUALITY_EXCELLENCE, etc.
-  title       String // "Completed Surah Al-Mulk"
-  description String // Detailed description
-
-  // Achievement data
-  data   String @default("{}") // JSON data specific to achievement type
-  level  String @default("BRONZE") // BRONZE, SILVER, GOLD, PLATINUM
-  points Int    @default(0) // Points earned
-
-  // Visual representation
-  icon  String? // Icon for the achievement
-  color String  @default("#10B981") // Color code
-  badge String? // Badge image URL
-
-  // Verification
-  verifiedBy String? // Teacher who verified the achievement
-  verifiedAt DateTime?
-  isPublic   Boolean   @default(true) // Can be shared publicly
-
-  // Celebration
-  celebrated Boolean @default(false) // Has been celebrated/announced
-  shareCount Int     @default(0) // How many times shared
-
-  earnedAt  DateTime @default(now())
-  createdAt DateTime @default(now())
-
-  // Relations
-  student Student @relation(fields: [studentId], references: [id])
+  type        String
+  title       String
+  description String
+  data        String    @default("{}")
+  level       String    @default("BRONZE")
+  points      Int       @default(0)
+  icon        String?
+  color       String    @default("#10B981")
+  badge       String?
+  verifiedBy  String?
+  verifiedAt  DateTime?
+  isPublic    Boolean   @default(true)
+  celebrated  Boolean   @default(false)
+  shareCount  Int       @default(0)
+  earnedAt    DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  student     Student   @relation(fields: [studentId], references: [id])
 
   @@index([studentId, type])
   @@index([earnedAt])
@@ -2249,51 +1758,34 @@ model HafalanAchievement {
 }
 
 model HafalanSession {
-  id          String   @id @default(cuid())
-  studentId   String
-  teacherId   String
-  sessionDate DateTime @default(now())
-
-  // Session type and method
-  type     String // SETORAN_BARU, MURAJA'AH, TES_HAFALAN, TALAQQI
-  method   String @default("INDIVIDUAL") // INDIVIDUAL, GROUP, PEER_REVIEW
-  duration Int // Duration in minutes
-
-  // Location and setup
-  location   String @default("KELAS") // KELAS, MASJID, OUTDOOR, ONLINE
-  atmosphere String @default("FORMAL") // FORMAL, CASUAL, COMPETITIVE
-
-  // Content covered
-  content   String // JSON array of {surahNumber, startAyat, endAyat, status}
-  totalAyat Int    @default(0) // Total verses covered
-
-  // Assessment summary
-  overallQuality String // A, B, C overall session quality
-  overallFluency String // LANCAR, CUKUP, KURANG
-  improvements   String? // Areas that improved this session
-  challenges     String? // Challenges encountered
-
-  // Next steps
-  homework     String? // What to practice before next session
-  nextTarget   String? // Next memorization target
-  reminderNote String? // Reminder for next session
-
-  // Engagement and mood
-  studentMood String @default("NORMAL") // ENTHUSIASTIC, NORMAL, TIRED, STRUGGLING
-  engagement  String @default("GOOD") // EXCELLENT, GOOD, AVERAGE, POOR
-  confidence  String @default("MEDIUM") // HIGH, MEDIUM, LOW
-
-  // Parent communication
-  reportSent     Boolean @default(false) // Has report been sent to parents?
-  parentFeedback String? // Feedback from parents if any
-
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  student Student @relation(fields: [studentId], references: [id])
-  teacher User    @relation("HafalanSessionTeacher", fields: [teacherId], references: [id])
+  id             String   @id @default(cuid())
+  studentId      String
+  teacherId      String
+  sessionDate    DateTime @default(now())
+  type           String
+  method         String   @default("INDIVIDUAL")
+  duration       Int
+  location       String   @default("KELAS")
+  atmosphere     String   @default("FORMAL")
+  content        String
+  totalAyat      Int      @default(0)
+  overallQuality String
+  overallFluency String
+  improvements   String?
+  challenges     String?
+  homework       String?
+  nextTarget     String?
+  reminderNote   String?
+  studentMood    String   @default("NORMAL")
+  engagement     String   @default("GOOD")
+  confidence     String   @default("MEDIUM")
+  reportSent     Boolean  @default(false)
+  parentFeedback String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  student        Student  @relation(fields: [studentId], references: [id])
+  teacher        User     @relation("HafalanSessionTeacher", fields: [teacherId], references: [id])
 
   @@index([studentId, sessionDate])
   @@index([teacherId, sessionDate])
@@ -2301,45 +1793,28 @@ model HafalanSession {
   @@map("hafalan_sessions")
 }
 
-// ==========================================
-// SPP & BILLING SYSTEM MODELS
-// ==========================================
-
 model BillType {
-  id          String  @id @default(cuid())
-  name        String  @unique // "SPP", "Daftar Ulang", "Seragam", "Buku", "Kegiatan", etc.
-  category    String // "TUITION", "REGISTRATION", "MATERIAL", "ACTIVITY", "OTHER"
-  description String?
-
-  // Default settings
-  defaultAmount Decimal? // Default amount for this bill type
-  isRecurring   Boolean  @default(false) // Is this a recurring bill (like monthly SPP)?
-  frequency     String? // "MONTHLY", "QUARTERLY", "ANNUALLY", "ONE_TIME"
-
-  // Grade-specific pricing
-  priceByGrade String @default("{}") // JSON: {"TK": 200000, "SD": 300000, "PONDOK": 500000}
-
-  // Due date settings
-  dueDayOfMonth   Int? // Day of month when bill is due (e.g., 10 for 10th of each month)
-  gracePeriodDays Int  @default(7) // Grace period before late penalty
-
-  // Penalty settings
-  latePenaltyType   String   @default("NONE") // "NONE", "FIXED", "PERCENTAGE"
-  latePenaltyAmount Decimal  @default(0) // Fixed amount or percentage
-  maxPenalty        Decimal? // Maximum penalty amount
-
-  // Discount settings
-  allowSiblingDiscount     Boolean @default(false)
-  siblingDiscountPercent   Decimal @default(0) // Percentage discount for siblings
-  allowScholarshipDiscount Boolean @default(false)
-
-  isActive  Boolean  @default(true)
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  bills Bill[]
+  id                       String   @id @default(cuid())
+  name                     String   @unique
+  category                 String
+  description              String?
+  defaultAmount            Decimal?
+  isRecurring              Boolean  @default(false)
+  frequency                String?
+  priceByGrade             String   @default("{}")
+  dueDayOfMonth            Int?
+  gracePeriodDays          Int      @default(7)
+  latePenaltyType          String   @default("NONE")
+  latePenaltyAmount        Decimal  @default(0)
+  maxPenalty               Decimal?
+  allowSiblingDiscount     Boolean  @default(false)
+  siblingDiscountPercent   Decimal  @default(0)
+  allowScholarshipDiscount Boolean  @default(false)
+  isActive                 Boolean  @default(true)
+  sortOrder                Int      @default(0)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  bills                    Bill[]
 
   @@index([category, isActive])
   @@index([isRecurring])
@@ -2347,59 +1822,38 @@ model BillType {
 }
 
 model Bill {
-  id     String @id @default(cuid())
-  billNo String @unique // Format: BILL-2024-12-001
-
-  // Basic bill information
-  studentId      String
-  billTypeId     String
-  amount         Decimal
-  originalAmount Decimal // Original amount before discounts/penalties
-
-  // Billing period
-  period  String // "2024-12", "2024-Q1", "2024", etc.
-  dueDate DateTime
-
-  // Status and tracking
-  status          String  @default("OUTSTANDING") // "OUTSTANDING", "PARTIAL", "PAID", "OVERDUE", "CANCELLED", "WAIVED"
-  paidAmount      Decimal @default(0)
-  remainingAmount Decimal // Calculated: amount - paidAmount
-
-  // Discounts and penalties
-  discounts     String  @default("[]") // JSON array of discounts applied
-  totalDiscount Decimal @default(0)
-  penalties     String  @default("[]") // JSON array of penalties applied
-  totalPenalty  Decimal @default(0)
-
-  // Late payment tracking
-  isOverdue        Boolean   @default(false)
-  daysPastDue      Int       @default(0)
+  id               String            @id @default(cuid())
+  billNo           String            @unique
+  studentId        String
+  billTypeId       String
+  amount           Decimal
+  originalAmount   Decimal
+  period           String
+  dueDate          DateTime
+  status           String            @default("OUTSTANDING")
+  paidAmount       Decimal           @default(0)
+  remainingAmount  Decimal
+  discounts        String            @default("[]")
+  totalDiscount    Decimal           @default(0)
+  penalties        String            @default("[]")
+  totalPenalty     Decimal           @default(0)
+  isOverdue        Boolean           @default(false)
+  daysPastDue      Int               @default(0)
   firstOverdueDate DateTime?
-
-  // Payment reminders
   lastReminderSent DateTime?
-  reminderCount    Int       @default(0)
-
-  // Notes and metadata
-  notes    String?
-  metadata String  @default("{}") // JSON for additional data
-
-  // Generation info
-  generatedAt DateTime @default(now())
-  generatedBy String? // User who generated this bill (for manual bills)
-
-  // Cancellation/waiver info
-  cancelledAt  DateTime?
-  cancelledBy  String?
-  cancelReason String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  student          Student           @relation(fields: [studentId], references: [id])
-  billType         BillType          @relation(fields: [billTypeId], references: [id])
+  reminderCount    Int               @default(0)
+  notes            String?
+  metadata         String            @default("{}")
+  generatedAt      DateTime          @default(now())
+  generatedBy      String?
+  cancelledAt      DateTime?
+  cancelledBy      String?
+  cancelReason     String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   payments         BillPayment[]
+  billType         BillType          @relation(fields: [billTypeId], references: [id])
+  student          Student           @relation(fields: [studentId], references: [id])
   paymentHistory   PaymentHistory[]
   paymentReminders PaymentReminder[]
 
@@ -2412,45 +1866,30 @@ model Bill {
 }
 
 model BillPayment {
-  id        String @id @default(cuid())
-  paymentNo String @unique // Format: BP-2024-12-001
-
-  // Payment details
-  billId      String
-  amount      Decimal
-  paymentDate DateTime @default(now())
-
-  // Payment method
-  method    String // "CASH", "BANK_TRANSFER", "QRIS", "VIRTUAL_ACCOUNT", "CARD", "OTHER"
-  channel   String? // "BCA", "MANDIRI", "GOPAY", "OVO", "DANA", etc.
-  reference String? // Bank reference number, transaction ID, etc.
-
-  // Payment proof and verification
-  proofUrl           String? // URL to payment proof image
-  verificationStatus String    @default("PENDING") // "PENDING", "VERIFIED", "REJECTED"
-  verifiedBy         String? // User who verified the payment
+  id                 String           @id @default(cuid())
+  paymentNo          String           @unique
+  billId             String
+  amount             Decimal
+  paymentDate        DateTime         @default(now())
+  method             String
+  channel            String?
+  reference          String?
+  proofUrl           String?
+  verificationStatus String           @default("PENDING")
+  verifiedBy         String?
   verifiedAt         DateTime?
   rejectionReason    String?
-
-  // External payment gateway data
-  externalId      String? // Payment gateway transaction ID
-  gatewayResponse String  @default("{}") // JSON response from payment gateway
-
-  // Reconciliation
-  reconciledAt DateTime?
-  reconciledBy String?
-
-  // Metadata
-  notes     String?
-  ipAddress String? // For online payments
-  userAgent String? // For online payments
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  bill    Bill             @relation(fields: [billId], references: [id])
-  history PaymentHistory[]
+  externalId         String?
+  gatewayResponse    String           @default("{}")
+  reconciledAt       DateTime?
+  reconciledBy       String?
+  notes              String?
+  ipAddress          String?
+  userAgent          String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  bill               Bill             @relation(fields: [billId], references: [id])
+  history            PaymentHistory[]
 
   @@index([billId, paymentDate])
   @@index([method, verificationStatus])
@@ -2460,32 +1899,21 @@ model BillPayment {
 }
 
 model PaymentHistory {
-  id String @id @default(cuid())
-
-  // Reference information
-  billId    String
-  paymentId String? // Link to BillPayment if applicable
-  studentId String // For easy querying
-
-  // Event information
-  action      String // "BILL_GENERATED", "PAYMENT_MADE", "PAYMENT_VERIFIED", "LATE_PENALTY_ADDED", "DISCOUNT_APPLIED", etc.
-  description String // Human readable description
-
-  // Amounts (for tracking changes)
+  id             String       @id @default(cuid())
+  billId         String
+  paymentId      String?
+  studentId      String
+  action         String
+  description    String
   previousAmount Decimal?
   newAmount      Decimal?
-  changeAmount   Decimal? // The change made (positive or negative)
-
-  // Context
-  performedBy String? // User who performed the action
-  metadata    String  @default("{}") // JSON for additional context
-
-  createdAt DateTime @default(now())
-
-  // Relations
-  bill    Bill         @relation(fields: [billId], references: [id])
-  payment BillPayment? @relation(fields: [paymentId], references: [id])
-  student Student      @relation(fields: [studentId], references: [id])
+  changeAmount   Decimal?
+  performedBy    String?
+  metadata       String       @default("{}")
+  createdAt      DateTime     @default(now())
+  bill           Bill         @relation(fields: [billId], references: [id])
+  payment        BillPayment? @relation(fields: [paymentId], references: [id])
+  student        Student      @relation(fields: [studentId], references: [id])
 
   @@index([billId, createdAt])
   @@index([studentId, createdAt])
@@ -2494,63 +1922,45 @@ model PaymentHistory {
 }
 
 model BillingSetting {
-  id          String  @id @default(cuid())
-  key         String  @unique
+  id          String   @id @default(cuid())
+  key         String   @unique
   value       String
-  category    String  @default("GENERAL") // "GENERAL", "PENALTIES", "DISCOUNTS", "NOTIFICATIONS", "AUTOMATION"
+  category    String   @default("GENERAL")
   description String?
-  dataType    String  @default("STRING") // "STRING", "NUMBER", "BOOLEAN", "JSON"
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  dataType    String   @default("STRING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([category])
   @@map("billing_settings")
 }
 
 model PaymentReminder {
-  id        String @id @default(cuid())
-  billId    String
-  studentId String // For easy querying
-
-  // Reminder details
-  type   String // "EMAIL", "SMS", "WHATSAPP", "IN_APP", "PHONE_CALL"
-  status String @default("PENDING") // "PENDING", "SENT", "DELIVERED", "FAILED"
-
-  // Content
-  subject String?
-  message String
-
-  // Scheduling
-  scheduledAt DateTime
-  sentAt      DateTime?
-  deliveredAt DateTime?
-
-  // Response tracking
-  readAt      DateTime?
-  respondedAt DateTime?
-  response    String?
-
-  // Contact information used
-  recipientEmail String?
-  recipientPhone String?
-
-  // Delivery details
+  id               String    @id @default(cuid())
+  billId           String
+  studentId        String
+  type             String
+  status           String    @default("PENDING")
+  subject          String?
+  message          String
+  scheduledAt      DateTime
+  sentAt           DateTime?
+  deliveredAt      DateTime?
+  readAt           DateTime?
+  respondedAt      DateTime?
+  response         String?
+  recipientEmail   String?
+  recipientPhone   String?
   deliveryAttempts Int       @default(0)
   maxAttempts      Int       @default(3)
   lastAttemptAt    DateTime?
   failureReason    String?
-
-  // Metadata
-  templateUsed String? // Template ID if using templates
-  metadata     String  @default("{}")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  bill    Bill    @relation(fields: [billId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
+  templateUsed     String?
+  metadata         String    @default("{}")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  bill             Bill      @relation(fields: [billId], references: [id])
+  student          Student   @relation(fields: [studentId], references: [id])
 
   @@index([billId, scheduledAt])
   @@index([studentId, type])
@@ -2560,38 +1970,24 @@ model PaymentReminder {
 }
 
 model BillingReport {
-  id   String @id @default(cuid())
-  name String
-  type String // "MONTHLY_COLLECTION", "OUTSTANDING_BILLS", "PAYMENT_ANALYSIS", "GRADE_WISE_COLLECTION", etc.
-
-  // Report parameters
-  parameters String @default("{}") // JSON with report filters and parameters
-
-  // Date range
-  startDate DateTime
-  endDate   DateTime
-
-  // Generated data
-  data    String? // JSON with report data
-  summary String  @default("{}") // JSON with summary statistics
-
-  // File outputs
-  pdfUrl   String? // Generated PDF URL
-  excelUrl String? // Generated Excel URL
-
-  // Generation info
-  status   String @default("GENERATING") // "GENERATING", "COMPLETED", "FAILED"
-  progress Int    @default(0) // Progress percentage
-
-  generatedBy String // User who requested the report
-  generatedAt DateTime  @default(now())
-  completedAt DateTime?
-
-  // Error handling
+  id           String    @id @default(cuid())
+  name         String
+  type         String
+  parameters   String    @default("{}")
+  startDate    DateTime
+  endDate      DateTime
+  data         String?
+  summary      String    @default("{}")
+  pdfUrl       String?
+  excelUrl     String?
+  status       String    @default("GENERATING")
+  progress     Int       @default(0)
+  generatedBy  String
+  generatedAt  DateTime  @default(now())
+  completedAt  DateTime?
   errorMessage String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([type, startDate])
   @@index([generatedBy, createdAt])
@@ -2599,40 +1995,25 @@ model BillingReport {
   @@map("billing_reports")
 }
 
-// ==========================================
-// OTA (ORANG TUA ASUH) SYSTEM MODELS
-// ==========================================
-
 model OTAProgram {
-  id              String   @id @default(cuid())
-  studentId       String   @unique
-  monthlyTarget   Decimal // Monthly fundraising target for this orphan
-  currentMonth    String // Current month being funded (YYYY-MM format)
-  totalCollected  Decimal  @default(0) // Total amount collected all time
-  isActive        Boolean  @default(true)
-  
-  // Program details
-  programStart    DateTime @default(now()) // When this student joined OTA program
-  lastUpdate      DateTime @default(now()) // Last time donations were updated
-  
-  // Monthly tracking
-  monthlyProgress Decimal  @default(0) // Amount collected for current month
-  monthsCompleted Int      @default(0) // Number of months fully funded
-  
-  // Public display settings
-  displayOrder    Int      @default(0) // Order for public display
-  showProgress    Boolean  @default(true) // Show progress publicly
-  
-  // Admin notes
-  adminNotes      String? // Internal admin notes
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  student   Student      @relation(fields: [studentId], references: [id])
-  sponsors  OTASponsor[]
-  
+  id              String       @id @default(cuid())
+  studentId       String       @unique
+  monthlyTarget   Decimal
+  currentMonth    String
+  totalCollected  Decimal      @default(0)
+  isActive        Boolean      @default(true)
+  programStart    DateTime     @default(now())
+  lastUpdate      DateTime     @default(now())
+  monthlyProgress Decimal      @default(0)
+  monthsCompleted Int          @default(0)
+  displayOrder    Int          @default(0)
+  showProgress    Boolean      @default(true)
+  adminNotes      String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  student         Student      @relation(fields: [studentId], references: [id])
+  sponsors        OTASponsor[]
+
   @@index([isActive, displayOrder])
   @@index([currentMonth])
   @@index([monthlyProgress])
@@ -2640,49 +2021,32 @@ model OTAProgram {
 }
 
 model OTASponsor {
-  id         String   @id @default(cuid())
-  programId  String
-  
-  // Donor Information
-  donorName       String // Real name (admin sees this)
-  donorEmail      String?
-  donorPhone      String?
-  publicName      String  @default("Hamba Allah") // Public display name
-  
-  // Donation Details
-  amount          Decimal
-  month           String // Month this donation is for (YYYY-MM format)
-  isPaid          Boolean  @default(false)
-  
-  // Payment Information
-  paymentMethod   String? // TRANSFER, CASH, VA, EWALLET, QRIS
-  paymentProof    String? // URL to payment proof
-  paymentDate     DateTime?
-  verifiedBy      String? // Admin who verified payment
-  verifiedAt      DateTime?
-  
-  // External payment gateway (optional)
-  externalId      String? // Payment gateway transaction ID
-  paymentStatus   String   @default("PENDING") // PENDING, PAID, VERIFIED, FAILED
-  
-  // Donation Type
-  donationType    String   @default("REGULAR") // REGULAR, ANONYMOUS, CORPORATE, ZAKAT
-  isRecurring     Boolean  @default(false) // Is this a recurring monthly donation?
-  
-  // Privacy Settings
-  allowPublicDisplay Boolean @default(true) // Allow showing "Hamba Allah" publicly
-  allowContact       Boolean @default(false) // Allow admin to contact for future programs
-  
-  // Notes and Messages
-  donorMessage    String? // Message from donor to student/family
-  adminNotes      String? // Internal admin notes
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  program OTAProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
-  
+  id                 String     @id @default(cuid())
+  programId          String
+  donorName          String
+  donorEmail         String?
+  donorPhone         String?
+  publicName         String     @default("Hamba Allah")
+  amount             Decimal
+  month              String
+  isPaid             Boolean    @default(false)
+  paymentMethod      String?
+  paymentProof       String?
+  paymentDate        DateTime?
+  verifiedBy         String?
+  verifiedAt         DateTime?
+  externalId         String?
+  paymentStatus      String     @default("PENDING")
+  donationType       String     @default("REGULAR")
+  isRecurring        Boolean    @default(false)
+  allowPublicDisplay Boolean    @default(true)
+  allowContact       Boolean    @default(false)
+  donorMessage       String?
+  adminNotes         String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  program            OTAProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+
   @@index([programId, month])
   @@index([donorEmail])
   @@index([isPaid, verifiedAt])
@@ -2692,55 +2056,36 @@ model OTASponsor {
 }
 
 model OTAReport {
-  id                String   @id @default(cuid())
-  
-  // Report Period
-  month             String // YYYY-MM format
-  year              String // YYYY format
-  reportType        String // MONTHLY, YEARLY, QUARTERLY
-  
-  // Financial Summary
-  totalTarget       Decimal // Total monthly target for all orphans
-  totalCollected    Decimal // Total amount collected in this period
-  totalDistributed  Decimal // Total amount distributed to families
-  totalPending      Decimal @default(0) // Total pending verification
-  
-  // Student Statistics
-  totalOrphans      Int // Total number of orphans in program
-  fullyFundedCount  Int @default(0) // Number of orphans fully funded this month
-  partialFundedCount Int @default(0) // Number of orphans partially funded
-  unfundedCount     Int @default(0) // Number of orphans with no funding
-  
-  // Donor Statistics
-  totalDonors       Int @default(0) // Number of unique donors this period
-  newDonors         Int @default(0) // Number of new donors this period
-  recurringDonors   Int @default(0) // Number of recurring donors
-  
-  // Distribution Details (JSON)
-  details           String @default("{}") // Detailed breakdown by student
-  
-  // Carry-over from Previous Month
-  carryOverAmount   Decimal @default(0) // Amount carried over from previous month
-  surplusAmount     Decimal @default(0) // Surplus amount for next month
-  
-  // Report Status
-  status            String @default("DRAFT") // DRAFT, FINAL, DISTRIBUTED
-  generatedBy       String // Admin who generated the report
-  approvedBy        String? // Admin who approved the report
-  approvedAt        DateTime?
-  
-  // Distribution Status
-  distributedAt     DateTime? // When funds were distributed
-  distributedBy     String? // Admin who distributed funds
-  distributionNotes String? // Notes about distribution
-  
-  // File Attachments
-  reportFileUrl     String? // Generated report PDF URL
-  proofFileUrl      String? // Distribution proof/receipt URL
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  id                 String    @id @default(cuid())
+  month              String
+  year               String
+  reportType         String
+  totalTarget        Decimal
+  totalCollected     Decimal
+  totalDistributed   Decimal
+  totalPending       Decimal   @default(0)
+  totalOrphans       Int
+  fullyFundedCount   Int       @default(0)
+  partialFundedCount Int       @default(0)
+  unfundedCount      Int       @default(0)
+  totalDonors        Int       @default(0)
+  newDonors          Int       @default(0)
+  recurringDonors    Int       @default(0)
+  details            String    @default("{}")
+  carryOverAmount    Decimal   @default(0)
+  surplusAmount      Decimal   @default(0)
+  status             String    @default("DRAFT")
+  generatedBy        String
+  approvedBy         String?
+  approvedAt         DateTime?
+  distributedAt      DateTime?
+  distributedBy      String?
+  distributionNotes  String?
+  reportFileUrl      String?
+  proofFileUrl       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
   @@unique([month, reportType])
   @@index([year, month])
   @@index([status, createdAt])
@@ -2748,131 +2093,90 @@ model OTAReport {
   @@map("ota_reports")
 }
 
-// ==========================================
-// PPDB (ONLINE REGISTRATION) SYSTEM MODELS
-// ==========================================
-
 model PPDBRegistration {
-  id             String   @id @default(cuid())
-  registrationNo String   @unique // Format: PPDB-2024-TK-001
-  
-  // Basic Information
-  level          String   // TK, SD, SMP, PONDOK
-  academicYear   String   // 2024/2025
-  
-  // Student Data
-  fullName       String
-  nickname       String?
-  birthPlace     String
-  birthDate      DateTime
-  gender         String   // MALE, FEMALE
-  bloodType      String?
-  religion       String   @default("ISLAM")
-  nationality    String   @default("INDONESIA")
-  
-  // Identity Documents
-  nik            String?  // Nomor Induk Kependudukan
-  nisn           String?  // Nomor Induk Siswa Nasional
-  birthCertNo    String?  // Nomor Akta Kelahiran
-  familyCardNo   String?  // Nomor Kartu Keluarga
-  
-  // Contact Information
-  phone          String?
-  email          String?
-  address        String
-  rt             String?
-  rw             String?
-  village        String
-  district       String
-  city           String
-  province       String
-  postalCode     String?
-  
-  // Previous School
-  previousSchool String?
-  previousGrade  String?
-  previousNISN   String?
-  graduationYear Int?
-  
-  // Parent/Guardian Data - Father
-  fatherName     String
-  fatherNIK      String?
-  fatherBirth    DateTime?
-  fatherEducation String?
-  fatherOccupation String?
-  fatherPhone    String?
-  fatherIncome   Decimal?
-  
-  // Parent/Guardian Data - Mother
-  motherName     String
-  motherNIK      String?
-  motherBirth    DateTime?
-  motherEducation String?
-  motherOccupation String?
-  motherPhone    String?
-  motherIncome   Decimal?
-  
-  // Guardian (if different from parents)
-  guardianName   String?
-  guardianNIK    String?
-  guardianRelation String?
-  guardianPhone  String?
-  guardianAddress String?
-  
-  // Special Needs & Health
-  hasSpecialNeeds Boolean @default(false)
-  specialNeeds   String?
-  healthConditions String?
-  allergies      String?
-  
-  // Documents Upload
-  documents      String @default("[]") // JSON array of document URLs
-  photoUrl       String?
-  birthCertUrl   String?
-  familyCardUrl  String?
-  transcriptUrl  String?
-  
-  // Registration Status
-  status         String @default("DRAFT") // DRAFT, SUBMITTED, REVIEWING, TEST_SCHEDULED, TEST_PASSED, INTERVIEW_SCHEDULED, ACCEPTED, REJECTED, ENROLLED
-  
-  // Test & Interview
-  testSchedule   DateTime?
-  testScore      Decimal?
-  testNotes      String?
+  id                String         @id @default(cuid())
+  registrationNo    String         @unique
+  level             String
+  academicYear      String
+  fullName          String
+  nickname          String?
+  birthPlace        String
+  birthDate         DateTime
+  gender            String
+  bloodType         String?
+  religion          String         @default("ISLAM")
+  nationality       String         @default("INDONESIA")
+  nik               String?
+  nisn              String?
+  birthCertNo       String?
+  familyCardNo      String?
+  phone             String?
+  email             String?
+  address           String
+  rt                String?
+  rw                String?
+  village           String
+  district          String
+  city              String
+  province          String
+  postalCode        String?
+  previousSchool    String?
+  previousGrade     String?
+  previousNISN      String?
+  graduationYear    Int?
+  fatherName        String
+  fatherNIK         String?
+  fatherBirth       DateTime?
+  fatherEducation   String?
+  fatherOccupation  String?
+  fatherPhone       String?
+  fatherIncome      Decimal?
+  motherName        String
+  motherNIK         String?
+  motherBirth       DateTime?
+  motherEducation   String?
+  motherOccupation  String?
+  motherPhone       String?
+  motherIncome      Decimal?
+  guardianName      String?
+  guardianNIK       String?
+  guardianRelation  String?
+  guardianPhone     String?
+  guardianAddress   String?
+  hasSpecialNeeds   Boolean        @default(false)
+  specialNeeds      String?
+  healthConditions  String?
+  allergies         String?
+  documents         String         @default("[]")
+  photoUrl          String?
+  birthCertUrl      String?
+  familyCardUrl     String?
+  transcriptUrl     String?
+  status            String         @default("DRAFT")
+  testSchedule      DateTime?
+  testScore         Decimal?
+  testNotes         String?
   interviewSchedule DateTime?
-  interviewScore Decimal?
-  interviewNotes String?
-  
-  // Acceptance
-  acceptedAt     DateTime?
-  acceptedBy     String?
-  acceptanceNo   String? // Nomor surat penerimaan
-  
-  // Enrollment
-  enrolledAt     DateTime?
-  studentId      String? // Link to Student model after enrollment
-  
-  // Payment
-  registrationFee Decimal?
-  paymentStatus  String @default("UNPAID") // UNPAID, PARTIAL, PAID
-  paymentProof   String?
-  
-  // Notes & Comments
-  internalNotes  String? // Admin notes
-  publicNotes    String? // Notes visible to applicant
-  
-  // Metadata
-  submittedAt    DateTime?
-  reviewedBy     String?
-  reviewedAt     DateTime?
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  // Relations
-  student        Student? @relation(fields: [studentId], references: [id])
-  activities     PPDBActivity[]
-  
+  interviewScore    Decimal?
+  interviewNotes    String?
+  acceptedAt        DateTime?
+  acceptedBy        String?
+  acceptanceNo      String?
+  enrolledAt        DateTime?
+  studentId         String?
+  registrationFee   Decimal?
+  paymentStatus     String         @default("UNPAID")
+  paymentProof      String?
+  internalNotes     String?
+  publicNotes       String?
+  submittedAt       DateTime?
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  activities        PPDBActivity[]
+  student           Student?       @relation(fields: [studentId], references: [id])
+
   @@index([level, academicYear, status])
   @@index([registrationNo])
   @@index([status, createdAt])
@@ -2880,138 +2184,89 @@ model PPDBRegistration {
 }
 
 model PPDBActivity {
-  id             String   @id @default(cuid())
+  id             String           @id @default(cuid())
   registrationId String
-  
-  activity       String   // SUBMITTED, STATUS_CHANGED, TEST_SCHEDULED, DOCUMENT_UPLOADED, etc.
+  activity       String
   description    String
-  metadata       String?  // JSON with additional data
-  
-  performedBy    String?  // User who performed the action
-  performedAt    DateTime @default(now())
-  
-  // Relations
+  metadata       String?
+  performedBy    String?
+  performedAt    DateTime         @default(now())
   registration   PPDBRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
-  
+
   @@index([registrationId, performedAt])
   @@map("ppdb_activities")
 }
 
 model PPDBSettings {
-  id             String   @id @default(cuid())
-  academicYear   String   @unique
-  
-  // Registration Period
-  openDate       DateTime
-  closeDate      DateTime
-  
-  // Quotas per level
-  quotaTK        Int @default(30)
-  quotaSD        Int @default(60)
-  quotaSMP       Int @default(40)
-  quotaPondok    Int @default(50)
-  
-  // Registration Fees
-  registrationFeeTK     Decimal @default(100000)
-  registrationFeeSD     Decimal @default(150000)
-  registrationFeeSMP    Decimal @default(200000)
-  registrationFeePondok Decimal @default(250000)
-  
-  // Test Settings
-  testEnabled    Boolean @default(true)
-  testPassScore  Decimal @default(60)
-  
-  // Interview Settings
-  interviewEnabled Boolean @default(true)
-  interviewPassScore Decimal @default(70)
-  
-  // Document Requirements (JSON)
-  requiredDocs   String @default("[]")
-  
-  // Announcement Template
-  acceptanceTemplate String?
-  rejectionTemplate  String?
-  
-  // Auto-numbering
-  lastRegistrationNo Int @default(0)
-  
-  isActive       Boolean @default(true)
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
+  id                    String   @id @default(cuid())
+  academicYear          String   @unique
+  openDate              DateTime
+  closeDate             DateTime
+  quotaTK               Int      @default(30)
+  quotaSD               Int      @default(60)
+  quotaSMP              Int      @default(40)
+  quotaPondok           Int      @default(50)
+  registrationFeeTK     Decimal  @default(100000)
+  registrationFeeSD     Decimal  @default(150000)
+  registrationFeeSMP    Decimal  @default(200000)
+  registrationFeePondok Decimal  @default(250000)
+  testEnabled           Boolean  @default(true)
+  testPassScore         Decimal  @default(60)
+  interviewEnabled      Boolean  @default(true)
+  interviewPassScore    Decimal  @default(70)
+  requiredDocs          String   @default("[]")
+  acceptanceTemplate    String?
+  rejectionTemplate     String?
+  lastRegistrationNo    Int      @default(0)
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
   @@map("ppdb_settings")
 }
 
-// ==========================================
-// SPP (BILLING & PAYMENT) SYSTEM MODELS
-// ==========================================
-
 model SPPBilling {
-  id          String   @id @default(cuid())
-  billNo      String   @unique // Format: BILL-2024-01-001
-  
-  // Student & Period
-  studentId   String
-  classId     String
-  semesterId  String
-  month       Int      // 1-12
-  year        Int      // 2024
-  
-  // Billing Components
-  sppAmount   Decimal  // Monthly SPP fee
-  
-  // Additional fees (optional)
-  booksFee    Decimal? // Buku/LKS
-  uniformFee  Decimal? // Seragam
-  activityFee Decimal? // Kegiatan
-  examFee     Decimal? // Ujian
-  otherFees   String @default("[]") // JSON array of {name, amount}
-  
-  // Totals
-  subtotal    Decimal
-  discount    Decimal @default(0)
-  discountType String? // PERCENTAGE, FIXED
+  id             String        @id @default(cuid())
+  billNo         String        @unique
+  studentId      String
+  classId        String
+  semesterId     String
+  month          Int
+  year           Int
+  sppAmount      Decimal
+  booksFee       Decimal?
+  uniformFee     Decimal?
+  activityFee    Decimal?
+  examFee        Decimal?
+  otherFees      String        @default("[]")
+  subtotal       Decimal
+  discount       Decimal       @default(0)
+  discountType   String?
   discountReason String?
-  totalAmount Decimal
-  
-  // Payment Status
-  status      String @default("UNPAID") // UNPAID, PARTIAL, PAID, OVERDUE, CANCELLED
-  paidAmount  Decimal @default(0)
-  
-  // Due Date
-  dueDate     DateTime
-  isOverdue   Boolean @default(false)
-  overdueDays Int @default(0)
-  lateFee     Decimal @default(0)
-  
-  // Payment Information
-  paidAt      DateTime?
-  paymentMethod String? // CASH, TRANSFER, VA, etc.
-  paymentRef  String? // Payment reference number
-  
-  // Notes
-  notes       String?
-  
-  // Billing Generation
-  generatedAt DateTime @default(now())
-  generatedBy String?
-  
-  // Cancellation
-  cancelledAt DateTime?
-  cancelledBy String?
-  cancelReason String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  student     Student @relation(fields: [studentId], references: [id])
-  class       Class @relation(fields: [classId], references: [id])
-  semester    Semester @relation(fields: [semesterId], references: [id])
-  payments    SPPPayment[]
-  reminders   SPPReminder[]
-  
+  totalAmount    Decimal
+  status         String        @default("UNPAID")
+  paidAmount     Decimal       @default(0)
+  dueDate        DateTime
+  isOverdue      Boolean       @default(false)
+  overdueDays    Int           @default(0)
+  lateFee        Decimal       @default(0)
+  paidAt         DateTime?
+  paymentMethod  String?
+  paymentRef     String?
+  notes          String?
+  generatedAt    DateTime      @default(now())
+  generatedBy    String?
+  cancelledAt    DateTime?
+  cancelledBy    String?
+  cancelReason   String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  class          Class         @relation(fields: [classId], references: [id])
+  semester       Semester      @relation(fields: [semesterId], references: [id])
+  student        Student       @relation(fields: [studentId], references: [id])
+  payments       SPPPayment[]
+  reminders      SPPReminder[]
+
   @@unique([studentId, month, year])
   @@index([status, dueDate])
   @@index([studentId, year, month])
@@ -3020,51 +2275,30 @@ model SPPBilling {
 }
 
 model SPPPayment {
-  id          String   @id @default(cuid())
-  paymentNo   String   @unique // Format: PAY-2024-01-001
-  
-  // Billing Reference
-  billingId   String
-  
-  // Payment Details
-  amount      Decimal
-  paymentDate DateTime
-  paymentMethod String // CASH, TRANSFER, VA, QRIS, etc.
-  
-  // Bank/Channel Details
-  bankName    String?
-  accountNo   String?
-  accountName String?
-  
-  // Payment Proof
-  proofUrl    String? // Upload bukti transfer
-  
-  // External Payment Gateway
-  externalId  String? // Payment gateway transaction ID
-  vaNumber    String? // Virtual account number
-  paymentUrl  String? // Payment URL from gateway
-  
-  // Verification
-  status      String @default("PENDING") // PENDING, VERIFIED, REJECTED
-  verifiedBy  String?
-  verifiedAt  DateTime?
-  
-  // Receipt
-  receiptNo   String? // Generated receipt number
-  receiptUrl  String? // Generated receipt PDF URL
-  
-  // Notes
-  notes       String?
-  
-  // Cashier/Recorder
-  recordedBy  String
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  billing     SPPBilling @relation(fields: [billingId], references: [id])
-  
+  id            String     @id @default(cuid())
+  paymentNo     String     @unique
+  billingId     String
+  amount        Decimal
+  paymentDate   DateTime
+  paymentMethod String
+  bankName      String?
+  accountNo     String?
+  accountName   String?
+  proofUrl      String?
+  externalId    String?
+  vaNumber      String?
+  paymentUrl    String?
+  status        String     @default("PENDING")
+  verifiedBy    String?
+  verifiedAt    DateTime?
+  receiptNo     String?
+  receiptUrl    String?
+  notes         String?
+  recordedBy    String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  billing       SPPBilling @relation(fields: [billingId], references: [id])
+
   @@index([billingId])
   @@index([paymentDate])
   @@index([status])
@@ -3072,210 +2306,132 @@ model SPPPayment {
 }
 
 model SPPReminder {
-  id          String   @id @default(cuid())
-  
-  // Target
-  billingId   String
-  
-  // Reminder Details
-  type        String   // WHATSAPP, EMAIL, SMS
-  recipient   String   // Phone number or email
-  
-  // Message
-  subject     String?
-  message     String
-  
-  // Status
-  status      String @default("PENDING") // PENDING, SENT, FAILED
-  sentAt      DateTime?
-  failReason  String?
-  
-  // Schedule
+  id           String     @id @default(cuid())
+  billingId    String
+  type         String
+  recipient    String
+  subject      String?
+  message      String
+  status       String     @default("PENDING")
+  sentAt       DateTime?
+  failReason   String?
   scheduledFor DateTime
-  attempts    Int @default(0)
-  maxAttempts Int @default(3)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  billing     SPPBilling @relation(fields: [billingId], references: [id])
-  
+  attempts     Int        @default(0)
+  maxAttempts  Int        @default(3)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  billing      SPPBilling @relation(fields: [billingId], references: [id])
+
   @@index([billingId])
   @@index([status, scheduledFor])
   @@map("spp_reminders")
 }
 
 model SPPSettings {
-  id          String   @id @default(cuid())
-  
-  // Fee Structure per Level
-  level       String   @unique // TK, SD, SMP, PONDOK
-  
-  // Monthly SPP
-  monthlyFee  Decimal
-  
-  // Annual/Semester Fees
-  enrollmentFee Decimal? // Uang pangkal
-  reEnrollmentFee Decimal? // Daftar ulang
-  developmentFee Decimal? // Uang pembangunan
-  
-  // Other Periodic Fees
-  booksFee    Decimal?
-  uniformFee  Decimal?
-  activityFee Decimal?
-  examFee     Decimal?
-  
-  // Payment Rules
-  dueDateDay  Int @default(10) // Due date on day X of month
-  lateFeeType String @default("FIXED") // FIXED, PERCENTAGE
-  lateFeeAmount Decimal @default(10000)
-  maxLateDays Int @default(30)
-  
-  // Discount Rules
-  discountSibling Decimal @default(10) // Percentage
-  discountOrphan  Decimal @default(50) // Percentage
-  discountStaff   Decimal @default(25) // Percentage
-  
-  // Reminder Settings
-  reminderDays String @default("[7, 3, 1, -1, -3, -7]") // Days before/after due date
-  reminderChannels String @default("[\"WHATSAPP\"]") // Enabled channels
-  
-  // Templates
-  billTemplate String?
-  receiptTemplate String?
+  id               String   @id @default(cuid())
+  level            String   @unique
+  monthlyFee       Decimal
+  enrollmentFee    Decimal?
+  reEnrollmentFee  Decimal?
+  developmentFee   Decimal?
+  booksFee         Decimal?
+  uniformFee       Decimal?
+  activityFee      Decimal?
+  examFee          Decimal?
+  dueDateDay       Int      @default(10)
+  lateFeeType      String   @default("FIXED")
+  lateFeeAmount    Decimal  @default(10000)
+  maxLateDays      Int      @default(30)
+  discountSibling  Decimal  @default(10)
+  discountOrphan   Decimal  @default(50)
+  discountStaff    Decimal  @default(25)
+  reminderDays     String   @default("[7, 3, 1, -1, -3, -7]")
+  reminderChannels String   @default("[\"WHATSAPP\"]")
+  billTemplate     String?
+  receiptTemplate  String?
   reminderTemplate String?
-  
-  isActive    Boolean @default(true)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
   @@map("spp_settings")
 }
 
 model SPPReport {
   id          String   @id @default(cuid())
-  
-  // Report Info
-  reportType  String   // MONTHLY_COLLECTION, OUTSTANDING, CLASS_SUMMARY, etc.
-  period      String   // 2024-01, 2024-Q1, 2024, etc.
-  
-  // Parameters
-  filters     String @default("{}") // JSON with report filters
-  
-  // Generated Data
-  data        String   // JSON with report data
-  summary     String   // JSON with summary stats
-  
-  // Files
+  reportType  String
+  period      String
+  filters     String   @default("{}")
+  data        String
+  summary     String
   pdfUrl      String?
   excelUrl    String?
-  
-  // Generation
   generatedBy String
   generatedAt DateTime @default(now())
-  
   createdAt   DateTime @default(now())
-  
+
   @@index([reportType, period])
   @@index([generatedBy, generatedAt])
   @@map("spp_reports")
 }
 
-// ==========================================
-// BUSINESS UNIT MONTHLY REPORTS
-// ==========================================
-
 model BusinessUnit {
-  id          String   @id @default(cuid())
-  code        String   @unique // KOPERASI, KANTIN, LAUNDRY, PASAR_BARKAS
-  name        String   // Koperasi Sekolah, Kantin, etc.
-  description String?
-  
-  // Manager/PIC
-  managerId   String?
-  managerName String?
-  
-  // Bank Account
-  bankName    String?
-  bankAccount String?
-  
-  // Status
-  isActive    Boolean  @default(true)
-  startDate   DateTime @default(now())
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  monthlyReports BusinessUnitReport[]
+  id             String                @id @default(cuid())
+  code           String                @unique
+  name           String
+  description    String?
+  managerId      String?
+  managerName    String?
+  bankName       String?
+  bankAccount    String?
+  isActive       Boolean               @default(true)
+  startDate      DateTime              @default(now())
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
   transactions   BusinessTransaction[]
-  
+  monthlyReports BusinessUnitReport[]
+
   @@index([code])
   @@map("business_units")
 }
 
 model BusinessUnitReport {
-  id          String   @id @default(cuid())
-  unitId      String
-  
-  // Period
-  year        Int
-  month       Int      // 1-12
-  period      String   // "2024-01"
-  
-  // Financial Summary
-  initialCapital  Decimal  // Modal awal bulan
-  revenue         Decimal  // Total pemasukan
-  expenses        Decimal  // Total pengeluaran
-  
-  // Expense Breakdown
-  purchaseCost    Decimal  // Pembelian barang
-  operationalCost Decimal  // Biaya operasional (listrik, air, etc)
-  salaryCost      Decimal  // Gaji karyawan
-  maintenanceCost Decimal  // Biaya maintenance
-  otherCost       Decimal  // Biaya lain-lain
-  
-  // Revenue Breakdown
-  salesRevenue    Decimal  // Penjualan
-  serviceRevenue  Decimal  // Jasa (khusus laundry)
-  otherRevenue    Decimal  // Pendapatan lain
-  
-  // Profit Calculation
-  grossProfit     Decimal  // Revenue - Purchase Cost
-  netProfit       Decimal  // Gross Profit - All Expenses
-  profitMargin    Decimal  // Net Profit / Revenue * 100
-  
-  // Inventory (for relevant units)
-  inventoryValue  Decimal? // Nilai inventory akhir bulan
-  
-  // Statistics
-  totalTransactions Int     @default(0)
-  totalCustomers    Int     @default(0)
-  totalItems        Int     @default(0) // Items sold/serviced
-  
-  // Monthly Targets
-  revenueTarget   Decimal?
-  targetAchievement Decimal? // Revenue / Target * 100
-  
-  // Status
-  status          String   @default("DRAFT") // DRAFT, SUBMITTED, APPROVED
-  submittedAt     DateTime?
-  submittedBy     String?
-  approvedAt      DateTime?
-  approvedBy      String?
-  
-  // Notes
-  notes           String?
-  highlights      String?  // Key achievements/issues
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  unit            BusinessUnit @relation(fields: [unitId], references: [id])
-  
+  id                String       @id @default(cuid())
+  unitId            String
+  year              Int
+  month             Int
+  period            String
+  initialCapital    Decimal
+  revenue           Decimal
+  expenses          Decimal
+  purchaseCost      Decimal
+  operationalCost   Decimal
+  salaryCost        Decimal
+  maintenanceCost   Decimal
+  otherCost         Decimal
+  salesRevenue      Decimal
+  serviceRevenue    Decimal
+  otherRevenue      Decimal
+  grossProfit       Decimal
+  netProfit         Decimal
+  profitMargin      Decimal
+  inventoryValue    Decimal?
+  totalTransactions Int          @default(0)
+  totalCustomers    Int          @default(0)
+  totalItems        Int          @default(0)
+  revenueTarget     Decimal?
+  targetAchievement Decimal?
+  status            String       @default("DRAFT")
+  submittedAt       DateTime?
+  submittedBy       String?
+  approvedAt        DateTime?
+  approvedBy        String?
+  notes             String?
+  highlights        String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  unit              BusinessUnit @relation(fields: [unitId], references: [id])
+
   @@unique([unitId, year, month])
   @@index([unitId, period])
   @@index([status])
@@ -3283,106 +2439,73 @@ model BusinessUnitReport {
 }
 
 model BusinessTransaction {
-  id              String   @id @default(cuid())
-  transactionNo   String   @unique // TRX-KOPERASI-2024-01-001
-  unitId          String
-  
-  // Transaction Details
-  date            DateTime
-  type            String   // SALE, PURCHASE, EXPENSE, SERVICE
-  category        String   // Specific category based on unit
-  
-  // Financial
-  amount          Decimal
-  paymentMethod   String   // CASH, TRANSFER
-  
-  // Customer/Supplier
-  customerName    String?
-  supplierName    String?
-  
-  // Items (JSON)
-  items           String   @default("[]") // JSON array of items
-  
-  // Notes
-  description     String?
-  receiptNo       String?
-  
-  // Recording
-  recordedBy      String
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  unit            BusinessUnit @relation(fields: [unitId], references: [id])
-  
+  id            String       @id @default(cuid())
+  transactionNo String       @unique
+  unitId        String
+  date          DateTime
+  type          String
+  category      String
+  amount        Decimal
+  paymentMethod String
+  customerName  String?
+  supplierName  String?
+  items         String       @default("[]")
+  description   String?
+  receiptNo     String?
+  recordedBy    String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  unit          BusinessUnit @relation(fields: [unitId], references: [id])
+
   @@index([unitId, date])
   @@index([type])
   @@map("business_transactions")
 }
 
-// Two-Factor Authentication Models
 model TwoFactorVerification {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  
-  // SMS OTP fields
-  smsOtp           String?
-  smsOtpExpiresAt  DateTime?
-  smsAttempts      Int @default(0)
-  
-  // Rate limiting fields
-  totpAttempts        Int       @default(0)
-  totpAttemptsResetAt DateTime?
-  
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  smsOtp                String?
+  smsOtpExpiresAt       DateTime?
+  smsAttempts           Int       @default(0)
+  totpAttempts          Int       @default(0)
+  totpAttemptsResetAt   DateTime?
   smsAttemptsResetAt    DateTime?
   backupAttempts        Int       @default(0)
   backupAttemptsResetAt DateTime?
-  
-  // Tracking
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("two_factor_verifications")
 }
 
 model SecurityAuditLog {
   id        String   @id @default(cuid())
   userId    String
-  event     String   // TWO_FACTOR_ENABLED, TWO_FACTOR_DISABLED, TWO_FACTOR_VERIFIED, etc.
-  metadata  Json?    // Additional event data
+  event     String
+  metadata  Json?
   ipAddress String   @default("unknown")
   userAgent String   @default("unknown")
   timestamp DateTime @default(now())
-  
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([event])
   @@index([timestamp])
   @@map("security_audit_logs")
 }
 
-// ==========================================
-// TANYA USTADZ Q&A SYSTEM
-// ==========================================
-
 model Question {
   id          String   @id @default(cuid())
-  question    String   @db.Text
-  category    String   // fiqih_ibadah, muamalah, akhlaq, aqidah, tafsir, tahsin
-  askerName   String?  // Nullable for anonymous questions
+  question    String
+  category    String
+  askerName   String?
   isAnonymous Boolean  @default(false)
-  status      String   @default("pending") // pending, answered
+  status      String   @default("pending")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  answer Answer?
+  answer      Answer?
 
   @@index([status])
   @@index([category])
@@ -3394,13 +2517,11 @@ model Answer {
   id         String   @id @default(cuid())
   questionId String   @unique
   ustadzId   String
-  answer     String   @db.Text
+  answer     String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-  // Relations
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  ustadz   User     @relation("UstadzAnswers", fields: [ustadzId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  ustadz     User     @relation("UstadzAnswers", fields: [ustadzId], references: [id])
 
   @@index([ustadzId])
   @@index([createdAt])

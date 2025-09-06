@@ -6,8 +6,8 @@ const prisma = new PrismaClient()
 
 const querySchema = z.object({
   category: z.enum(['fiqih_ibadah', 'muamalah', 'akhlaq', 'aqidah', 'tafsir', 'tahsin'] as const).optional(),
-  page: z.string().transform(Number).pipe(z.number().min(1)).default('1'),
-  limit: z.string().transform(Number).pipe(z.number().min(5).max(50)).default('10'),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(5).max(50).default(10),
   sortBy: z.enum(['createdAt', 'updatedAt']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc')
 })
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     
     // Parse query parameters
     const query = querySchema.parse({
-      category: searchParams.get('category'),
+      category: searchParams.get('category') || undefined,
       page: searchParams.get('page') || '1',
       limit: searchParams.get('limit') || '10',
       sortBy: searchParams.get('sortBy') || 'createdAt',

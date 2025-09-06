@@ -123,6 +123,7 @@ export default function TanyaUstadzClient() {
       const response = await fetch(`/api/questions/public?${params}`);
       if (response.ok) {
         const data: PaginatedResponse<QuestionWithAnswer> = await response.json();
+        console.log('Answered questions response:', data);
         setAnsweredQuestions(data.data || []);
         setAnsweredPagination(data.pagination || {
           page: 1,
@@ -132,6 +133,8 @@ export default function TanyaUstadzClient() {
           hasNext: false,
           hasPrev: false
         });
+      } else {
+        console.error('Failed to fetch answered questions:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error fetching answered questions:', error);
@@ -155,6 +158,7 @@ export default function TanyaUstadzClient() {
       const response = await fetch(`/api/questions/pending-public?${params}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('Pending questions response:', data);
         setPendingQuestions(data.data || []);
         setPendingPagination(data.pagination || {
           page: 1,
@@ -164,6 +168,8 @@ export default function TanyaUstadzClient() {
           hasNext: false,
           hasPrev: false
         });
+      } else {
+        console.error('Failed to fetch pending questions:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error fetching pending questions:', error);
