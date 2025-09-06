@@ -68,6 +68,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
+            isUstadz: user.isUstadz,
             requires2FA,
           }
         } catch (error) {
@@ -87,6 +88,7 @@ export const authOptions: NextAuthOptions = {
         if (user) {
           token.role = user.role
           token.username = user.username
+          token.isUstadz = user.isUstadz
           token.requires2FA = user.requires2FA
         }
         return token
@@ -101,6 +103,7 @@ export const authOptions: NextAuthOptions = {
           session.user.id = token.sub as string
           session.user.role = token.role as string
           session.user.username = token.username as string
+          session.user.isUstadz = token.isUstadz as boolean
           session.user.requires2FA = token.requires2FA as boolean
         }
         

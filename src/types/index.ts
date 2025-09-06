@@ -1,5 +1,5 @@
 // Define enums as string unions since we removed them from schema
-export type Role = 'ADMIN' | 'STAFF'
+export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'USTADZ' | 'STAFF' | 'PARENT'
 export type TransactionType = 'INCOME' | 'EXPENSE' | 'DONATION'
 
 // Payment related types
@@ -14,6 +14,7 @@ export interface User {
   email: string
   name: string
   role: Role
+  isUstadz: boolean
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -701,3 +702,131 @@ export interface CampaignFormData {
   isUrgent: boolean
   allowAnonymous: boolean
 }
+
+// ==========================================
+// TANYA USTADZ Q&A SYSTEM TYPES
+// ==========================================
+
+export type QuestionCategory = 'fiqih_ibadah' | 'muamalah' | 'akhlaq' | 'aqidah' | 'tafsir' | 'tahsin'
+export type QuestionStatus = 'pending' | 'answered'
+
+export interface Question {
+  id: string
+  question: string
+  category: QuestionCategory
+  askerName?: string
+  isAnonymous: boolean
+  status: QuestionStatus
+  createdAt: Date
+  updatedAt: Date
+  answer?: Answer
+}
+
+export interface Answer {
+  id: string
+  questionId: string
+  ustadzId: string
+  answer: string
+  createdAt: Date
+  updatedAt: Date
+  question?: Question
+  ustadz?: User
+}
+
+export interface QuestionWithAnswer extends Question {
+  answer: Answer & {
+    ustadz: Pick<User, 'id' | 'name'>
+  }
+}
+
+export interface QuestionFormData {
+  question: string
+  category: QuestionCategory
+  askerName?: string
+  isAnonymous: boolean
+}
+
+export interface AnswerFormData {
+  answer: string
+}
+
+export interface TanyaUstadzStats {
+  totalQuestions: number
+  pendingQuestions: number
+  answeredQuestions: number
+  questionsByCategory: {
+    category: QuestionCategory
+    count: number
+    label: string
+  }[]
+  recentQuestions: Question[]
+  recentAnswers: QuestionWithAnswer[]
+}
+
+export interface TanyaUstadzFilters {
+  status?: QuestionStatus
+  category?: QuestionCategory
+  search?: string
+  page?: number
+  limit?: number
+  sortBy?: 'createdAt' | 'updatedAt'
+  sortOrder?: 'asc' | 'desc'
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNext: boolean
+    hasPrev: boolean
+  }
+}
+
+export type QuestionCategoryInfo = {
+  value: QuestionCategory
+  label: string
+  description: string
+  color: string
+}
+
+export const QUESTION_CATEGORIES: QuestionCategoryInfo[] = [
+  {
+    value: 'fiqih_ibadah',
+    label: 'Fiqih Ibadah',
+    description: 'Pertanyaan seputar hukum-hukum ibadah (sholat, puasa, zakat, haji, dll)',
+    color: 'bg-emerald-100 text-emerald-800'
+  },
+  {
+    value: 'muamalah',
+    label: 'Muamalah',
+    description: 'Pertanyaan seputar hukum-hukum bermuamalah (jual-beli, ekonomi, dll)',
+    color: 'bg-blue-100 text-blue-800'
+  },
+  {
+    value: 'akhlaq',
+    label: 'Akhlaq',
+    description: 'Pertanyaan seputar akhlaq, adab, dan perilaku islami',
+    color: 'bg-purple-100 text-purple-800'
+  },
+  {
+    value: 'aqidah',
+    label: 'Aqidah',
+    description: 'Pertanyaan seputar akidah, tauhid, dan keimanan',
+    color: 'bg-orange-100 text-orange-800'
+  },
+  {
+    value: 'tafsir',
+    label: 'Tafsir',
+    description: 'Pertanyaan seputar tafsir Al-Quran dan pemahaman ayat',
+    color: 'bg-green-100 text-green-800'
+  },
+  {
+    value: 'tahsin',
+    label: 'Tahsin',
+    description: 'Pertanyaan seputar bacaan Al-Quran, tajwid, dan tahsin',
+    color: 'bg-rose-100 text-rose-800'
+  }
+]

@@ -37,6 +37,7 @@ import {
   CreditCard,
   MessageSquare,
   MessageCircle,
+  MessageCircleQuestion,
   Send,
   Shield,
   Bell,
@@ -51,6 +52,7 @@ interface MenuItem {
   href: string
   icon: any
   adminOnly?: boolean
+  ustadzOnly?: boolean
   children?: MenuItem[]
 }
 
@@ -175,6 +177,12 @@ const menuItems: MenuItem[] = [
     title: 'Perpustakaan',
     href: '/perpustakaan',
     icon: Library
+  },
+  {
+    title: 'Tanya Ustadz',
+    href: '/tanya-ustadz',
+    icon: MessageCircleQuestion,
+    ustadzOnly: true
   },
   {
     title: 'Unit Usaha',
@@ -310,9 +318,19 @@ export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
 
-  const filteredMenuItems = menuItems.filter(item => 
-    !item.adminOnly || session?.user?.role === 'ADMIN'
-  )
+  const filteredMenuItems = menuItems.filter(item => {
+    // Check admin-only items
+    if (item.adminOnly && session?.user?.role !== 'ADMIN') {
+      return false
+    }
+    
+    // Check ustadz-only items
+    if (item.ustadzOnly && !session?.user?.isUstadz && !['ADMIN', 'SUPER_ADMIN'].includes(session?.user?.role || '')) {
+      return false
+    }
+    
+    return true
+  })
 
   const toggleExpanded = (href: string) => {
     setExpandedItems(prev => 

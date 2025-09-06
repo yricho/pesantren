@@ -15,54 +15,31 @@ export function getPublicMainMenu() {
         layout: 'vertical',
         contents: [
           {
-            type: 'box',
-            layout: 'vertical',
-            contents: [
-              {
-                type: 'image',
-                url: 'https://placehold.co/800x200/16A34A/FFFFFF/png?text=🕌+Pondok+Imam+Syafii',
-                size: 'full',
-                aspectMode: 'cover',
-                aspectRatio: '4:1'
-              }
-            ],
-            position: 'absolute',
-            width: '100%',
-            height: '100%'
+            type: 'text',
+            text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+            size: 'xs',
+            color: '#FFFFFF',
+            align: 'center'
           },
           {
-            type: 'box',
-            layout: 'vertical',
-            contents: [
-              {
-                type: 'text',
-                text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                size: 'xs',
-                color: '#FDE047',
-                align: 'center'
-              },
-              {
-                type: 'text',
-                text: 'PONDOK IMAM SYAFII',
-                weight: 'bold',
-                size: 'xl',
-                color: '#FFFFFF',
-                align: 'center',
-                margin: 'md'
-              },
-              {
-                type: 'text',
-                text: '📚 Portal Informasi',
-                size: 'sm',
-                color: '#FEF3C7',
-                align: 'center'
-              }
-            ],
-            paddingAll: '20px',
-            paddingTop: '30px'
+            type: 'text',
+            text: '🕌 PONDOK IMAM SYAFII',
+            weight: 'bold',
+            size: 'lg',
+            color: '#FFFFFF',
+            align: 'center',
+            margin: 'md'
+          },
+          {
+            type: 'text',
+            text: 'Portal Informasi',
+            size: 'sm',
+            color: '#FEF3C7',
+            align: 'center'
           }
         ],
-        height: '140px'
+        backgroundColor: '#16A34A',
+        paddingAll: '20px'
       },
       body: {
         type: 'box',
@@ -124,7 +101,23 @@ export function getPublicMainMenu() {
                 layout: 'horizontal',
                 contents: [
                   createPublicMenuCard('📰', 'BERITA', 'Info Terkini', 'public_news'),
-                  createPublicMenuCard('📞', 'KONTAK', 'Hubungi Kami', 'public_contact')
+                  createPublicMenuCard('💬', 'TANYA USTADZ', 'Konsultasi', 'public_tanya_ustadz')
+                ],
+                spacing: 'md',
+                margin: 'md'
+              },
+              // Row 4
+              {
+                type: 'box',
+                layout: 'horizontal',
+                contents: [
+                  createPublicMenuCard('📞', 'KONTAK', 'Hubungi Kami', 'public_contact'),
+                  {
+                    type: 'box',
+                    layout: 'vertical',
+                    contents: [],
+                    flex: 1
+                  }
                 ],
                 spacing: 'md',
                 margin: 'md'

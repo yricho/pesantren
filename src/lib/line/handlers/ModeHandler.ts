@@ -8,12 +8,14 @@ import { prisma } from '@/lib/prisma'
 
 // Register all flows
 import { addStudentFlow, searchStudentFlow, editStudentFlow, deleteStudentFlow } from '../flows/StudentFlows'
+import { askUstadzFlow } from '../flows/TanyaUstadzFlows'
 
 // Register flows on startup
 FlowManager.registerFlow(addStudentFlow)
 FlowManager.registerFlow(searchStudentFlow)
 FlowManager.registerFlow(editStudentFlow)
 FlowManager.registerFlow(deleteStudentFlow)
+FlowManager.registerFlow(askUstadzFlow)
 
 /**
  * Handle text messages and route to appropriate handler
@@ -145,6 +147,10 @@ export async function handleModePostback(event: LineEvent) {
       
     case 'public_contact':
       await showContactInfo(replyToken)
+      break
+      
+    case 'public_tanya_ustadz':
+      await FlowManager.startFlow(userId, 'ask_ustadz', replyToken)
       break
       
     case 'back_to_public_menu':

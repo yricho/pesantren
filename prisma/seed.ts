@@ -19,6 +19,7 @@ async function main() {
       password: hashedPassword,
       name: 'Administrator',
       role: 'ADMIN',
+      isUstadz: false,
       isActive: true,
     },
   });
@@ -37,11 +38,31 @@ async function main() {
       password: staffPassword,
       name: 'Staff User',
       role: 'STAFF',
+      isUstadz: false,
       isActive: true,
     },
   });
 
   console.log('Created staff user:', staff.username);
+
+  // Create ustadz user
+  const ustadzPassword = await bcrypt.hash('ustadz123', 10);
+  
+  const ustadz = await prisma.user.upsert({
+    where: { username: 'ustadz' },
+    update: {},
+    create: {
+      username: 'ustadz',
+      email: 'ustadz@pondokimamsyafii.com',
+      password: ustadzPassword,
+      name: 'Ustadz Ahmad',
+      role: 'USTADZ',
+      isUstadz: true,
+      isActive: true,
+    },
+  });
+
+  console.log('Created ustadz user:', ustadz.username);
 
   // Create financial accounts
   const incomeAccount = await prisma.financialAccount.upsert({
