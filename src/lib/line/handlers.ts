@@ -1,13 +1,15 @@
 import { LineEvent } from '@/types/line'
 import { replyMessage } from './client'
 import { 
-  getMainMenu,
-  getSiswaMenu,
-  getPengajarMenu,
-  getKeuanganMenu,
-  getAkademikMenu,
-  getSettingsMenu
-} from './templates/menus'
+  getMainFlexMenu,
+  getSiswaFlexMenu,
+  getPengajarFlexMenu,
+  getKeuanganFlexMenu,
+  getAkademikFlexMenu,
+  getSettingsFlexMenu,
+  getInputPrompt,
+  getStudentCarousel
+} from './templates/fancy-menus'
 import {
   handleSiswaCommand,
   handlePengajarCommand,
@@ -17,160 +19,112 @@ import {
 } from './commands'
 import { getUserSession, setUserSession } from './session'
 
-// Keywords mapping
+// Simple keywords - hanya untuk start dan basic navigation
 const KEYWORDS = {
-  // Main menu
-  'menu': 'MAIN_MENU',
-  'help': 'MAIN_MENU',
-  'bantuan': 'MAIN_MENU',
-  
-  // Siswa management
-  'siswa': 'SISWA_MENU',
-  'murid': 'SISWA_MENU',
-  'santri': 'SISWA_MENU',
-  'tambah siswa': 'SISWA_ADD',
-  'cari siswa': 'SISWA_SEARCH',
-  'list siswa': 'SISWA_LIST',
-  'edit siswa': 'SISWA_EDIT',
-  'hapus siswa': 'SISWA_DELETE',
-  
-  // Pengajar management
-  'pengajar': 'PENGAJAR_MENU',
-  'guru': 'PENGAJAR_MENU',
-  'ustadz': 'PENGAJAR_MENU',
-  'tambah pengajar': 'PENGAJAR_ADD',
-  'list pengajar': 'PENGAJAR_LIST',
-  
-  // Keuangan
-  'keuangan': 'KEUANGAN_MENU',
-  'spp': 'SPP_CHECK',
-  'bayar': 'PAYMENT_MENU',
-  'tagihan': 'BILL_CHECK',
-  'laporan keuangan': 'FINANCE_REPORT',
-  
-  // Akademik
-  'akademik': 'AKADEMIK_MENU',
-  'nilai': 'GRADE_MENU',
-  'absensi': 'ATTENDANCE_MENU',
-  'jadwal': 'SCHEDULE_MENU',
-  'raport': 'REPORT_CARD',
-  
-  // Settings
-  'settings': 'SETTINGS_MENU',
-  'pengaturan': 'SETTINGS_MENU',
-  'profile': 'PROFILE_MENU',
-  
-  // Quick actions
-  'hadir': 'QUICK_ATTENDANCE',
-  'izin': 'QUICK_PERMISSION',
-  'sakit': 'QUICK_SICK',
-  
-  // Cancel/Reset
+  'start': 'SHOW_MENU',
+  'menu': 'SHOW_MENU',
+  'help': 'SHOW_MENU',
+  '/start': 'SHOW_MENU',
   'batal': 'CANCEL',
-  'cancel': 'CANCEL',
-  'reset': 'RESET'
+  'cancel': 'CANCEL'
 }
 
 export async function handleTextMessage(event: LineEvent) {
-  const text = event.message?.text?.toLowerCase() || ''
+  const text = event.message?.text?.toLowerCase().trim() || ''
   const userId = event.source?.userId || ''
   const replyToken = event.replyToken || ''
   
   // Get user session
   const session = await getUserSession(userId)
   
-  // Check if user is in the middle of a flow
-  if (session?.currentFlow) {
-    return await handleFlowInput(userId, text, replyToken, session)
+  // If user is in input mode, handle the input
+  if (session?.waitingFor) {
+    return await handleUserInput(userId, text, replyToken, session)
   }
   
-  // Check for keywords
+  // Check for basic keywords
   const command = KEYWORDS[text as keyof typeof KEYWORDS]
   
-  if (command) {
-    return await handleCommand(command, userId, replyToken)
+  if (command === 'SHOW_MENU') {
+    // Always show main flex menu
+    await replyMessage(replyToken, [getMainFlexMenu()])
+    return
   }
   
-  // Check for NIS input (8 digits)
-  if (/^\d{8}$/.test(text)) {
-    return await handleNISInput(text, userId, replyToken)
+  if (command === 'CANCEL') {
+    await setUserSession(userId, null)
+    await replyMessage(replyToken, [
+      {
+        type: 'text',
+        text: '❌ Proses dibatalkan'
+      },
+      getMainFlexMenu()
+    ])
+    return
   }
   
-  // Default response
-  await replyMessage(replyToken, [{
-    type: 'text',
-    text: 'Maaf, perintah tidak dikenali. Ketik "menu" untuk melihat menu utama.'
-  }])
+  // For any other text, show menu with hint
+  await replyMessage(replyToken, [
+    {
+      type: 'text',
+      text: '💡 Gunakan menu di bawah untuk navigasi'
+    },
+    getMainFlexMenu()
+  ])
 }
 
-async function handleCommand(command: string, userId: string, replyToken: string) {
-  switch (command) {
-    case 'MAIN_MENU':
-      await replyMessage(replyToken, [getMainMenu()])
+async function handleUserInput(userId: string, input: string, replyToken: string, session: any) {
+  const { waitingFor, data } = session
+  
+  // Handle different input types based on what we're waiting for
+  switch (waitingFor) {
+    case 'SISWA_NAME':
+      data.name = input
+      await setUserSession(userId, { waitingFor: 'SISWA_NIS', data })
+      await replyMessage(replyToken, [getInputPrompt('NIS Siswa (8 digit):', 'Contoh: 20240001')])
       break
       
-    case 'SISWA_MENU':
-      await replyMessage(replyToken, [getSiswaMenu()])
+    case 'SISWA_NIS':
+      if (!/^\d{8}$/.test(input)) {
+        await replyMessage(replyToken, [{
+          type: 'text',
+          text: '❌ NIS harus 8 digit angka. Silakan coba lagi:'
+        }])
+        return
+      }
+      data.nis = input
+      await setUserSession(userId, { waitingFor: 'SISWA_BIRTHDATE', data })
+      await replyMessage(replyToken, [getInputPrompt('Tanggal Lahir:', 'Format: DD/MM/YYYY')])
       break
       
-    case 'SISWA_ADD':
-      await setUserSession(userId, { currentFlow: 'SISWA_ADD', step: 1, data: {} })
-      await replyMessage(replyToken, [{
-        type: 'text',
-        text: 'Silakan masukkan data siswa:\n\n1. Nama Lengkap:'
-      }])
+    case 'SISWA_BIRTHDATE':
+      data.birthDate = input
+      await setUserSession(userId, { waitingFor: 'SISWA_PARENT_PHONE', data })
+      await replyMessage(replyToken, [getInputPrompt('No. HP Orang Tua:', 'Contoh: 081234567890')])
       break
       
-    case 'SISWA_SEARCH':
-      await setUserSession(userId, { currentFlow: 'SISWA_SEARCH', step: 1, data: {} })
-      await replyMessage(replyToken, [{
-        type: 'text',
-        text: 'Masukkan NIS atau nama siswa yang ingin dicari:'
-      }])
-      break
-      
-    case 'SISWA_LIST':
-      await handleSiswaCommand.list(userId, replyToken)
-      break
-      
-    case 'PENGAJAR_MENU':
-      await replyMessage(replyToken, [getPengajarMenu()])
-      break
-      
-    case 'KEUANGAN_MENU':
-      await replyMessage(replyToken, [getKeuanganMenu()])
-      break
-      
-    case 'SPP_CHECK':
-      await setUserSession(userId, { currentFlow: 'SPP_CHECK', step: 1, data: {} })
-      await replyMessage(replyToken, [{
-        type: 'text',
-        text: 'Masukkan NIS siswa untuk cek tagihan SPP:'
-      }])
-      break
-      
-    case 'AKADEMIK_MENU':
-      await replyMessage(replyToken, [getAkademikMenu()])
-      break
-      
-    case 'SETTINGS_MENU':
-      await replyMessage(replyToken, [getSettingsMenu()])
-      break
-      
-    case 'CANCEL':
-    case 'RESET':
+    case 'SISWA_PARENT_PHONE':
+      data.parentPhone = input
+      // Save to database
+      await handleSiswaCommand.create(data, userId, replyToken)
       await setUserSession(userId, null)
-      await replyMessage(replyToken, [{
-        type: 'text',
-        text: 'Proses dibatalkan. Ketik "menu" untuk kembali ke menu utama.'
-      }])
+      // Show menu again
+      setTimeout(() => replyMessage(replyToken, [getMainFlexMenu()]), 1000)
+      break
+      
+    case 'SEARCH_QUERY':
+      await handleSiswaCommand.search(input, userId, replyToken)
+      await setUserSession(userId, null)
+      break
+      
+    case 'SPP_NIS':
+      await handleKeuanganCommand.checkSPP(input, userId, replyToken)
+      await setUserSession(userId, null)
       break
       
     default:
-      await replyMessage(replyToken, [{
-        type: 'text',
-        text: 'Fitur sedang dalam pengembangan.'
-      }])
+      await setUserSession(userId, null)
+      await replyMessage(replyToken, [getMainFlexMenu()])
   }
 }
 
@@ -246,11 +200,47 @@ export async function handlePostbackEvent(event: LineEvent) {
   const userId = event.source?.userId || ''
   const replyToken = event.replyToken || ''
   
-  // Parse postback data (format: action=value&param=value)
+  // Parse postback data
   const params = new URLSearchParams(data)
   const action = params.get('action')
   
   switch (action) {
+    // Main menu actions
+    case 'menu_siswa':
+      await replyMessage(replyToken, [getSiswaFlexMenu()])
+      break
+      
+    case 'menu_pengajar':
+      await replyMessage(replyToken, [getPengajarFlexMenu()])
+      break
+      
+    case 'menu_keuangan':
+      await replyMessage(replyToken, [getKeuanganFlexMenu()])
+      break
+      
+    case 'menu_akademik':
+      await replyMessage(replyToken, [getAkademikFlexMenu()])
+      break
+      
+    case 'menu_settings':
+      await replyMessage(replyToken, [getSettingsFlexMenu()])
+      break
+      
+    // Siswa actions
+    case 'siswa_add':
+      await setUserSession(userId, { waitingFor: 'SISWA_NAME', data: {} })
+      await replyMessage(replyToken, [getInputPrompt('Nama Lengkap Siswa:', 'Masukkan nama lengkap siswa')])
+      break
+      
+    case 'siswa_search':
+      await setUserSession(userId, { waitingFor: 'SEARCH_QUERY', data: {} })
+      await replyMessage(replyToken, [getInputPrompt('Cari Siswa:', 'Masukkan NIS atau nama siswa')])
+      break
+      
+    case 'siswa_list':
+      await handleSiswaCommand.list(userId, replyToken)
+      break
+      
     case 'siswa_detail':
       const siswaId = params.get('id')
       await handleSiswaCommand.getDetail(siswaId!, userId, replyToken)
@@ -258,11 +248,7 @@ export async function handlePostbackEvent(event: LineEvent) {
       
     case 'siswa_edit':
       const editId = params.get('id')
-      await setUserSession(userId, { currentFlow: 'SISWA_EDIT', step: 1, data: { id: editId } })
-      await replyMessage(replyToken, [{
-        type: 'text',
-        text: 'Pilih field yang ingin diedit:\n1. Nama\n2. Tanggal Lahir\n3. No. HP Orang Tua\n\nKetik nomor pilihan:'
-      }])
+      await handleSiswaCommand.startEdit(editId!, userId, replyToken)
       break
       
     case 'siswa_delete':
@@ -275,6 +261,12 @@ export async function handlePostbackEvent(event: LineEvent) {
       await handleSiswaCommand.delete(confirmId!, userId, replyToken)
       break
       
+    // Keuangan actions
+    case 'spp_check':
+      await setUserSession(userId, { waitingFor: 'SPP_NIS', data: {} })
+      await replyMessage(replyToken, [getInputPrompt('Cek Tagihan SPP:', 'Masukkan NIS siswa')])
+      break
+      
     case 'payment_detail':
       const paymentId = params.get('id')
       await handleKeuanganCommand.getPaymentDetail(paymentId!, userId, replyToken)
@@ -285,11 +277,13 @@ export async function handlePostbackEvent(event: LineEvent) {
       await handleKeuanganCommand.markAsPaid(billId!, userId, replyToken)
       break
       
+    // Navigation
+    case 'back_to_menu':
+      await replyMessage(replyToken, [getMainFlexMenu()])
+      break
+      
     default:
-      await replyMessage(replyToken, [{
-        type: 'text',
-        text: 'Action tidak dikenali.'
-      }])
+      await replyMessage(replyToken, [getMainFlexMenu()])
   }
 }
 
@@ -300,9 +294,9 @@ export async function handleFollowEvent(event: LineEvent) {
   await replyMessage(replyToken, [
     {
       type: 'text',
-      text: 'Selamat datang di Pondok Imam Syafii Bot! 🎓\n\nSaya akan membantu Anda mengelola data sekolah dengan mudah.'
+      text: '🎓 Selamat datang di Pondok Imam Syafii Bot!\n\nSilakan pilih menu di bawah untuk memulai:'
     },
-    getMainMenu()
+    getMainFlexMenu()
   ])
 }
 

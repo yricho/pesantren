@@ -1,6 +1,6 @@
-// Flex message templates for LINE menus
+// Visual flex message templates for LINE bot
 
-export function getMainMenu() {
+export function getMainFlexMenu() {
   return {
     type: 'flex',
     altText: 'Menu Utama',
@@ -297,7 +297,7 @@ export function getSiswaCarousel(students: any[]) {
 export function getSiswaDetail(student: any) {
   return {
     type: 'flex',
-    altText: `Detail Siswa: ${student.name}`,
+    altText: `Detail Siswa: ${student.fullName || student.name}`,
     contents: {
       type: 'bubble',
       header: {

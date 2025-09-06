@@ -7,6 +7,7 @@ import {
   handleFollowEvent,
   handleUnfollowEvent 
 } from '@/lib/line/handlers'
+import { handleImageMessage } from '@/lib/line/handlers/image'
 import { validateSignature } from '@/lib/line/security'
 import { LineEvent } from '@/types/line'
 
@@ -65,6 +66,8 @@ export async function POST(request: NextRequest) {
           case 'message':
             if (event.message?.type === 'text') {
               await handleTextMessage(event)
+            } else if (event.message?.type === 'image') {
+              await handleImageMessage(event)
             }
             break
             

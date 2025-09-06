@@ -520,7 +520,7 @@ export default function LineSettingsPage() {
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Issue token di LINE Developers Console > Messaging API
+                  Issue token di LINE Developers Console → Messaging API
                 </p>
               </div>
 
@@ -799,7 +799,7 @@ export default function LineSettingsPage() {
 
               <div className="flex gap-2">
                 <Button onClick={handleSetWebhook} disabled={loading}>
-                  <Link2 className="w-4 h-4 mr-2" />
+                  <ExternalLink className="w-4 h-4 mr-2" />
                   Set Webhook
                 </Button>
                 <Button onClick={checkWebhookStatus} variant="outline">

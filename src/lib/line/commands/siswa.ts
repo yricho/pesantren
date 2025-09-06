@@ -1,25 +1,58 @@
 import { prisma } from '@/lib/prisma'
 import { replyMessage } from '../client'
-import { getSiswaCarousel, getSiswaDetail } from '../templates/menus'
+import { getStudentCarousel } from '../templates/fancy-menus'
+import { getSiswaDetail } from '../templates/menus'
+
+async function getOrCreateSystemUser() {
+  const systemUser = await prisma.user.findFirst({
+    where: { username: 'line-bot' }
+  })
+  
+  if (!systemUser) {
+    return await prisma.user.create({
+      data: {
+        username: 'line-bot',
+        email: 'line-bot@system.local',
+        password: 'not-used', // Bot doesn't need password
+        name: 'LINE Bot System',
+        role: 'STAFF'
+      }
+    })
+  }
+  
+  return systemUser
+}
 
 export const handleSiswaCommand = {
   async create(data: any, userId: string, replyToken: string) {
     try {
+      // Get or create system user for bot operations
+      const systemUser = await getOrCreateSystemUser()
+      
       const student = await prisma.student.create({
         data: {
-          name: data.name,
+          fullName: data.name,
           nis: data.nis,
           birthDate: new Date(data.birthDate),
-          gender: data.gender.toUpperCase() === 'L' ? 'MALE' : 'FEMALE',
-          parentPhone: data.parentPhone,
-          status: 'ACTIVE'
+          birthPlace: data.birthPlace || 'Blitar',
+          gender: data.gender?.toUpperCase() === 'L' ? 'MALE' : 'FEMALE',
+          address: data.address || 'Blitar',
+          city: 'Blitar',
+          fatherName: data.parentName || 'Bapak',
+          motherName: data.motherName || 'Ibu',
+          fatherPhone: data.parentPhone,
+          // Required fields
+          institutionType: 'PONDOK',
+          enrollmentDate: new Date(),
+          enrollmentYear: new Date().getFullYear().toString(),
+          creator: { connect: { id: systemUser.id } }
         }
       })
 
       await replyMessage(replyToken, [
         {
           type: 'text',
-          text: `✅ Siswa berhasil ditambahkan!\n\nNama: ${student.name}\nNIS: ${student.nis}\n\nData telah tersimpan dalam sistem.`
+          text: `✅ Siswa berhasil ditambahkan!\n\nNama: ${student.fullName}\nNIS: ${student.nis}\n\nData telah tersimpan dalam sistem.`
         }
       ])
     } catch (error: any) {
@@ -39,12 +72,9 @@ export const handleSiswaCommand = {
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
-          name: true,
+          fullName: true,
           nis: true,
-          status: true,
-          class: {
-            select: { name: true }
-          }
+          grade: true
         }
       })
 
@@ -60,18 +90,18 @@ export const handleSiswaCommand = {
 
       const formattedStudents = students.map(s => ({
         id: s.id,
-        name: s.name,
+        name: s.fullName,
         nis: s.nis,
-        status: s.status,
-        class: s.class?.name
+        status: 'ACTIVE',
+        class: s.grade
       }))
 
       await replyMessage(replyToken, [
         {
           type: 'text',
-          text: `Menampilkan ${students.length} siswa terbaru:`
+          text: `📚 Menampilkan ${students.length} siswa terbaru:`
         },
-        getSiswaCarousel(formattedStudents)
+        getStudentCarousel(formattedStudents)
       ])
     } catch (error: any) {
       await replyMessage(replyToken, [
@@ -88,19 +118,16 @@ export const handleSiswaCommand = {
       const students = await prisma.student.findMany({
         where: {
           OR: [
-            { name: { contains: query, mode: 'insensitive' } },
+            { fullName: { contains: query, mode: 'insensitive' } },
             { nis: { contains: query } }
           ]
         },
         take: 5,
         select: {
           id: true,
-          name: true,
+          fullName: true,
           nis: true,
-          status: true,
-          class: {
-            select: { name: true }
-          }
+          grade: true
         }
       })
 
@@ -116,18 +143,18 @@ export const handleSiswaCommand = {
 
       const formattedStudents = students.map(s => ({
         id: s.id,
-        name: s.name,
+        name: s.fullName,
         nis: s.nis,
-        status: s.status,
-        class: s.class?.name
+        status: 'ACTIVE',
+        class: s.grade
       }))
 
       await replyMessage(replyToken, [
         {
           type: 'text',
-          text: `Ditemukan ${students.length} siswa:`
+          text: `🔍 Ditemukan ${students.length} siswa:`
         },
-        getSiswaCarousel(formattedStudents)
+        getStudentCarousel(formattedStudents)
       ])
     } catch (error: any) {
       await replyMessage(replyToken, [
@@ -143,12 +170,13 @@ export const handleSiswaCommand = {
     try {
       const student = await prisma.student.findUnique({
         where: { nis },
-        include: {
-          class: true,
-          payments: {
-            where: { status: 'PENDING' },
-            take: 3
-          }
+        select: {
+          id: true,
+          fullName: true,
+          nis: true,
+          grade: true,
+          address: true,
+          fatherPhone: true
         }
       })
 
@@ -164,10 +192,10 @@ export const handleSiswaCommand = {
 
       await replyMessage(replyToken, [
         getSiswaDetail(student),
-        ...(student.payments.length > 0 ? [{
+        /* ...(student.payments?.length > 0 ? [{
           type: 'text' as const,
-          text: `⚠️ Ada ${student.payments.length} tagihan pending`
-        }] : [])
+          text: `⚠️ Ada ${student.payments?.length} tagihan pending`
+        }] : []) */
       ])
     } catch (error: any) {
       await replyMessage(replyToken, [
@@ -183,11 +211,13 @@ export const handleSiswaCommand = {
     try {
       const student = await prisma.student.findUnique({
         where: { id },
-        include: {
-          class: true,
-          payments: {
-            where: { status: 'PENDING' }
-          }
+        select: {
+          id: true,
+          fullName: true,
+          nis: true,
+          grade: true,
+          address: true,
+          fatherPhone: true
         }
       })
 
@@ -216,7 +246,7 @@ export const handleSiswaCommand = {
     try {
       const student = await prisma.student.findUnique({
         where: { id },
-        select: { name: true, nis: true }
+        select: { fullName: true, nis: true }
       })
 
       if (!student) {
@@ -254,7 +284,7 @@ export const handleSiswaCommand = {
                 },
                 {
                   type: 'text',
-                  text: `${student.name} (${student.nis})`,
+                  text: `${student.fullName} (${student.nis})`,
                   weight: 'bold',
                   margin: 'sm'
                 },
@@ -316,7 +346,7 @@ export const handleSiswaCommand = {
       await replyMessage(replyToken, [
         {
           type: 'text',
-          text: `✅ Siswa ${student.name} (${student.nis}) berhasil dihapus.`
+          text: `✅ Siswa ${student.fullName} (${student.nis}) berhasil dihapus.`
         }
       ])
     } catch (error: any) {
@@ -324,6 +354,151 @@ export const handleSiswaCommand = {
         {
           type: 'text',
           text: `❌ Gagal menghapus: ${error.message}`
+        }
+      ])
+    }
+  },
+
+  async startEdit(id: string, userId: string, replyToken: string) {
+    try {
+      const student = await prisma.student.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          fullName: true,
+          nis: true,
+          grade: true
+        }
+      })
+
+      if (!student) {
+        await replyMessage(replyToken, [
+          {
+            type: 'text',
+            text: 'Siswa tidak ditemukan.'
+          }
+        ])
+        return
+      }
+
+      await replyMessage(replyToken, [
+        {
+          type: 'flex',
+          altText: 'Edit Siswa',
+          contents: {
+            type: 'bubble',
+            header: {
+              type: 'box',
+              layout: 'vertical',
+              contents: [
+                {
+                  type: 'text',
+                  text: '✏️ EDIT DATA SISWA',
+                  weight: 'bold',
+                  color: '#FFFFFF'
+                }
+              ],
+              backgroundColor: '#EAB308',
+              paddingAll: '15px'
+            },
+            body: {
+              type: 'box',
+              layout: 'vertical',
+              contents: [
+                {
+                  type: 'text',
+                  text: student.fullName,
+                  size: 'lg',
+                  weight: 'bold'
+                },
+                {
+                  type: 'text',
+                  text: `NIS: ${student.nis}`,
+                  size: 'sm',
+                  color: '#666666',
+                  margin: 'sm'
+                },
+                {
+                  type: 'separator',
+                  margin: 'lg'
+                },
+                {
+                  type: 'text',
+                  text: 'Pilih data yang ingin diubah:',
+                  margin: 'lg',
+                  size: 'sm'
+                }
+              ],
+              paddingAll: '15px'
+            },
+            footer: {
+              type: 'box',
+              layout: 'vertical',
+              contents: [
+                {
+                  type: 'button',
+                  action: {
+                    type: 'postback',
+                    label: '📝 Ubah Nama',
+                    data: `action=edit_name&id=${id}`
+                  },
+                  style: 'secondary'
+                },
+                {
+                  type: 'button',
+                  action: {
+                    type: 'postback',
+                    label: '📅 Ubah Tanggal Lahir',
+                    data: `action=edit_birthdate&id=${id}`
+                  },
+                  style: 'secondary',
+                  margin: 'sm'
+                },
+                {
+                  type: 'button',
+                  action: {
+                    type: 'postback',
+                    label: '📱 Ubah No. HP Ortu',
+                    data: `action=edit_phone&id=${id}`
+                  },
+                  style: 'secondary',
+                  margin: 'sm'
+                },
+                {
+                  type: 'button',
+                  action: {
+                    type: 'postback',
+                    label: '🏫 Ubah Kelas',
+                    data: `action=edit_class&id=${id}`
+                  },
+                  style: 'secondary',
+                  margin: 'sm'
+                },
+                {
+                  type: 'separator',
+                  margin: 'lg'
+                },
+                {
+                  type: 'button',
+                  action: {
+                    type: 'postback',
+                    label: '↩️ Kembali',
+                    data: 'action=back_to_menu'
+                  },
+                  style: 'link',
+                  height: 'sm'
+                }
+              ],
+              spacing: 'sm'
+            }
+          }
+        }
+      ])
+    } catch (error: any) {
+      await replyMessage(replyToken, [
+        {
+          type: 'text',
+          text: `❌ Error: ${error.message}`
         }
       ])
     }
