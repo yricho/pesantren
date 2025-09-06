@@ -48,7 +48,15 @@ export default function TanyaUstadzClient() {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<QuestionCategory | ''>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [pagination, setPagination] = useState({
+  const [answeredPagination, setAnsweredPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false
+  });
+  const [pendingPagination, setPendingPagination] = useState({
     page: 1,
     limit: 10,
     total: 0,
@@ -64,6 +72,12 @@ export default function TanyaUstadzClient() {
     fetchPendingQuestions();
   }, []);
 
+  // Reset pagination when category or tab changes
+  useEffect(() => {
+    setAnsweredPagination(prev => ({ ...prev, page: 1 }));
+    setPendingPagination(prev => ({ ...prev, page: 1 }));
+  }, [selectedCategory, activeTab]);
+
   // Fetch questions when filters change
   useEffect(() => {
     if (activeTab === 'answered') {
@@ -71,7 +85,7 @@ export default function TanyaUstadzClient() {
     } else if (activeTab === 'pending') {
       fetchPendingQuestions();
     }
-  }, [activeTab, selectedCategory, searchTerm, pagination.page]);
+  }, [activeTab, selectedCategory, searchTerm, answeredPagination.page, pendingPagination.page]);
 
   const fetchStats = async () => {
     try {
@@ -97,8 +111,8 @@ export default function TanyaUstadzClient() {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        limit: pagination.limit.toString(),
+        page: answeredPagination.page.toString(),
+        limit: '10',
         sortBy: 'createdAt',
         sortOrder: 'desc'
       });
@@ -110,7 +124,14 @@ export default function TanyaUstadzClient() {
       if (response.ok) {
         const data: PaginatedResponse<QuestionWithAnswer> = await response.json();
         setAnsweredQuestions(data.data || []);
-        setPagination(data.pagination);
+        setAnsweredPagination(data.pagination || {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false
+        });
       }
     } catch (error) {
       console.error('Error fetching answered questions:', error);
@@ -123,8 +144,8 @@ export default function TanyaUstadzClient() {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        limit: pagination.limit.toString(),
+        page: pendingPagination.page.toString(),
+        limit: '10',
         sortBy: 'createdAt',
         sortOrder: 'desc'
       });
@@ -135,9 +156,14 @@ export default function TanyaUstadzClient() {
       if (response.ok) {
         const data = await response.json();
         setPendingQuestions(data.data || []);
-        if (activeTab === 'pending') {
-          setPagination(data.pagination);
-        }
+        setPendingPagination(data.pagination || {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false
+        });
       }
     } catch (error) {
       console.error('Error fetching pending questions:', error);
@@ -156,7 +182,11 @@ export default function TanyaUstadzClient() {
   };
 
   const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({ ...prev, page: newPage }));
+    if (activeTab === 'answered') {
+      setAnsweredPagination(prev => ({ ...prev, page: newPage }));
+    } else {
+      setPendingPagination(prev => ({ ...prev, page: newPage }));
+    }
   };
 
   return (
@@ -331,24 +361,24 @@ export default function TanyaUstadzClient() {
                     )}
 
                     {/* Pagination */}
-                    {pagination.totalPages > 1 && (
+                    {answeredPagination.totalPages > 1 && (
                       <div className="flex justify-center items-center gap-2 mt-8">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handlePageChange(pagination.page - 1)}
-                          disabled={!pagination.hasPrev}
+                          onClick={() => handlePageChange(answeredPagination.page - 1)}
+                          disabled={!answeredPagination.hasPrev}
                         >
                           Sebelumnya
                         </Button>
                         <span className="px-4 py-2 text-sm text-gray-600">
-                          Halaman {pagination.page} dari {pagination.totalPages}
+                          Halaman {answeredPagination.page} dari {answeredPagination.totalPages}
                         </span>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handlePageChange(pagination.page + 1)}
-                          disabled={!pagination.hasNext}
+                          onClick={() => handlePageChange(answeredPagination.page + 1)}
+                          disabled={!answeredPagination.hasNext}
                         >
                           Selanjutnya
                         </Button>
@@ -408,22 +438,22 @@ export default function TanyaUstadzClient() {
                     ))}
                     
                     {/* Pagination */}
-                    {pagination.totalPages > 1 && (
+                    {pendingPagination.totalPages > 1 && (
                       <div className="flex justify-center gap-2 mt-8">
                         <Button
                           variant="outline"
-                          onClick={() => handlePageChange(pagination.page - 1)}
-                          disabled={!pagination.hasPrev}
+                          onClick={() => handlePageChange(pendingPagination.page - 1)}
+                          disabled={!pendingPagination.hasPrev}
                         >
                           Sebelumnya
                         </Button>
                         <span className="px-4 py-2">
-                          Halaman {pagination.page} dari {pagination.totalPages}
+                          Halaman {pendingPagination.page} dari {pendingPagination.totalPages}
                         </span>
                         <Button
                           variant="outline"
-                          onClick={() => handlePageChange(pagination.page + 1)}
-                          disabled={!pagination.hasNext}
+                          onClick={() => handlePageChange(pendingPagination.page + 1)}
+                          disabled={!pendingPagination.hasNext}
                         >
                           Selanjutnya
                         </Button>
