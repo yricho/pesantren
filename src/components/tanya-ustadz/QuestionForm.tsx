@@ -26,12 +26,20 @@ export default function QuestionForm({ onSuccess }: QuestionFormProps) {
     setError(null);
 
     try {
+      // Prepare submission data
+      const submissionData = {
+        question: formData.question,
+        category: formData.category,
+        isAnonymous: formData.isAnonymous,
+        askerName: formData.isAnonymous ? null : (formData.askerName || null)
+      };
+
       const response = await fetch('/api/questions/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionData),
       });
 
       const data = await response.json();

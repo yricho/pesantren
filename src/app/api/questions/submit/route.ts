@@ -8,7 +8,7 @@ const prisma = new PrismaClient()
 const submitQuestionSchema = z.object({
   question: z.string().min(10, 'Pertanyaan minimal 10 karakter').max(2000, 'Pertanyaan maksimal 2000 karakter'),
   category: z.enum(['fiqih_ibadah', 'muamalah', 'akhlaq', 'aqidah', 'tafsir', 'tahsin'] as const),
-  askerName: z.string().optional(),
+  askerName: z.string().nullable().optional(),
   isAnonymous: z.boolean().default(false)
 })
 
