@@ -41,16 +41,24 @@ export class SessionManager {
    */
   static async updateSession(
     userId: string, 
-    data: Partial<LineUserSession>
+    data: any
   ): Promise<LineUserSession> {
     // Ensure session exists
     await this.getSession(userId)
+    
+    // Clean up data object - remove undefined and convert to proper types
+    const cleanData: any = {}
+    for (const key in data) {
+      if (data[key] !== undefined) {
+        cleanData[key] = data[key]
+      }
+    }
     
     // Update with new expiry
     return await prisma.lineUserSession.update({
       where: { userId },
       data: {
-        ...data,
+        ...cleanData,
         expiresAt: new Date(Date.now() + SESSION_EXPIRY_MINUTES * 60 * 1000),
         updatedAt: new Date()
       }

@@ -5,8 +5,8 @@ export interface FlowStep {
   id: string
   prompt: string
   inputType: 'text' | 'number' | 'date' | 'select' | 'image' | 'confirm'
-  validation?: (input: any) => boolean | string
-  transform?: (input: any) => any
+  validation?: (input: any) => boolean | string | Promise<boolean | string>
+  transform?: (input: any) => any | Promise<any>
   options?: string[] // For select type
   skipIf?: (data: any) => boolean
 }
@@ -98,7 +98,7 @@ export class FlowManager {
 
     // Validate input
     if (currentStep.validation) {
-      const validationResult = currentStep.validation(input)
+      const validationResult = await currentStep.validation(input)
       if (validationResult !== true) {
         const errorMsg = typeof validationResult === 'string' 
           ? validationResult 
@@ -114,7 +114,7 @@ export class FlowManager {
 
     // Transform input if needed
     const processedInput = currentStep.transform 
-      ? currentStep.transform(input) 
+      ? await currentStep.transform(input) 
       : input
 
     // Store step data
