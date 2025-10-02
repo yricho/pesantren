@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { compress, decompress } from 'lz-string'
+// import { compress, decompress } from 'lz-string'
 
 // Response compression utility
 export class ResponseCompressor {
