@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Download, ZoomIn, ZoomOut, Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { saveAs } from 'file-saver';
+// import { saveAs } from 'file-saver';
 import '@/styles/pdf-viewer.css';
 
 // Dynamic import for react-pdf to avoid SSR issues
@@ -79,7 +79,7 @@ export default function EbookReader({ params }: EbookReaderProps) {
 
   const handleDownload = () => {
     if (ebook) {
-      saveAs(ebook.fileUrl, `${ebook.title}.pdf`);
+      // saveAs(ebook.fileUrl, `${ebook.title}.pdf`);
       // Update download count
       fetch(`/api/ebooks/${params.id}/download`, { method: 'POST' });
     }
