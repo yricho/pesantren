@@ -84,8 +84,8 @@ export class ResponseCompressor {
     }
     
     // Fallback to simple compression
-    const compressed = compress(new TextDecoder().decode(data))
-    return new TextEncoder().encode(compressed)
+    // const compressed = compress(new TextDecoder().decode(data))
+    // return new TextEncoder().encode(compressed)
   }
 
   private static async brotliCompress(data: Uint8Array): Promise<Uint8Array> {
