@@ -1,6 +1,6 @@
 import * as ExcelJS from 'exceljs';
-import Papa from 'papaparse';
-import { saveAs } from 'file-saver';
+// import Papa from 'papaparse';
+// import { saveAs } from 'file-saver';
 
 // Types for bulk operations
 export interface ExportOptions {
@@ -94,7 +94,7 @@ export async function exportToExcel<T>(
   });
   
   const filename = options.filename || `export-${new Date().toISOString().split('T')[0]}.xlsx`;
-  saveAs(blob, filename);
+  // saveAs(blob, filename);
 }
 
 // CSV Export Function
@@ -121,7 +121,7 @@ export function exportToCSV<T>(
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const filename = options.filename || `export-${new Date().toISOString().split('T')[0]}.csv`;
-  saveAs(blob, filename);
+  // saveAs(blob, filename);
 }
 
 // Template Generation Functions
@@ -180,7 +180,7 @@ export async function generateExcelTemplate(
   const blob = new Blob([buffer], { 
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
   });
-  saveAs(blob, filename);
+  // saveAs(blob, filename);
 }
 
 // Import Functions
@@ -265,63 +265,63 @@ export function importFromCSV(
   onProgress?: ProgressCallback
 ): Promise<ImportResult> {
   return new Promise((resolve) => {
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      step: (row, parser) => {
-        if (onProgress) {
-          const progress = parser.getCharIndex() / file.size * 100;
-          onProgress(progress, 100, `Processing CSV data...`);
-        }
-      },
-      complete: (results) => {
-        const rows: any[] = [];
-        const errors: string[] = [];
-        let validRows = 0;
+    // Papa.parse(file, {
+    //   header: true,
+    //   skipEmptyLines: true,
+    //   step: (row, parser) => {
+    //     if (onProgress) {
+    //       const progress = parser.getCharIndex() / file.size * 100;
+    //       onProgress(progress, 100, `Processing CSV data...`);
+    //     }
+    //   },
+    //   complete: (results) => {
+    //     const rows: any[] = [];
+    //     const errors: string[] = [];
+    //     let validRows = 0;
         
-        results.data.forEach((row: any, index: number) => {
-          const rowNumber = index + 2; // Account for header row
-          const rowData: any = {};
-          const rowErrors: string[] = [];
+    //     results.data.forEach((row: any, index: number) => {
+    //       const rowNumber = index + 2; // Account for header row
+    //       const rowData: any = {};
+    //       const rowErrors: string[] = [];
           
-          validationRules.forEach(rule => {
-            const cellValue = row[rule.field] || row[`${rule.field} *`]; // Handle required field markers
-            const result = validateCell(cellValue, rule, rowNumber);
+    //       validationRules.forEach(rule => {
+    //         const cellValue = row[rule.field] || row[`${rule.field} *`]; // Handle required field markers
+    //         const result = validateCell(cellValue, rule, rowNumber);
             
-            if (result.valid) {
-              rowData[rule.field] = result.value;
-            } else {
-              rowErrors.push(result.error!);
-            }
-          });
+    //         if (result.valid) {
+    //           rowData[rule.field] = result.value;
+    //         } else {
+    //           rowErrors.push(result.error!);
+    //         }
+    //       });
           
-          if (rowErrors.length === 0) {
-            rows.push(rowData);
-            validRows++;
-          } else {
-            errors.push(`Baris ${rowNumber}: ${rowErrors.join(', ')}`);
-          }
-        });
+    //       if (rowErrors.length === 0) {
+    //         rows.push(rowData);
+    //         validRows++;
+    //       } else {
+    //         errors.push(`Baris ${rowNumber}: ${rowErrors.join(', ')}`);
+    //       }
+    //     });
         
-        resolve({
-          success: errors.length === 0 || validRows > 0,
-          data: rows,
-          errors,
-          totalRows: results.data.length,
-          validRows,
-          errorRows: results.data.length - validRows
-        });
-      },
-      error: (error) => {
-        resolve({
-          success: false,
-          errors: [`Error reading CSV file: ${error.message}`],
-          totalRows: 0,
-          validRows: 0,
-          errorRows: 0
-        });
-      }
-    });
+    //     resolve({
+    //       success: errors.length === 0 || validRows > 0,
+    //       data: rows,
+    //       errors,
+    //       totalRows: results.data.length,
+    //       validRows,
+    //       errorRows: results.data.length - validRows
+    //     });
+    //   },
+    //   error: (error) => {
+    //     resolve({
+    //       success: false,
+    //       errors: [`Error reading CSV file: ${error.message}`],
+    //       totalRows: 0,
+    //       validRows: 0,
+    //       errorRows: 0
+    //     });
+    //   }
+    // });
   });
 }
 
