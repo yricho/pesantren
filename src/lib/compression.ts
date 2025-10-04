@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-// import { compress, decompress } from 'lz-string'
+import { compress, decompress } from 'lz-string'
 
 // Response compression utility
 export class ResponseCompressor {
@@ -84,8 +84,8 @@ export class ResponseCompressor {
     }
     
     // Fallback to simple compression
-    // const compressed = compress(new TextDecoder().decode(data))
-    // return new TextEncoder().encode(compressed)
+    const compressed = compress(new TextDecoder().decode(data))
+    return new TextEncoder().encode(compressed)
   }
 
   private static async brotliCompress(data: Uint8Array): Promise<Uint8Array> {
