@@ -32,6 +32,7 @@ import {
   EyeIcon,
   FlagIcon,
 } from '@heroicons/react/24/solid';
+import AuthenticatedLayout from "@/app/(authenticated)/layout";
 
 export default function HomePage() {
   const [ref, inView] = useInView({
@@ -170,9 +171,11 @@ export default function HomePage() {
     },
   ];
 
+/*
+
   return (
     <PublicLayout>
-      {/* Hero Section */}
+      {/!* Hero Section *!/}
       <motion.section
         initial="hidden"
         animate="visible"
@@ -181,7 +184,7 @@ export default function HomePage() {
       >
         <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700" />
         
-        {/* Animated Background Shapes */}
+        {/!* Animated Background Shapes *!/}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
             animate={{
@@ -284,7 +287,7 @@ export default function HomePage() {
                 </div>
               </div>
               
-              {/* Floating Cards */}
+              {/!* Floating Cards *!/}
               <motion.div
                 animate={{
                   y: [0, -10, 0],
@@ -330,7 +333,7 @@ export default function HomePage() {
         </div>
       </motion.section>
 
-      {/* Stats Section */}
+      {/!* Stats Section *!/}
       <section className="py-16 -mt-8 relative z-10">
         <div className="container mx-auto px-4">
           <motion.div
@@ -361,7 +364,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/!* Features Section *!/}
       <section className="py-20 bg-gradient-to-b from-transparent to-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
@@ -417,7 +420,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Vision & Mission Section */}
+      {/!* Vision & Mission Section *!/}
       <section className="py-20 bg-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -426,7 +429,7 @@ export default function HomePage() {
         </div>
         <div className="container mx-auto px-4 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Vision */}
+            {/!* Vision *!/}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -444,7 +447,7 @@ export default function HomePage() {
               </p>
             </motion.div>
 
-            {/* Mission */}
+            {/!* Mission *!/}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -482,7 +485,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Education Programs Section */}
+      {/!* Education Programs Section *!/}
       <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -529,7 +532,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Business Units Section */}
+      {/!* Business Units Section *!/}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -579,7 +582,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Values Section */}
+      {/!* Values Section *!/}
       <section className="py-20 bg-gradient-to-br from-green-600 to-emerald-700 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -631,7 +634,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/!* CTA Section *!/}
       <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -692,4 +695,13 @@ export default function HomePage() {
 
     </PublicLayout>
   );
+
+*/
+
+    return (
+        <AuthenticatedLayout>
+            <></>
+        </AuthenticatedLayout>
+    );
+
 }
