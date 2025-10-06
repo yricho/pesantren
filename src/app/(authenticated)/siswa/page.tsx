@@ -43,7 +43,7 @@ export default function SiswaPage() {
   const [selectedType, setSelectedType] = useState<'all' | 'TK' | 'SD' | 'PONDOK'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-  const [showForm, setShowForm] = useState(false)
+  // const [showForm, setShowForm] = useState(false)
   const [editingStudent, setEditingStudent] = useState<Student | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
   const [showBulkModal, setShowBulkModal] = useState(false)
@@ -271,14 +271,17 @@ export default function SiswaPage() {
                 <Download className="w-4 h-4 mr-2" />
                 Export / Import
               </Button>
-              <Button
+
+              {/* Todo: Add Student Form */}
+              {/* <Button
                 onClick={() => setShowForm(true)}
                 className="bg-green-600 hover:bg-green-700"
                 size="sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Siswa
-              </Button>
+              </Button> */}
+
             </div>
           </div>
         </div>
