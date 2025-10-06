@@ -318,6 +318,9 @@ export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
 
+  const jenis = process.env.NODE_JENIS || ''
+  const pondok = process.env.NODE_PONDOK || ''
+
   const filteredMenuItems = menuItems.filter(item => {
     // Check admin-only items
     if (item.adminOnly && session?.user?.role !== 'ADMIN') {
@@ -348,8 +351,8 @@ export function Sidebar() {
             <BookOpen className="w-6 h-6 text-primary-600" />
           </div>
           <div>
-            <h1 className="font-bold text-lg text-gray-900">Pondok Imam</h1>
-            <p className="text-xs text-gray-600">Syafi'i Blitar</p>
+            <h1 className="font-bold text-lg text-gray-900">{jenis}</h1>
+            <p className="text-xs text-gray-600">{pondok}</p>
           </div>
         </Link>
       </div>

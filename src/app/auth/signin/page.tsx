@@ -15,6 +15,9 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const jenis = process.env.NODE_JENIS || ''
+  const pondok = process.env.NODE_PONDOK || ''
+  const nama_pondok = `${jenis} ${pondok}`
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,7 +54,7 @@ export default function SignIn() {
             </svg>
           </div>
           <CardTitle className="text-2xl font-bold text-primary-800">
-            Pondok Imam Syafi'i Blitar
+              {nama_pondok}
           </CardTitle>
           <p className="text-gray-600">Masuk ke sistem manajemen</p>
         </CardHeader>
