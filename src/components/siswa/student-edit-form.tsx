@@ -83,7 +83,7 @@ export function StudentEditForm({ student, isOpen, onClose, onSubmit }: StudentE
     e.preventDefault()
     
     if (!formData.nis || !formData.fullName || !formData.birthPlace || !formData.address || !formData.city || !formData.fatherName || !formData.motherName) {
-      setError('Mohon lengkapi semua field yang wajib')
+      setError('Mohon lengkapi semua field yang wajib!')
       return
     }
 
