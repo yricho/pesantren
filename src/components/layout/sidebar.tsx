@@ -168,7 +168,7 @@ const menuItems: MenuItem[] = [
       }
     ]
   },
-  {
+  /*{
     title: 'Video Kajian',
     href: '/kajian',
     icon: Video
@@ -183,7 +183,7 @@ const menuItems: MenuItem[] = [
     href: '/ustadz-dashboard',
     icon: MessageCircleQuestion,
     ustadzOnly: true
-  },
+  },*/
   {
     title: 'Unit Usaha',
     href: '/unit-usaha',

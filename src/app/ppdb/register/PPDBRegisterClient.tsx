@@ -149,6 +149,9 @@ export default function PPDBRegisterClient() {
   const [loading, setLoading] = useState(false);
   const [registrationId, setRegistrationId] = useState('');
   const [uploadingDoc, setUploadingDoc] = useState('');
+  const jenis = process.env.NODE_JENIS || ''
+  const pondok = process.env.NODE_PONDOK || ''
+  const nama_pondok = `${jenis} ${pondok}`
 
   useEffect(() => {
     const level = searchParams.get('level');
@@ -1521,7 +1524,7 @@ export default function PPDBRegisterClient() {
               Formulir Pendaftaran PPDB
             </h1>
             <p className="text-gray-600">
-              Tahun Ajaran 2025/2026 - Pondok Pesantren Imam Syafi'i Blitar
+              Tahun Ajaran 2025/2026 - {nama_pondok}
             </p>
           </div>
 
