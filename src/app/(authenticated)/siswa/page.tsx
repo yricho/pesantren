@@ -13,6 +13,7 @@ import { formatDate } from '@/lib/utils'
 import { StudentEditForm } from '@/components/siswa/student-edit-form'
 import BulkOperationsModal from '@/components/bulk-operations/bulk-operations-modal'
 import { ValidationRules } from '@/lib/bulk-operations'
+import { StudentCreateForm } from '@/components/siswa/student-create-form'
 
 interface Student {
   id: string
@@ -43,7 +44,7 @@ export default function SiswaPage() {
   const [selectedType, setSelectedType] = useState<'all' | 'TK' | 'SD' | 'PONDOK'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-  // const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const [editingStudent, setEditingStudent] = useState<Student | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
   const [showBulkModal, setShowBulkModal] = useState(false)
@@ -272,16 +273,14 @@ export default function SiswaPage() {
                 Export / Import
               </Button>
 
-              {/* Todo: Add Student Form */}
-              {/* <Button
+              <Button
                 onClick={() => setShowForm(true)}
                 className="bg-green-600 hover:bg-green-700"
                 size="sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Siswa
-              </Button> */}
-              {/* End: Add Student Form */}
+              </Button>
 
 
             </div>
@@ -564,6 +563,35 @@ export default function SiswaPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Create Student Form Sidebar */}
+        {showForm && (
+          <StudentCreateForm
+            isOpen={showForm}
+            onClose={() => {
+              setShowForm(false)
+            }}
+            onSubmit={async (updatedData) => {
+
+              const response = await fetch(`/api/students`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+              })
+
+              console.log(response, '<< RESPONSE');
+
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Gagal memperbarui data siswa')
+              }
+
+              setShowForm(false)
+            }}
+          />
         )}
 
         {/* Edit Student Form Sidebar */}
