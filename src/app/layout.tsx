@@ -5,14 +5,13 @@ import { Providers } from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
-const jenis = process.env.NODE_JENIS || ''
-const pondok = process.env.NODE_PONDOK || ''
-const nama_pondok = `${jenis} ${pondok}`
+const jenisPondok = process.env.NEXT_PUBLIC_JENIS
+const nmPondok = process.env.NEXT_PUBLIC_PONDOK
 
 
 export const metadata: Metadata = {
-  title: nama_pondok,
-  description: 'Aplikasi Manajemen '+nama_pondok,
+  title: jenisPondok+ ' '+nmPondok,
+  description: 'Aplikasi Manajemen '+jenisPondok+' '+nmPondok,
   manifest: '/manifest.json',
   icons: {
     icon: '/icon-192x192.png',
