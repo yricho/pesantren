@@ -5,7 +5,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
 
 :root {
-  --islamic-green: #22c55e;
+  /*--islamic-green: #22c55e;*/
+    --islamic-green:#15803d;
   --islamic-gold: #eab308;
   --islamic-dark-green: #15803d;
   --islamic-light-green: #dcfce7;
@@ -30,7 +31,8 @@
 
 @layer components {
   .islamic-gradient {
-    background: linear-gradient(135deg, var(--islamic-green), var(--islamic-gold));
+    /*background: linear-gradient(135deg, var(--islamic-green), var(--islamic-gold));*/
+      background: var(--islamic-green);
   }
   
   .card-shadow {

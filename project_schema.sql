@@ -36,7 +36,7 @@ CREATE TABLE public.academic_years (
 );
 
 
-ALTER TABLE public.academic_years OWNER TO admin;
+ALTER TABLE public.academic_years OWNER TO psrminggu;
 
 --
 -- Name: activities; Type: TABLE; Schema: public; Owner: admin
@@ -57,7 +57,7 @@ CREATE TABLE public.activities (
 );
 
 
-ALTER TABLE public.activities OWNER TO admin;
+ALTER TABLE public.activities OWNER TO psrminggu;
 
 --
 -- Name: alumni; Type: TABLE; Schema: public; Owner: admin
@@ -112,7 +112,7 @@ CREATE TABLE public.alumni (
 );
 
 
-ALTER TABLE public.alumni OWNER TO admin;
+ALTER TABLE public.alumni OWNER TO psrminggu;
 
 --
 -- Name: announcements; Type: TABLE; Schema: public; Owner: admin
@@ -145,7 +145,7 @@ CREATE TABLE public.announcements (
 );
 
 
-ALTER TABLE public.announcements OWNER TO admin;
+ALTER TABLE public.announcements OWNER TO psrminggu;
 
 --
 -- Name: answers; Type: TABLE; Schema: public; Owner: admin
@@ -161,7 +161,7 @@ CREATE TABLE public.answers (
 );
 
 
-ALTER TABLE public.answers OWNER TO admin;
+ALTER TABLE public.answers OWNER TO psrminggu;
 
 --
 -- Name: attendances; Type: TABLE; Schema: public; Owner: admin
@@ -183,7 +183,7 @@ CREATE TABLE public.attendances (
 );
 
 
-ALTER TABLE public.attendances OWNER TO admin;
+ALTER TABLE public.attendances OWNER TO psrminggu;
 
 --
 -- Name: audit_trails; Type: TABLE; Schema: public; Owner: admin
@@ -203,7 +203,7 @@ CREATE TABLE public.audit_trails (
 );
 
 
-ALTER TABLE public.audit_trails OWNER TO admin;
+ALTER TABLE public.audit_trails OWNER TO psrminggu;
 
 --
 -- Name: bill_payments; Type: TABLE; Schema: public; Owner: admin
@@ -235,7 +235,7 @@ CREATE TABLE public.bill_payments (
 );
 
 
-ALTER TABLE public.bill_payments OWNER TO admin;
+ALTER TABLE public.bill_payments OWNER TO psrminggu;
 
 --
 -- Name: bill_types; Type: TABLE; Schema: public; Owner: admin
@@ -265,7 +265,7 @@ CREATE TABLE public.bill_types (
 );
 
 
-ALTER TABLE public.bill_types OWNER TO admin;
+ALTER TABLE public.bill_types OWNER TO psrminggu;
 
 --
 -- Name: billing_reports; Type: TABLE; Schema: public; Owner: admin
@@ -293,7 +293,7 @@ CREATE TABLE public.billing_reports (
 );
 
 
-ALTER TABLE public.billing_reports OWNER TO admin;
+ALTER TABLE public.billing_reports OWNER TO psrminggu;
 
 --
 -- Name: billing_settings; Type: TABLE; Schema: public; Owner: admin
@@ -311,7 +311,7 @@ CREATE TABLE public.billing_settings (
 );
 
 
-ALTER TABLE public.billing_settings OWNER TO admin;
+ALTER TABLE public.billing_settings OWNER TO psrminggu;
 
 --
 -- Name: bills; Type: TABLE; Schema: public; Owner: admin
@@ -350,7 +350,7 @@ CREATE TABLE public.bills (
 );
 
 
-ALTER TABLE public.bills OWNER TO admin;
+ALTER TABLE public.bills OWNER TO psrminggu;
 
 --
 -- Name: budget_items; Type: TABLE; Schema: public; Owner: admin
@@ -370,7 +370,7 @@ CREATE TABLE public.budget_items (
 );
 
 
-ALTER TABLE public.budget_items OWNER TO admin;
+ALTER TABLE public.budget_items OWNER TO psrminggu;
 
 --
 -- Name: budgets; Type: TABLE; Schema: public; Owner: admin
@@ -393,7 +393,7 @@ CREATE TABLE public.budgets (
 );
 
 
-ALTER TABLE public.budgets OWNER TO admin;
+ALTER TABLE public.budgets OWNER TO psrminggu;
 
 --
 -- Name: business_transactions; Type: TABLE; Schema: public; Owner: admin
@@ -419,7 +419,7 @@ CREATE TABLE public.business_transactions (
 );
 
 
-ALTER TABLE public.business_transactions OWNER TO admin;
+ALTER TABLE public.business_transactions OWNER TO psrminggu;
 
 --
 -- Name: business_unit_reports; Type: TABLE; Schema: public; Owner: admin
@@ -463,7 +463,7 @@ CREATE TABLE public.business_unit_reports (
 );
 
 
-ALTER TABLE public.business_unit_reports OWNER TO admin;
+ALTER TABLE public.business_unit_reports OWNER TO psrminggu;
 
 --
 -- Name: business_units; Type: TABLE; Schema: public; Owner: admin
@@ -485,7 +485,7 @@ CREATE TABLE public.business_units (
 );
 
 
-ALTER TABLE public.business_units OWNER TO admin;
+ALTER TABLE public.business_units OWNER TO psrminggu;
 
 --
 -- Name: campaign_updates; Type: TABLE; Schema: public; Owner: admin
@@ -503,7 +503,7 @@ CREATE TABLE public.campaign_updates (
 );
 
 
-ALTER TABLE public.campaign_updates OWNER TO admin;
+ALTER TABLE public.campaign_updates OWNER TO psrminggu;
 
 --
 -- Name: classes; Type: TABLE; Schema: public; Owner: admin
@@ -527,7 +527,7 @@ CREATE TABLE public.classes (
 );
 
 
-ALTER TABLE public.classes OWNER TO admin;
+ALTER TABLE public.classes OWNER TO psrminggu;
 
 --
 -- Name: courses; Type: TABLE; Schema: public; Owner: admin
@@ -550,7 +550,7 @@ CREATE TABLE public.courses (
 );
 
 
-ALTER TABLE public.courses OWNER TO admin;
+ALTER TABLE public.courses OWNER TO psrminggu;
 
 --
 -- Name: curriculum_subjects; Type: TABLE; Schema: public; Owner: admin
@@ -570,7 +570,7 @@ CREATE TABLE public.curriculum_subjects (
 );
 
 
-ALTER TABLE public.curriculum_subjects OWNER TO admin;
+ALTER TABLE public.curriculum_subjects OWNER TO psrminggu;
 
 --
 -- Name: curriculums; Type: TABLE; Schema: public; Owner: admin
@@ -590,7 +590,7 @@ CREATE TABLE public.curriculums (
 );
 
 
-ALTER TABLE public.curriculums OWNER TO admin;
+ALTER TABLE public.curriculums OWNER TO psrminggu;
 
 --
 -- Name: donation_campaigns; Type: TABLE; Schema: public; Owner: admin
@@ -623,7 +623,7 @@ CREATE TABLE public.donation_campaigns (
 );
 
 
-ALTER TABLE public.donation_campaigns OWNER TO admin;
+ALTER TABLE public.donation_campaigns OWNER TO psrminggu;
 
 --
 -- Name: donation_categories; Type: TABLE; Schema: public; Owner: admin
@@ -642,7 +642,7 @@ CREATE TABLE public.donation_categories (
 );
 
 
-ALTER TABLE public.donation_categories OWNER TO admin;
+ALTER TABLE public.donation_categories OWNER TO psrminggu;
 
 --
 -- Name: donations; Type: TABLE; Schema: public; Owner: admin
@@ -682,7 +682,7 @@ CREATE TABLE public.donations (
 );
 
 
-ALTER TABLE public.donations OWNER TO admin;
+ALTER TABLE public.donations OWNER TO psrminggu;
 
 --
 -- Name: donor_profiles; Type: TABLE; Schema: public; Owner: admin
@@ -707,7 +707,7 @@ CREATE TABLE public.donor_profiles (
 );
 
 
-ALTER TABLE public.donor_profiles OWNER TO admin;
+ALTER TABLE public.donor_profiles OWNER TO psrminggu;
 
 --
 -- Name: ebooks; Type: TABLE; Schema: public; Owner: admin
@@ -739,7 +739,7 @@ CREATE TABLE public.ebooks (
 );
 
 
-ALTER TABLE public.ebooks OWNER TO admin;
+ALTER TABLE public.ebooks OWNER TO psrminggu;
 
 --
 -- Name: exam_results; Type: TABLE; Schema: public; Owner: admin
@@ -761,7 +761,7 @@ CREATE TABLE public.exam_results (
 );
 
 
-ALTER TABLE public.exam_results OWNER TO admin;
+ALTER TABLE public.exam_results OWNER TO psrminggu;
 
 --
 -- Name: exams; Type: TABLE; Schema: public; Owner: admin
@@ -793,7 +793,7 @@ CREATE TABLE public.exams (
 );
 
 
-ALTER TABLE public.exams OWNER TO admin;
+ALTER TABLE public.exams OWNER TO psrminggu;
 
 --
 -- Name: financial_accounts; Type: TABLE; Schema: public; Owner: admin
@@ -814,7 +814,7 @@ CREATE TABLE public.financial_accounts (
 );
 
 
-ALTER TABLE public.financial_accounts OWNER TO admin;
+ALTER TABLE public.financial_accounts OWNER TO psrminggu;
 
 --
 -- Name: financial_categories; Type: TABLE; Schema: public; Owner: admin
@@ -836,7 +836,7 @@ CREATE TABLE public.financial_categories (
 );
 
 
-ALTER TABLE public.financial_categories OWNER TO admin;
+ALTER TABLE public.financial_categories OWNER TO psrminggu;
 
 --
 -- Name: financial_reports; Type: TABLE; Schema: public; Owner: admin
@@ -859,7 +859,7 @@ CREATE TABLE public.financial_reports (
 );
 
 
-ALTER TABLE public.financial_reports OWNER TO admin;
+ALTER TABLE public.financial_reports OWNER TO psrminggu;
 
 --
 -- Name: grades; Type: TABLE; Schema: public; Owner: admin
@@ -892,7 +892,7 @@ CREATE TABLE public.grades (
 );
 
 
-ALTER TABLE public.grades OWNER TO admin;
+ALTER TABLE public.grades OWNER TO psrminggu;
 
 --
 -- Name: hafalan_achievements; Type: TABLE; Schema: public; Owner: admin
@@ -920,7 +920,7 @@ CREATE TABLE public.hafalan_achievements (
 );
 
 
-ALTER TABLE public.hafalan_achievements OWNER TO admin;
+ALTER TABLE public.hafalan_achievements OWNER TO psrminggu;
 
 --
 -- Name: hafalan_progress; Type: TABLE; Schema: public; Owner: admin
@@ -953,7 +953,7 @@ CREATE TABLE public.hafalan_progress (
 );
 
 
-ALTER TABLE public.hafalan_progress OWNER TO admin;
+ALTER TABLE public.hafalan_progress OWNER TO psrminggu;
 
 --
 -- Name: hafalan_records; Type: TABLE; Schema: public; Owner: admin
@@ -984,7 +984,7 @@ CREATE TABLE public.hafalan_records (
 );
 
 
-ALTER TABLE public.hafalan_records OWNER TO admin;
+ALTER TABLE public.hafalan_records OWNER TO psrminggu;
 
 --
 -- Name: hafalan_sessions; Type: TABLE; Schema: public; Owner: admin
@@ -1020,7 +1020,7 @@ CREATE TABLE public.hafalan_sessions (
 );
 
 
-ALTER TABLE public.hafalan_sessions OWNER TO admin;
+ALTER TABLE public.hafalan_sessions OWNER TO psrminggu;
 
 --
 -- Name: hafalan_targets; Type: TABLE; Schema: public; Owner: admin
@@ -1051,7 +1051,7 @@ CREATE TABLE public.hafalan_targets (
 );
 
 
-ALTER TABLE public.hafalan_targets OWNER TO admin;
+ALTER TABLE public.hafalan_targets OWNER TO psrminggu;
 
 --
 -- Name: inventory; Type: TABLE; Schema: public; Owner: admin
@@ -1071,7 +1071,7 @@ CREATE TABLE public.inventory (
 );
 
 
-ALTER TABLE public.inventory OWNER TO admin;
+ALTER TABLE public.inventory OWNER TO psrminggu;
 
 --
 -- Name: inventory_transactions; Type: TABLE; Schema: public; Owner: admin
@@ -1095,7 +1095,7 @@ CREATE TABLE public.inventory_transactions (
 );
 
 
-ALTER TABLE public.inventory_transactions OWNER TO admin;
+ALTER TABLE public.inventory_transactions OWNER TO psrminggu;
 
 --
 -- Name: journal_entries; Type: TABLE; Schema: public; Owner: admin
@@ -1122,7 +1122,7 @@ CREATE TABLE public.journal_entries (
 );
 
 
-ALTER TABLE public.journal_entries OWNER TO admin;
+ALTER TABLE public.journal_entries OWNER TO psrminggu;
 
 --
 -- Name: journal_entry_lines; Type: TABLE; Schema: public; Owner: admin
@@ -1140,7 +1140,7 @@ CREATE TABLE public.journal_entry_lines (
 );
 
 
-ALTER TABLE public.journal_entry_lines OWNER TO admin;
+ALTER TABLE public.journal_entry_lines OWNER TO psrminggu;
 
 --
 -- Name: line_admins; Type: TABLE; Schema: public; Owner: admin
@@ -1156,7 +1156,7 @@ CREATE TABLE public.line_admins (
 );
 
 
-ALTER TABLE public.line_admins OWNER TO admin;
+ALTER TABLE public.line_admins OWNER TO psrminggu;
 
 --
 -- Name: line_settings; Type: TABLE; Schema: public; Owner: admin
@@ -1188,7 +1188,7 @@ CREATE TABLE public.line_settings (
 );
 
 
-ALTER TABLE public.line_settings OWNER TO admin;
+ALTER TABLE public.line_settings OWNER TO psrminggu;
 
 --
 -- Name: line_user_sessions; Type: TABLE; Schema: public; Owner: admin
@@ -1218,7 +1218,7 @@ CREATE TABLE public.line_user_sessions (
 );
 
 
-ALTER TABLE public.line_user_sessions OWNER TO admin;
+ALTER TABLE public.line_user_sessions OWNER TO psrminggu;
 
 --
 -- Name: line_users; Type: TABLE; Schema: public; Owner: admin
@@ -1240,7 +1240,7 @@ CREATE TABLE public.line_users (
 );
 
 
-ALTER TABLE public.line_users OWNER TO admin;
+ALTER TABLE public.line_users OWNER TO psrminggu;
 
 --
 -- Name: messages; Type: TABLE; Schema: public; Owner: admin
@@ -1269,7 +1269,7 @@ CREATE TABLE public.messages (
 );
 
 
-ALTER TABLE public.messages OWNER TO admin;
+ALTER TABLE public.messages OWNER TO psrminggu;
 
 --
 -- Name: notifications; Type: TABLE; Schema: public; Owner: admin
@@ -1300,7 +1300,7 @@ CREATE TABLE public.notifications (
 );
 
 
-ALTER TABLE public.notifications OWNER TO admin;
+ALTER TABLE public.notifications OWNER TO psrminggu;
 
 --
 -- Name: ota_programs; Type: TABLE; Schema: public; Owner: admin
@@ -1325,7 +1325,7 @@ CREATE TABLE public.ota_programs (
 );
 
 
-ALTER TABLE public.ota_programs OWNER TO admin;
+ALTER TABLE public.ota_programs OWNER TO psrminggu;
 
 --
 -- Name: ota_reports; Type: TABLE; Schema: public; Owner: admin
@@ -1364,7 +1364,7 @@ CREATE TABLE public.ota_reports (
 );
 
 
-ALTER TABLE public.ota_reports OWNER TO admin;
+ALTER TABLE public.ota_reports OWNER TO psrminggu;
 
 --
 -- Name: ota_sponsors; Type: TABLE; Schema: public; Owner: admin
@@ -1398,7 +1398,7 @@ CREATE TABLE public.ota_sponsors (
 );
 
 
-ALTER TABLE public.ota_sponsors OWNER TO admin;
+ALTER TABLE public.ota_sponsors OWNER TO psrminggu;
 
 --
 -- Name: parent_accounts; Type: TABLE; Schema: public; Owner: admin
@@ -1419,7 +1419,7 @@ CREATE TABLE public.parent_accounts (
 );
 
 
-ALTER TABLE public.parent_accounts OWNER TO admin;
+ALTER TABLE public.parent_accounts OWNER TO psrminggu;
 
 --
 -- Name: parent_students; Type: TABLE; Schema: public; Owner: admin
@@ -1440,7 +1440,7 @@ CREATE TABLE public.parent_students (
 );
 
 
-ALTER TABLE public.parent_students OWNER TO admin;
+ALTER TABLE public.parent_students OWNER TO psrminggu;
 
 --
 -- Name: payment_history; Type: TABLE; Schema: public; Owner: admin
@@ -1462,7 +1462,7 @@ CREATE TABLE public.payment_history (
 );
 
 
-ALTER TABLE public.payment_history OWNER TO admin;
+ALTER TABLE public.payment_history OWNER TO psrminggu;
 
 --
 -- Name: payment_reminders; Type: TABLE; Schema: public; Owner: admin
@@ -1495,7 +1495,7 @@ CREATE TABLE public.payment_reminders (
 );
 
 
-ALTER TABLE public.payment_reminders OWNER TO admin;
+ALTER TABLE public.payment_reminders OWNER TO psrminggu;
 
 --
 -- Name: payments; Type: TABLE; Schema: public; Owner: admin
@@ -1535,7 +1535,7 @@ CREATE TABLE public.payments (
 );
 
 
-ALTER TABLE public.payments OWNER TO admin;
+ALTER TABLE public.payments OWNER TO psrminggu;
 
 --
 -- Name: ppdb_activities; Type: TABLE; Schema: public; Owner: admin
@@ -1552,7 +1552,7 @@ CREATE TABLE public.ppdb_activities (
 );
 
 
-ALTER TABLE public.ppdb_activities OWNER TO admin;
+ALTER TABLE public.ppdb_activities OWNER TO psrminggu;
 
 --
 -- Name: ppdb_registrations; Type: TABLE; Schema: public; Owner: admin
@@ -1642,7 +1642,7 @@ CREATE TABLE public.ppdb_registrations (
 );
 
 
-ALTER TABLE public.ppdb_registrations OWNER TO admin;
+ALTER TABLE public.ppdb_registrations OWNER TO psrminggu;
 
 --
 -- Name: ppdb_settings; Type: TABLE; Schema: public; Owner: admin
@@ -1675,7 +1675,7 @@ CREATE TABLE public.ppdb_settings (
 );
 
 
-ALTER TABLE public.ppdb_settings OWNER TO admin;
+ALTER TABLE public.ppdb_settings OWNER TO psrminggu;
 
 --
 -- Name: product_categories; Type: TABLE; Schema: public; Owner: admin
@@ -1695,7 +1695,7 @@ CREATE TABLE public.product_categories (
 );
 
 
-ALTER TABLE public.product_categories OWNER TO admin;
+ALTER TABLE public.product_categories OWNER TO psrminggu;
 
 --
 -- Name: products; Type: TABLE; Schema: public; Owner: admin
@@ -1724,7 +1724,7 @@ CREATE TABLE public.products (
 );
 
 
-ALTER TABLE public.products OWNER TO admin;
+ALTER TABLE public.products OWNER TO psrminggu;
 
 --
 -- Name: purchase_order_items; Type: TABLE; Schema: public; Owner: admin
@@ -1744,7 +1744,7 @@ CREATE TABLE public.purchase_order_items (
 );
 
 
-ALTER TABLE public.purchase_order_items OWNER TO admin;
+ALTER TABLE public.purchase_order_items OWNER TO psrminggu;
 
 --
 -- Name: purchase_orders; Type: TABLE; Schema: public; Owner: admin
@@ -1773,7 +1773,7 @@ CREATE TABLE public.purchase_orders (
 );
 
 
-ALTER TABLE public.purchase_orders OWNER TO admin;
+ALTER TABLE public.purchase_orders OWNER TO psrminggu;
 
 --
 -- Name: push_subscriptions; Type: TABLE; Schema: public; Owner: admin
@@ -1791,7 +1791,7 @@ CREATE TABLE public.push_subscriptions (
 );
 
 
-ALTER TABLE public.push_subscriptions OWNER TO admin;
+ALTER TABLE public.push_subscriptions OWNER TO psrminggu;
 
 --
 -- Name: questions; Type: TABLE; Schema: public; Owner: admin
@@ -1809,7 +1809,7 @@ CREATE TABLE public.questions (
 );
 
 
-ALTER TABLE public.questions OWNER TO admin;
+ALTER TABLE public.questions OWNER TO psrminggu;
 
 --
 -- Name: quran_surahs; Type: TABLE; Schema: public; Owner: admin
@@ -1835,7 +1835,7 @@ CREATE TABLE public.quran_surahs (
 );
 
 
-ALTER TABLE public.quran_surahs OWNER TO admin;
+ALTER TABLE public.quran_surahs OWNER TO psrminggu;
 
 --
 -- Name: registrations; Type: TABLE; Schema: public; Owner: admin
@@ -1913,7 +1913,7 @@ CREATE TABLE public.registrations (
 );
 
 
-ALTER TABLE public.registrations OWNER TO admin;
+ALTER TABLE public.registrations OWNER TO psrminggu;
 
 --
 -- Name: report_cards; Type: TABLE; Schema: public; Owner: admin
@@ -1953,7 +1953,7 @@ CREATE TABLE public.report_cards (
 );
 
 
-ALTER TABLE public.report_cards OWNER TO admin;
+ALTER TABLE public.report_cards OWNER TO psrminggu;
 
 --
 -- Name: sale_items; Type: TABLE; Schema: public; Owner: admin
@@ -1973,7 +1973,7 @@ CREATE TABLE public.sale_items (
 );
 
 
-ALTER TABLE public.sale_items OWNER TO admin;
+ALTER TABLE public.sale_items OWNER TO psrminggu;
 
 --
 -- Name: sales; Type: TABLE; Schema: public; Owner: admin
@@ -2003,7 +2003,7 @@ CREATE TABLE public.sales (
 );
 
 
-ALTER TABLE public.sales OWNER TO admin;
+ALTER TABLE public.sales OWNER TO psrminggu;
 
 --
 -- Name: schedules; Type: TABLE; Schema: public; Owner: admin
@@ -2026,7 +2026,7 @@ CREATE TABLE public.schedules (
 );
 
 
-ALTER TABLE public.schedules OWNER TO admin;
+ALTER TABLE public.schedules OWNER TO psrminggu;
 
 --
 -- Name: security_audit_logs; Type: TABLE; Schema: public; Owner: admin
@@ -2043,7 +2043,7 @@ CREATE TABLE public.security_audit_logs (
 );
 
 
-ALTER TABLE public.security_audit_logs OWNER TO admin;
+ALTER TABLE public.security_audit_logs OWNER TO psrminggu;
 
 --
 -- Name: semesters; Type: TABLE; Schema: public; Owner: admin
@@ -2064,7 +2064,7 @@ CREATE TABLE public.semesters (
 );
 
 
-ALTER TABLE public.semesters OWNER TO admin;
+ALTER TABLE public.semesters OWNER TO psrminggu;
 
 --
 -- Name: setoran_schedules; Type: TABLE; Schema: public; Owner: admin
@@ -2093,7 +2093,7 @@ CREATE TABLE public.setoran_schedules (
 );
 
 
-ALTER TABLE public.setoran_schedules OWNER TO admin;
+ALTER TABLE public.setoran_schedules OWNER TO psrminggu;
 
 --
 -- Name: settings; Type: TABLE; Schema: public; Owner: admin
@@ -2106,7 +2106,7 @@ CREATE TABLE public.settings (
 );
 
 
-ALTER TABLE public.settings OWNER TO admin;
+ALTER TABLE public.settings OWNER TO psrminggu;
 
 --
 -- Name: spp_billings; Type: TABLE; Schema: public; Owner: admin
@@ -2151,7 +2151,7 @@ CREATE TABLE public.spp_billings (
 );
 
 
-ALTER TABLE public.spp_billings OWNER TO admin;
+ALTER TABLE public.spp_billings OWNER TO psrminggu;
 
 --
 -- Name: spp_payments; Type: TABLE; Schema: public; Owner: admin
@@ -2183,7 +2183,7 @@ CREATE TABLE public.spp_payments (
 );
 
 
-ALTER TABLE public.spp_payments OWNER TO admin;
+ALTER TABLE public.spp_payments OWNER TO psrminggu;
 
 --
 -- Name: spp_reminders; Type: TABLE; Schema: public; Owner: admin
@@ -2207,7 +2207,7 @@ CREATE TABLE public.spp_reminders (
 );
 
 
-ALTER TABLE public.spp_reminders OWNER TO admin;
+ALTER TABLE public.spp_reminders OWNER TO psrminggu;
 
 --
 -- Name: spp_reports; Type: TABLE; Schema: public; Owner: admin
@@ -2228,7 +2228,7 @@ CREATE TABLE public.spp_reports (
 );
 
 
-ALTER TABLE public.spp_reports OWNER TO admin;
+ALTER TABLE public.spp_reports OWNER TO psrminggu;
 
 --
 -- Name: spp_settings; Type: TABLE; Schema: public; Owner: admin
@@ -2263,7 +2263,7 @@ CREATE TABLE public.spp_settings (
 );
 
 
-ALTER TABLE public.spp_settings OWNER TO admin;
+ALTER TABLE public.spp_settings OWNER TO psrminggu;
 
 --
 -- Name: student_classes; Type: TABLE; Schema: public; Owner: admin
@@ -2283,7 +2283,7 @@ CREATE TABLE public.student_classes (
 );
 
 
-ALTER TABLE public.student_classes OWNER TO admin;
+ALTER TABLE public.student_classes OWNER TO psrminggu;
 
 --
 -- Name: students; Type: TABLE; Schema: public; Owner: admin
@@ -2344,7 +2344,7 @@ CREATE TABLE public.students (
 );
 
 
-ALTER TABLE public.students OWNER TO admin;
+ALTER TABLE public.students OWNER TO psrminggu;
 
 --
 -- Name: subjects; Type: TABLE; Schema: public; Owner: admin
@@ -2369,7 +2369,7 @@ CREATE TABLE public.subjects (
 );
 
 
-ALTER TABLE public.subjects OWNER TO admin;
+ALTER TABLE public.subjects OWNER TO psrminggu;
 
 --
 -- Name: suppliers; Type: TABLE; Schema: public; Owner: admin
@@ -2395,7 +2395,7 @@ CREATE TABLE public.suppliers (
 );
 
 
-ALTER TABLE public.suppliers OWNER TO admin;
+ALTER TABLE public.suppliers OWNER TO psrminggu;
 
 --
 -- Name: teacher_subjects; Type: TABLE; Schema: public; Owner: admin
@@ -2413,7 +2413,7 @@ CREATE TABLE public.teacher_subjects (
 );
 
 
-ALTER TABLE public.teacher_subjects OWNER TO admin;
+ALTER TABLE public.teacher_subjects OWNER TO psrminggu;
 
 --
 -- Name: teachers; Type: TABLE; Schema: public; Owner: admin
@@ -2452,7 +2452,7 @@ CREATE TABLE public.teachers (
 );
 
 
-ALTER TABLE public.teachers OWNER TO admin;
+ALTER TABLE public.teachers OWNER TO psrminggu;
 
 --
 -- Name: transactions; Type: TABLE; Schema: public; Owner: admin
@@ -2480,7 +2480,7 @@ CREATE TABLE public.transactions (
 );
 
 
-ALTER TABLE public.transactions OWNER TO admin;
+ALTER TABLE public.transactions OWNER TO psrminggu;
 
 --
 -- Name: two_factor_verifications; Type: TABLE; Schema: public; Owner: admin
@@ -2502,7 +2502,7 @@ CREATE TABLE public.two_factor_verifications (
 );
 
 
-ALTER TABLE public.two_factor_verifications OWNER TO admin;
+ALTER TABLE public.two_factor_verifications OWNER TO psrminggu;
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: admin
@@ -2526,7 +2526,7 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO admin;
+ALTER TABLE public.users OWNER TO psrminggu;
 
 --
 -- Name: videos; Type: TABLE; Schema: public; Owner: admin
@@ -2550,7 +2550,7 @@ CREATE TABLE public.videos (
 );
 
 
-ALTER TABLE public.videos OWNER TO admin;
+ALTER TABLE public.videos OWNER TO psrminggu;
 
 --
 -- Name: zakat_calculations; Type: TABLE; Schema: public; Owner: admin
@@ -2570,7 +2570,7 @@ CREATE TABLE public.zakat_calculations (
 );
 
 
-ALTER TABLE public.zakat_calculations OWNER TO admin;
+ALTER TABLE public.zakat_calculations OWNER TO psrminggu;
 
 --
 -- Name: academic_years academic_years_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
