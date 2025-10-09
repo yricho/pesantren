@@ -293,7 +293,7 @@ export default function AttendancePage() {
     student.nis.includes(searchTerm)
   );
 
-  const selectedClassData = classes.length > 0 && classes.find(c => c.id === selectedClass);
+  const selectedClassData = classes.find(c => c.id === selectedClass);
   const selectedSemesterData = semesters.find(s => s.id === selectedSemester);
   const stats = getAttendanceStats();
 
