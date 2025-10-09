@@ -115,6 +115,11 @@ const menuItems: MenuItem[] = [
         icon: BarChart3
       },
       {
+            title: 'Tahun Ajaran',
+            href: '/akademik/years',
+            icon: BookOpen
+      },
+      {
         title: 'Kelas',
         href: '/akademik/classes',
         icon: Users
