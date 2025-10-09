@@ -77,12 +77,12 @@ const menuItems: MenuItem[] = [
     href: '/pengajar',
     icon: Users
   },
-  {
+  /*{
     title: 'Admin PPDB',
     href: '/ppdb-admin',
     icon: ClipboardCheck,
     adminOnly: true
-  },
+  },*/
   {
     title: 'OTA Admin',
     href: '/ota-admin',
@@ -267,7 +267,7 @@ const menuItems: MenuItem[] = [
         title: 'Umum',
         href: '/settings',
         icon: Settings
-      },
+      },/*
       {
         title: 'Pembayaran',
         href: '/settings/payment',
@@ -307,7 +307,7 @@ const menuItems: MenuItem[] = [
         title: 'Keamanan 2FA',
         href: '/settings/security',
         icon: Shield
-      }
+      }*/
     ]
   }
 ]

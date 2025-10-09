@@ -3,6 +3,7 @@
 import { useSession, signIn } from 'next-auth/react'
 import { useEffect } from 'react'
 import { Sidebar } from '@/components/layout/sidebar'
+import {redirect} from "next/navigation";
 
 export default function AuthenticatedLayout({
   children,
