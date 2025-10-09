@@ -219,22 +219,6 @@ export default function DashboardClient() {
       description: 'Pengajar aktif',
     },
     {
-      title: 'PPDB',
-      value: stats.ppdb.totalRegistrations,
-      icon: DocumentCheckIcon,
-      color: 'from-teal-400 to-teal-600',
-      bgColor: 'bg-teal-50',
-      description: 'Pendaftar tahun ini',
-    },
-    {
-      title: 'Perpustakaan',
-      value: stats.library.totalEbooks,
-      icon: BookOpenIcon,
-      color: 'from-pink-400 to-pink-600',
-      bgColor: 'bg-pink-50',
-      description: `${stats.library.totalVideos} video kajian`,
-    },
-    {
       title: 'Kegiatan',
       value: stats.academic.totalActivities,
       change: `+${stats.academic.monthlyActivities}`,
@@ -261,7 +245,7 @@ export default function DashboardClient() {
         variants={stagger}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
       >
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
