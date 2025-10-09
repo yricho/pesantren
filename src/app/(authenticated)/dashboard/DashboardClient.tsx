@@ -97,6 +97,9 @@ export default function DashboardClient() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const jenisPondok = process.env.NEXT_PUBLIC_JENIS
+  const nmPondok = process.env.NEXT_PUBLIC_PONDOK
+
   useEffect(() => {
     fetchDashboardStats();
   }, []);
@@ -249,7 +252,7 @@ export default function DashboardClient() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-1">
-          Selamat datang di Sistem Manajemen Pondok Pesantren Imam Syafi'i
+          Selamat datang di Sistem Manajemen {jenisPondok} {nmPondok}
         </p>
       </div>
 

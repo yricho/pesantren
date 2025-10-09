@@ -318,8 +318,8 @@ export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
 
-  const jenis = process.env.NODE_JENIS || ''
-  const pondok = process.env.NODE_PONDOK || ''
+  const jenisPondok = process.env.NEXT_PUBLIC_JENIS
+  const nmPondok = process.env.NEXT_PUBLIC_PONDOK
 
   const filteredMenuItems = menuItems.filter(item => {
     // Check admin-only items
@@ -351,8 +351,8 @@ export function Sidebar() {
             <BookOpen className="w-6 h-6 text-primary-600" />
           </div>
           <div>
-            <h1 className="font-bold text-lg text-gray-900">{jenis}</h1>
-            <p className="text-xs text-gray-600">{pondok}</p>
+            <h1 className="font-bold text-md text-gray-900">{jenisPondok}</h1>
+            <p className="text-xs text-gray-600">{nmPondok}</p>
           </div>
         </Link>
       </div>

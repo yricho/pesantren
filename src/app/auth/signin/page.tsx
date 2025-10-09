@@ -16,10 +16,9 @@ export default function SignIn() {
   const [error, setError] = useState('')
   const router = useRouter()
 
-  //TODO
-  //.env variable error // not show
-  const jenisPondok = process.env.NODE_JENIS
-  const nmPondok = process.env.NODE_PONDOK
+
+  const jenisPondok = process.env.NEXT_PUBLIC_JENIS
+  const nmPondok = process.env.NEXT_PUBLIC_PONDOK
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
