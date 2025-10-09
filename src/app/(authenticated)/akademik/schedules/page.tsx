@@ -366,7 +366,7 @@ export default function SchedulesPage() {
             className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Semua Kelas</option>
-            {classes.map((cls) => (
+            {classes.length > 0 && classes.map((cls) => (
               <option key={cls.id} value={cls.id}>
                 {cls.name} ({cls.level})
               </option>

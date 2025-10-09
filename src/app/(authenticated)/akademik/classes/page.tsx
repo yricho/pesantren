@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { toast } from '@/components/ui/toast';
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/toast";
 import {
   Users,
   Plus,
@@ -17,7 +17,7 @@ import {
   UserPlus,
   BookOpen,
   Calendar,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface AcademicYear {
   id: string;
@@ -76,21 +76,21 @@ export default function ClassesPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<Class | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('');
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState("");
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState("");
 
   const [formData, setFormData] = useState<ClassFormData>({
-    name: '',
-    grade: '',
-    section: '',
-    academicYearId: '',
-    teacherId: '',
+    name: "",
+    grade: "",
+    section: "",
+    academicYearId: "",
+    teacherId: "",
     capacity: 30,
-    room: '',
-    level: '',
-    program: '',
-    description: '',
+    room: "",
+    level: "",
+    program: "",
+    description: "",
     isActive: true,
   });
 
@@ -103,13 +103,13 @@ export default function ClassesPage() {
   const fetchClasses = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/academic/classes');
+      const response = await fetch("/api/academic/classes");
       if (response.ok) {
         const data = await response.json();
         setClasses(data);
       }
     } catch (error) {
-      console.error('Error fetching classes:', error);
+      console.error("Error fetching classes:", error);
       toast.error("Error: Gagal memuat data kelas");
     } finally {
       setLoading(false);
@@ -118,7 +118,7 @@ export default function ClassesPage() {
 
   const fetchAcademicYears = async () => {
     try {
-      const response = await fetch('/api/academic/years');
+      const response = await fetch("/api/academic/years");
       if (response.ok) {
         const data = await response.json();
         setAcademicYears(data);
@@ -126,11 +126,11 @@ export default function ClassesPage() {
         const activeYear = data.find((year: AcademicYear) => year.isActive);
         if (activeYear && !selectedAcademicYear) {
           setSelectedAcademicYear(activeYear.id);
-          setFormData(prev => ({ ...prev, academicYearId: activeYear.id }));
+          setFormData((prev) => ({ ...prev, academicYearId: activeYear.id }));
         }
       }
     } catch (error) {
-      console.error('Error fetching academic years:', error);
+      console.error("Error fetching academic years:", error);
     }
   };
 
@@ -138,13 +138,13 @@ export default function ClassesPage() {
     try {
       // This would be replaced with actual teacher endpoint
       const mockTeachers: Teacher[] = [
-        { id: '1', name: 'Ahmad Rahman, S.Pd', email: 'ahmad@pondok.id' },
-        { id: '2', name: 'Siti Fatimah, S.Ag', email: 'siti@pondok.id' },
-        { id: '3', name: 'Abdul Malik, M.Pd', email: 'abdul@pondok.id' },
+        { id: "1", name: "Ahmad Rahman, S.Pd", email: "ahmad@pondok.id" },
+        { id: "2", name: "Siti Fatimah, S.Ag", email: "siti@pondok.id" },
+        { id: "3", name: "Abdul Malik, M.Pd", email: "abdul@pondok.id" },
       ];
       setTeachers(mockTeachers);
     } catch (error) {
-      console.error('Error fetching teachers:', error);
+      console.error("Error fetching teachers:", error);
     }
   };
 
@@ -152,26 +152,28 @@ export default function ClassesPage() {
     e.preventDefault();
 
     try {
-      const url = editingClass 
-        ? '/api/academic/classes' 
-        : '/api/academic/classes';
-      
-      const method = editingClass ? 'PUT' : 'POST';
-      const payload = editingClass 
+      const url = editingClass
+        ? "/api/academic/classes"
+        : "/api/academic/classes";
+
+      const method = editingClass ? "PUT" : "POST";
+      const payload = editingClass
         ? { id: editingClass.id, ...formData }
         : formData;
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        toast.success(`Kelas berhasil ${editingClass ? 'diperbarui' : 'ditambahkan'}`);
-        
+        toast.success(
+          `Kelas berhasil ${editingClass ? "diperbarui" : "ditambahkan"}`
+        );
+
         fetchClasses();
         resetForm();
       } else {
@@ -184,13 +186,13 @@ export default function ClassesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus kelas ini?')) {
+    if (!confirm("Apakah Anda yakin ingin menghapus kelas ini?")) {
       return;
     }
 
     try {
       const response = await fetch(`/api/academic/classes?id=${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
@@ -207,16 +209,16 @@ export default function ClassesPage() {
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      grade: '',
-      section: '',
-      academicYearId: selectedAcademicYear || '',
-      teacherId: '',
+      name: "",
+      grade: "",
+      section: "",
+      academicYearId: selectedAcademicYear || "",
+      teacherId: "",
       capacity: 30,
-      room: '',
-      level: '',
-      program: '',
-      description: '',
+      room: "",
+      level: "",
+      program: "",
+      description: "",
       isActive: true,
     });
     setEditingClass(null);
@@ -227,28 +229,33 @@ export default function ClassesPage() {
     setFormData({
       name: classItem.name,
       grade: classItem.grade,
-      section: classItem.section || '',
+      section: classItem.section || "",
       academicYearId: classItem.academicYear.id,
-      teacherId: classItem.teacher?.id || '',
+      teacherId: classItem.teacher?.id || "",
       capacity: classItem.capacity,
-      room: classItem.room || '',
+      room: classItem.room || "",
       level: classItem.level,
-      program: classItem.program || '',
-      description: '',
+      program: classItem.program || "",
+      description: "",
       isActive: classItem.isActive,
     });
     setEditingClass(classItem);
     setShowForm(true);
   };
 
-  const filteredClasses = classes.filter(classItem => {
-    const matchesSearch = classItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         classItem.grade.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLevel = !selectedLevel || classItem.level === selectedLevel;
-    const matchesAcademicYear = !selectedAcademicYear || classItem.academicYear.id === selectedAcademicYear;
-    
-    return matchesSearch && matchesLevel && matchesAcademicYear;
-  });
+  const filteredClasses =
+    classes.length > 0 &&
+    classes.filter((classItem) => {
+      const matchesSearch =
+        classItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        classItem.grade.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesLevel = !selectedLevel || classItem.level === selectedLevel;
+      const matchesAcademicYear =
+        !selectedAcademicYear ||
+        classItem.academicYear.id === selectedAcademicYear;
+
+      return matchesSearch && matchesLevel && matchesAcademicYear;
+    });
 
   return (
     <div className="space-y-6">
@@ -258,7 +265,10 @@ export default function ClassesPage() {
           <h1 className="text-3xl font-bold text-gray-900">Kelola Kelas</h1>
           <p className="text-gray-600 mt-2">Atur kelas dan penugasan siswa</p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="flex items-center space-x-2">
+        <Button
+          onClick={() => setShowForm(true)}
+          className="flex items-center space-x-2"
+        >
           <Plus className="w-4 h-4" />
           <span>Tambah Kelas</span>
         </Button>
@@ -276,7 +286,7 @@ export default function ClassesPage() {
               className="pl-10"
             />
           </div>
-          
+
           <select
             value={selectedLevel}
             onChange={(e) => setSelectedLevel(e.target.value)}
@@ -297,7 +307,7 @@ export default function ClassesPage() {
             <option value="">Semua Tahun Ajaran</option>
             {academicYears.map((year) => (
               <option key={year.id} value={year.id}>
-                {year.name} {year.isActive && '(Aktif)'}
+                {year.name} {year.isActive && "(Aktif)"}
               </option>
             ))}
           </select>
@@ -311,82 +321,92 @@ export default function ClassesPage() {
 
       {/* Classes List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, index) => (
-            <Card key={index} className="p-4 animate-pulse">
-              <div className="h-4 bg-gray-300 rounded mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded mb-4"></div>
-              <div className="flex space-x-2 mb-4">
-                <div className="h-6 w-16 bg-gray-200 rounded"></div>
-                <div className="h-6 w-12 bg-gray-200 rounded"></div>
-              </div>
-              <div className="h-8 bg-gray-200 rounded"></div>
-            </Card>
-          ))
-        ) : (
-          filteredClasses.map((classItem) => (
-            <Card key={classItem.id} className="p-4">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="font-semibold text-lg">{classItem.name}</h3>
-                  <p className="text-sm text-gray-600">
-                    {classItem.level} - Grade {classItem.grade}
-                  </p>
+        {loading
+          ? Array.from({ length: 6 }).map((_, index) => (
+              <Card key={index} className="p-4 animate-pulse">
+                <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded mb-4"></div>
+                <div className="flex space-x-2 mb-4">
+                  <div className="h-6 w-16 bg-gray-200 rounded"></div>
+                  <div className="h-6 w-12 bg-gray-200 rounded"></div>
                 </div>
-                <div className="flex space-x-1">
-                  <Button size="sm" variant="outline" onClick={() => handleEdit(classItem)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleDelete(classItem.id)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Badge variant={classItem.isActive ? 'default' : 'secondary'}>
-                  {classItem.isActive ? 'Aktif' : 'Nonaktif'}
-                </Badge>
-                {classItem.program && (
-                  <Badge variant="outline">{classItem.program}</Badge>
-                )}
-                {classItem.room && (
-                  <Badge variant="outline">Ruang {classItem.room}</Badge>
-                )}
-              </div>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-gray-600">
-                  <Users className="w-4 h-4 mr-2" />
-                  <span>{classItem._count.studentClasses} / {classItem.capacity} siswa</span>
-                </div>
-                
-                {classItem.teacher && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    <span>Wali: {classItem.teacher.name}</span>
+                <div className="h-8 bg-gray-200 rounded"></div>
+              </Card>
+            ))
+          : filteredClasses.length > 0 &&
+            filteredClasses.map((classItem) => (
+              <Card key={classItem.id} className="p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-semibold text-lg">{classItem.name}</h3>
+                    <p className="text-sm text-gray-600">
+                      {classItem.level} - Grade {classItem.grade}
+                    </p>
                   </div>
-                )}
-
-                <div className="flex items-center text-sm text-gray-600">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  <span>{classItem.academicYear.name}</span>
+                  <div className="flex space-x-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(classItem)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleDelete(classItem.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex space-x-2">
-                <Button size="sm" variant="outline" className="flex-1">
-                  <Eye className="w-4 h-4 mr-1" />
-                  Detail
-                </Button>
-                <Button size="sm" variant="outline">
-                  <UserPlus className="w-4 h-4 mr-1" />
-                  Siswa
-                </Button>
-              </div>
-            </Card>
-          ))
-        )}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Badge variant={classItem.isActive ? "default" : "secondary"}>
+                    {classItem.isActive ? "Aktif" : "Nonaktif"}
+                  </Badge>
+                  {classItem.program && (
+                    <Badge variant="outline">{classItem.program}</Badge>
+                  )}
+                  {classItem.room && (
+                    <Badge variant="outline">Ruang {classItem.room}</Badge>
+                  )}
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Users className="w-4 h-4 mr-2" />
+                    <span>
+                      {classItem._count.studentClasses} / {classItem.capacity}{" "}
+                      siswa
+                    </span>
+                  </div>
+
+                  {classItem.teacher && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      <span>Wali: {classItem.teacher.name}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span>{classItem.academicYear.name}</span>
+                  </div>
+                </div>
+
+                <div className="flex space-x-2">
+                  <Button size="sm" variant="outline" className="flex-1">
+                    <Eye className="w-4 h-4 mr-1" />
+                    Detail
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    <UserPlus className="w-4 h-4 mr-1" />
+                    Siswa
+                  </Button>
+                </div>
+              </Card>
+            ))}
       </div>
 
       {/* Add/Edit Form Modal */}
@@ -394,15 +414,19 @@ export default function ClassesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">
-              {editingClass ? 'Edit Kelas' : 'Tambah Kelas Baru'}
+              {editingClass ? "Edit Kelas" : "Tambah Kelas Baru"}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Nama Kelas *</label>
+                <label className="block text-sm font-medium mb-1">
+                  Nama Kelas *
+                </label>
                 <Input
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
                   placeholder="contoh: VII-A, 1A, TK B1"
                   required
                 />
@@ -410,29 +434,47 @@ export default function ClassesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Tingkat *</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Tingkat *
+                  </label>
                   <Input
                     value={formData.grade}
-                    onChange={(e) => setFormData(prev => ({ ...prev, grade: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        grade: e.target.value,
+                      }))
+                    }
                     placeholder="contoh: VII, 1, B"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Bagian</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Bagian
+                  </label>
                   <Input
                     value={formData.section}
-                    onChange={(e) => setFormData(prev => ({ ...prev, section: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        section: e.target.value,
+                      }))
+                    }
                     placeholder="contoh: A, B, C"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Jenjang *</label>
+                <label className="block text-sm font-medium mb-1">
+                  Jenjang *
+                </label>
                 <select
                   value={formData.level}
-                  onChange={(e) => setFormData(prev => ({ ...prev, level: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, level: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
@@ -445,10 +487,17 @@ export default function ClassesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Program</label>
+                <label className="block text-sm font-medium mb-1">
+                  Program
+                </label>
                 <select
                   value={formData.program}
-                  onChange={(e) => setFormData(prev => ({ ...prev, program: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      program: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Pilih Program</option>
@@ -459,27 +508,41 @@ export default function ClassesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Tahun Ajaran *</label>
+                <label className="block text-sm font-medium mb-1">
+                  Tahun Ajaran *
+                </label>
                 <select
                   value={formData.academicYearId}
-                  onChange={(e) => setFormData(prev => ({ ...prev, academicYearId: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      academicYearId: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
                   <option value="">Pilih Tahun Ajaran</option>
                   {academicYears.map((year) => (
                     <option key={year.id} value={year.id}>
-                      {year.name} {year.isActive && '(Aktif)'}
+                      {year.name} {year.isActive && "(Aktif)"}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Wali Kelas</label>
+                <label className="block text-sm font-medium mb-1">
+                  Wali Kelas
+                </label>
                 <select
                   value={formData.teacherId}
-                  onChange={(e) => setFormData(prev => ({ ...prev, teacherId: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      teacherId: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Pilih Wali Kelas</option>
@@ -493,30 +556,48 @@ export default function ClassesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Kapasitas</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Kapasitas
+                  </label>
                   <Input
                     type="number"
                     value={formData.capacity}
-                    onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        capacity: parseInt(e.target.value),
+                      }))
+                    }
                     min="1"
                     max="50"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Ruangan</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Ruangan
+                  </label>
                   <Input
                     value={formData.room}
-                    onChange={(e) => setFormData(prev => ({ ...prev, room: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, room: e.target.value }))
+                    }
                     placeholder="contoh: A1, Lab IPA"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Keterangan</label>
+                <label className="block text-sm font-medium mb-1">
+                  Keterangan
+                </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
                   placeholder="Keterangan tambahan..."
@@ -527,18 +608,28 @@ export default function ClassesPage() {
                 <input
                   type="checkbox"
                   checked={formData.isActive}
-                  onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      isActive: e.target.checked,
+                    }))
+                  }
                   className="rounded"
                 />
                 <label className="text-sm">Kelas aktif</label>
               </div>
 
               <div className="flex space-x-3 pt-4">
-                <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={resetForm}
+                  className="flex-1"
+                >
                   Batal
                 </Button>
                 <Button type="submit" className="flex-1">
-                  {editingClass ? 'Perbarui' : 'Simpan'}
+                  {editingClass ? "Perbarui" : "Simpan"}
                 </Button>
               </div>
             </form>

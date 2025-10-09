@@ -293,7 +293,7 @@ export default function AttendancePage() {
     student.nis.includes(searchTerm)
   );
 
-  const selectedClassData = classes.find(c => c.id === selectedClass);
+  const selectedClassData = classes.length > 0 && classes.find(c => c.id === selectedClass);
   const selectedSemesterData = semesters.find(s => s.id === selectedSemester);
   const stats = getAttendanceStats();
 
@@ -337,7 +337,7 @@ export default function AttendancePage() {
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Pilih Kelas</option>
-                {classes.map((cls) => (
+                {classes.length > 0 && classes.map((cls) => (
                   <option key={cls.id} value={cls.id}>
                     {cls.name} ({cls.level}) - {cls._count.studentClasses} siswa
                   </option>
