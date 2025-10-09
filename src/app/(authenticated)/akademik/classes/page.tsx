@@ -333,7 +333,7 @@ export default function ClassesPage() {
                 <div className="h-8 bg-gray-200 rounded"></div>
               </Card>
             ))
-          : filteredClasses.length > 0 &&
+          : filteredClasses && filteredClasses.length > 0 &&
             filteredClasses.map((classItem) => (
               <Card key={classItem.id} className="p-4">
                 <div className="flex justify-between items-start mb-3">
