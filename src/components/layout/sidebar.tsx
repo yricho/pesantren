@@ -116,7 +116,7 @@ const menuItems: MenuItem[] = [
       },
       {
             title: 'Tahun Ajaran',
-            href: '/akademik/years',
+            href: '/akademik/academic-years',
             icon: BookOpen
       },
         {
