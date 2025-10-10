@@ -119,6 +119,11 @@ const menuItems: MenuItem[] = [
             href: '/akademik/years',
             icon: BookOpen
       },
+        {
+            title: 'Semester',
+            href: '/akademik/semesters',
+            icon: BookOpen
+        },
       {
         title: 'Kelas',
         href: '/akademik/classes',
