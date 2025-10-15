@@ -195,6 +195,7 @@ export default function DashboardClient() {
           bgColor: 'bg-cyan-50',
           description: 'Bulan ini',
       },
+    /*
     {
       title: 'Pendapatan Bulanan',
       value: stats.finance.monthlyIncome,
@@ -206,6 +207,7 @@ export default function DashboardClient() {
       isCurrency: true,
       description: `Profit: ${formatCurrency(stats.finance.monthlyProfit)}`,
     },
+    */
     {
       title: 'SPP Collection',
       value: stats.spp.totalCollected,
@@ -217,6 +219,7 @@ export default function DashboardClient() {
       isCurrency: true,
       description: `${stats.spp.collectionRate}% collected`,
     },
+    /*
     {
       title: 'Unit Usaha',
       value: stats.businessUnits.monthlyRevenue,
@@ -228,7 +231,7 @@ export default function DashboardClient() {
       isCurrency: true,
       description: `${stats.businessUnits.total} unit aktif`,
     },
-
+    */
   ];
 
   return (
@@ -246,7 +249,7 @@ export default function DashboardClient() {
         variants={stagger}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
