@@ -297,7 +297,8 @@ export default function DashboardClient() {
       </motion.div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/*<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">*/}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Financial Summary */}
         <Card>
           <CardHeader>
@@ -341,7 +342,7 @@ export default function DashboardClient() {
         </Card>
 
         {/* Business Units Summary */}
-        <Card>
+       {/* <Card>
           <CardHeader>
             <CardTitle>Unit Usaha</CardTitle>
             <CardDescription>Performa unit usaha bulan ini</CardDescription>
@@ -372,7 +373,7 @@ export default function DashboardClient() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card>*/}
 
         {/* Academic Summary */}
         <Card>
