@@ -67,11 +67,11 @@ const menuItems: MenuItem[] = [
     href: '/siswa',
     icon: UserCheck
   },
-  {
+/*  {
     title: 'Data Alumni',
     href: '/alumni',
     icon: GraduationCap
-  },
+  },*/
   {
     title: 'Data Pengajar',
     href: '/pengajar',
@@ -82,13 +82,13 @@ const menuItems: MenuItem[] = [
     href: '/ppdb-admin',
     icon: ClipboardCheck,
     adminOnly: true
-  },*/
+  },
   {
     title: 'OTA Admin',
     href: '/ota-admin',
     icon: Heart,
     adminOnly: true
-  },
+  },*/
   {
     title: 'Keuangan',
     href: '/keuangan',
@@ -194,7 +194,7 @@ const menuItems: MenuItem[] = [
     icon: MessageCircleQuestion,
     ustadzOnly: true
   },*/
-  {
+  /*{
     title: 'Unit Usaha',
     href: '/unit-usaha',
     icon: Store,
@@ -255,7 +255,7 @@ const menuItems: MenuItem[] = [
         icon: BarChart3
       }
     ]
-  },
+  },*/
   {
     title: 'Pengguna',
     href: '/users',
