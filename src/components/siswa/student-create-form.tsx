@@ -91,8 +91,8 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
           {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Create Data Siswa</h2>
-              {/*<p className="text-sm text-gray-600">{`student.fullName`}</p>*/}
+              <h2 className="text-xl font-bold text-gray-900">Input Data Siswa</h2>
+              <p className="text-sm text-gray-600">Input Siswa Baru</p>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} disabled={loading}>
               <X className="w-5 h-5" />
