@@ -262,12 +262,12 @@ const menuItems: MenuItem[] = [
     icon: Users,
     adminOnly: true
   },
-  {
+  /*{
     title: 'Staff',
     href: '/staff',
     icon: UserCog,
     adminOnly: true
-  },
+  },*/
   {
     title: 'Pengaturan',
     href: '/settings',

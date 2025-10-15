@@ -178,6 +178,24 @@ export default function DashboardClient() {
       description: `${stats.students.active} santri aktif`,
     },
     {
+          title: 'Total Ustadz',
+          value: stats.teachers.total,
+          icon: AcademicCapIcon,
+          color: 'from-indigo-400 to-indigo-600',
+          bgColor: 'bg-indigo-50',
+          description: 'Pengajar aktif',
+    },
+    {
+          title: 'Kegiatan',
+          value: stats.academic.totalActivities,
+          change: `+${stats.academic.monthlyActivities}`,
+          trend: 'up',
+          icon: ChartBarIcon,
+          color: 'from-cyan-400 to-cyan-600',
+          bgColor: 'bg-cyan-50',
+          description: 'Bulan ini',
+      },
+    {
       title: 'Pendapatan Bulanan',
       value: stats.finance.monthlyIncome,
       change: `${stats.finance.incomeGrowth}%`,
@@ -210,24 +228,7 @@ export default function DashboardClient() {
       isCurrency: true,
       description: `${stats.businessUnits.total} unit aktif`,
     },
-    {
-      title: 'Total Ustadz',
-      value: stats.teachers.total,
-      icon: AcademicCapIcon,
-      color: 'from-indigo-400 to-indigo-600',
-      bgColor: 'bg-indigo-50',
-      description: 'Pengajar aktif',
-    },
-    {
-      title: 'Kegiatan',
-      value: stats.academic.totalActivities,
-      change: `+${stats.academic.monthlyActivities}`,
-      trend: 'up',
-      icon: ChartBarIcon,
-      color: 'from-cyan-400 to-cyan-600',
-      bgColor: 'bg-cyan-50',
-      description: 'Bulan ini',
-    },
+
   ];
 
   return (
