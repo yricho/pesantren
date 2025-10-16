@@ -303,7 +303,7 @@ export default function AttendancePage() {
     student.nis.includes(searchTerm)
   );
 
-  const selectedClassData = classes.find(c => c.id === selectedClass);
+  const selectedClassData = classes.length > 0 && classes.find(c => c.id === selectedClass);
   const selectedSemesterData = semesters.find(s => s.id === selectedSemester);
   const stats = getAttendanceStats();
 
@@ -367,7 +367,7 @@ export default function AttendancePage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Absensi Harian</h1>
           <p className="text-gray-600 mt-2">
-            {selectedClassData?.name} ({selectedClassData?.level})
+            {selectedClassData && selectedClassData?.name} ({selectedClassData && selectedClassData?.level})
           </p>
           <p className="text-sm text-gray-500">
             {selectedSemesterData?.name} - {selectedSemesterData?.academicYear.name}
