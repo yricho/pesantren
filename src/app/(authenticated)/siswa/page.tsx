@@ -264,14 +264,14 @@ export default function SiswaPage() {
             </div>
 
             <div className="flex gap-2">
-              <Button
+              {/* <Button
                 onClick={handleBulkExport}
                 variant="outline"
                 size="sm"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Export / Import
-              </Button>
+              </Button> */}
 
               <Button
                 onClick={() => setShowForm(true)}

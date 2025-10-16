@@ -136,13 +136,11 @@ export default function ClassesPage() {
 
   const fetchTeachers = async () => {
     try {
-      // This would be replaced with actual teacher endpoint
-      const mockTeachers: Teacher[] = [
-        { id: "1", name: "Ahmad Rahman, S.Pd", email: "ahmad@pondok.id" },
-        { id: "2", name: "Siti Fatimah, S.Ag", email: "siti@pondok.id" },
-        { id: "3", name: "Abdul Malik, M.Pd", email: "abdul@pondok.id" },
-      ];
-      setTeachers(mockTeachers);
+      const response = await fetch("/api/teachers?limit=1000");
+      if (response.ok) {
+        const data = await response.json();
+        setTeachers(data.teachers);
+      }
     } catch (error) {
       console.error("Error fetching teachers:", error);
     }
@@ -333,7 +331,8 @@ export default function ClassesPage() {
                 <div className="h-8 bg-gray-200 rounded"></div>
               </Card>
             ))
-          : filteredClasses && filteredClasses.length > 0 &&
+          : filteredClasses &&
+            filteredClasses.length > 0 &&
             filteredClasses.map((classItem) => (
               <Card key={classItem.id} className="p-4">
                 <div className="flex justify-between items-start mb-3">
