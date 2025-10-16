@@ -61,12 +61,17 @@ export default function AcademicDashboard() {
     try {
       setLoading(true);
       
-      // Fetch basic stats (placeholder - you would implement these endpoints)
-      // const [studentsRes, classesRes, subjectsRes] = await Promise.all([
-      //   fetch('/api/students?count=true'),
-      //   fetch('/api/academic/classes?count=true'),
-      //   fetch('/api/academic/subjects?count=true'),
-      // ]);
+       // Fetch basic stats (placeholder - you would implement these endpoints)
+       const [studentsRes, classesRes, subjectsRes] = await Promise.all([
+         fetch('/api/students?count=true'),
+         fetch('/api/academic/classes?count=true'),
+         fetch('/api/academic/subjects?count=true'),
+       ]);
+
+       console.log("Total Student Fetch: ", studentsRes);
+       console.log("Total Class Fetch: ", classesRes);
+       console.log("Total Subject Fetch: ", subjectsRes);
+
 
       // For now, using mock data
       setStats({

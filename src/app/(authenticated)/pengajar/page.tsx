@@ -474,7 +474,7 @@ export default function PengajarPage() {
                 <select
                   value={selectedInstitution}
                   onChange={(e) => setSelectedInstitution(e.target.value)}
-                  className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="px-5 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="all">Semua Institusi</option>
                   <option value="TK">TK</option>

@@ -130,6 +130,8 @@ export default function AttendancePage() {
   const fetchStudents = async () => {
     try {
       setLoading(true);
+
+      const response = await fetch(`/api/students`)
       // This would be replaced with actual API to get students in class
       const mockStudents: Student[] = [
         { id: '1', nis: '001', fullName: 'Ahmad Fauzi' },
@@ -138,11 +140,19 @@ export default function AttendancePage() {
         { id: '4', nis: '004', fullName: 'Fatimah Zahra' },
         { id: '5', nis: '005', fullName: 'Abdul Rahman' },
       ];
-      setStudents(mockStudents);
+
+      let students : Student[] = [];
+      if (response.ok) {
+          students = await response.json();
+          //setStudents(mockStudents);
+          setStudents(students);
+      }
+
 
       // Initialize attendance data
       const initialAttendance: Record<string, Attendance> = {};
-      mockStudents.forEach(student => {
+      //mockStudents.forEach(student => {
+      students.forEach(student => {
         initialAttendance[student.id] = {
           studentId: student.id,
           status: 'HADIR',
