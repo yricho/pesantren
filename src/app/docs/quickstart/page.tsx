@@ -85,8 +85,8 @@ export default function QuickStartPage() {
           <p className="text-gray-600">Clone the repository and navigate to the project directory:</p>
           
           <CodeBlock 
-            code={`git clone https://github.com/pendtiumpraz/imam-syafii-blitar.git
-cd imam-syafii-blitar`}
+            code={`git clone https://github.com/pendtiumpraz/pesantren-coconut.git
+cd pesantren-coconut`}
             id="clone-repo"
           />
           
@@ -379,8 +379,8 @@ npx prisma db seed`}
               <p>If you encounter any issues during setup:</p>
               <ul className="space-y-1 ml-4">
                 <li>• Check the <Link href="/docs/troubleshooting" className="underline font-semibold">Troubleshooting Guide</Link></li>
-                <li>• Join our <a href="https://github.com/pendtiumpraz/imam-syafii-blitar/discussions" className="underline font-semibold">GitHub Discussions</a></li>
-                <li>• Report bugs on <a href="https://github.com/pendtiumpraz/imam-syafii-blitar/issues" className="underline font-semibold">GitHub Issues</a></li>
+                <li>• Join our <a href="https://github.com/pendtiumpraz/pesantren-coconut/discussions" className="underline font-semibold">GitHub Discussions</a></li>
+                <li>• Report bugs on <a href="https://github.com/pendtiumpraz/pesantren-coconut/issues" className="underline font-semibold">GitHub Issues</a></li>
               </ul>
             </div>
           </div>

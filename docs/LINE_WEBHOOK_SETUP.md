@@ -36,7 +36,7 @@ POSTGRES_URL=your_postgresql_connection_string
 
 1. In LINE Developers Console, go to "Messaging API" tab
 2. In the "Webhook settings" section:
-   - **Webhook URL**: `https://imam-syafii-blitar.vercel.app/api/webhooks/line`
+   - **Webhook URL**: `https://pesantren-coconut.vercel.app/api/webhooks/line`
    - Click "Update"
    - Enable "Use webhook"
    - Click "Verify" to test the connection

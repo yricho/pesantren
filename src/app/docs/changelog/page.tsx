@@ -460,7 +460,7 @@ export default function ChangelogPage() {
             </p>
             <div className="flex justify-center gap-4">
               <a 
-                href="https://github.com/pendtiumpraz/imam-syafii-blitar/releases"
+                href="https://github.com/pendtiumpraz/pesantren-coconut/releases"
                 target="_blank"
                 className="px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition"
               >
@@ -468,7 +468,7 @@ export default function ChangelogPage() {
                 Watch on GitHub
               </a>
               <a 
-                href="https://github.com/pendtiumpraz/imam-syafii-blitar/subscription"
+                href="https://github.com/pendtiumpraz/pesantren-coconut/subscription"
                 target="_blank"
                 className="px-6 py-3 bg-purple-700 text-white rounded-lg font-semibold hover:bg-purple-800 transition"
               >

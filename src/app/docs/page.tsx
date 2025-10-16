@@ -304,7 +304,7 @@ export default function DocsPage() {
                 API Reference
               </Link>
               <Link
-                href="https://github.com/pendtiumpraz/imam-syafii-blitar"
+                href="https://github.com/pendtiumpraz/pesantren-coconut"
                 target="_blank"
                 className="px-6 py-3 bg-gray-800 text-white rounded-lg font-semibold hover:bg-gray-700 transition"
               >
@@ -358,7 +358,7 @@ export default function DocsPage() {
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <a
-                href="https://github.com/pendtiumpraz/imam-syafii-blitar/issues"
+                href="https://github.com/pendtiumpraz/pesantren-coconut/issues"
                 target="_blank"
                 className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
               >
@@ -370,7 +370,7 @@ export default function DocsPage() {
               </a>
 
               <a
-                href="https://github.com/pendtiumpraz/imam-syafii-blitar/discussions"
+                href="https://github.com/pendtiumpraz/pesantren-coconut/discussions"
                 target="_blank"
                 className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
               >

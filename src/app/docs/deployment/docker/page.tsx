@@ -224,8 +224,8 @@ docker-compose --version
                     <div>
                       <h4 className="font-bold text-lg mb-3">Step 1: Clone Repository</h4>
                       <CodeBlock
-                        code={`git clone https://github.com/pendtiumpraz/imam-syafii-blitar.git
-cd imam-syafii-blitar`}
+                        code={`git clone https://github.com/pendtiumpraz/pesantren-coconut.git
+cd pesantren-coconut`}
                         id="clone-repo-docker"
                       />
                     </div>

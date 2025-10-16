@@ -84,7 +84,7 @@ TWILIO_PHONE_NUMBER="+1234567890"
 ### Step 5: Custom Domain (Optional)
 
 1. Go to Settings > Domains
-2. Add your domain: `imam-syafii-blitar.sch.id`
+2. Add your domain: `pesantren-coconut.sch.id`
 3. Update DNS records:
    ```
    Type: A
@@ -174,8 +174,8 @@ mkdir -p /var/www
 cd /var/www
 
 # Clone repository
-git clone https://github.com/pendtiumpraz/imam-syafii-blitar.git
-cd imam-syafii-blitar
+git clone https://github.com/pendtiumpraz/pesantren-coconut.git
+cd pesantren-coconut
 
 # Install dependencies
 npm install
@@ -207,7 +207,7 @@ module.exports = {
     name: 'imam-syafii',
     script: 'npm',
     args: 'start',
-    cwd: '/var/www/imam-syafii-blitar',
+    cwd: '/var/www/pesantren-coconut',
     instances: 'max',
     exec_mode: 'cluster',
     env: {
@@ -256,13 +256,13 @@ server {
     client_max_body_size 50M;
     
     location /_next/static {
-        alias /var/www/imam-syafii-blitar/.next/static;
+        alias /var/www/pesantren-coconut/.next/static;
         expires 365d;
         add_header Cache-Control "public, immutable";
     }
     
     location /public {
-        alias /var/www/imam-syafii-blitar/public;
+        alias /var/www/pesantren-coconut/public;
         expires 30d;
         add_header Cache-Control "public";
     }
@@ -304,7 +304,7 @@ pm2 monit
 pm2 restart imam-syafii
 
 # Update app
-cd /var/www/imam-syafii-blitar
+cd /var/www/pesantren-coconut
 git pull
 npm install
 npm run build
@@ -587,7 +587,7 @@ Setup monitoring with:
 0 2 * * * pg_dump imam_syafii_db > /backups/db-$(date +\%Y\%m\%d).sql
 
 # Weekly full backup
-0 3 * * 0 tar -czf /backups/full-$(date +\%Y\%m\%d).tar.gz /var/www/imam-syafii-blitar
+0 3 * * 0 tar -czf /backups/full-$(date +\%Y\%m\%d).tar.gz /var/www/pesantren-coconut
 ```
 
 ### 5. Update Process
@@ -595,10 +595,10 @@ Setup monitoring with:
 ```bash
 # 1. Backup current version
 pm2 stop imam-syafii
-cp -r /var/www/imam-syafii-blitar /var/www/backup-$(date +\%Y\%m\%d)
+cp -r /var/www/pesantren-coconut /var/www/backup-$(date +\%Y\%m\%d)
 
 # 2. Pull updates
-cd /var/www/imam-syafii-blitar
+cd /var/www/pesantren-coconut
 git pull
 
 # 3. Install dependencies
@@ -673,5 +673,5 @@ pm2 restart imam-syafii
 ## 📞 Support
 
 - Documentation: [/docs](https://your-domain.com/docs)
-- GitHub Issues: [Report bugs](https://github.com/pendtiumpraz/imam-syafii-blitar/issues)
-- Email: admin@imam-syafii-blitar.sch.id
+- GitHub Issues: [Report bugs](https://github.com/pendtiumpraz/pesantren-coconut/issues)
+- Email: admin@pesantren-coconut.sch.id

@@ -9,7 +9,7 @@ prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cC
 
 ## 2. NEXTAUTH_URL
 ```
-https://imam-syafii-blitar-cf8hdwg1o-pendtiumprazs-projects.vercel.app
+https://pesantren-coconut-cf8hdwg1o-pendtiumprazs-projects.vercel.app
 ```
 
 ## 3. NEXTAUTH_SECRET
@@ -19,7 +19,7 @@ vQjk42DCgjgJSvqkBdvU4yp0LLt457+FjdHA4+R7174=
 
 ## Cara Pasang:
 
-1. Buka: https://vercel.com/pendtiumpraz/imam-syafii-blitar/settings/environment-variables
+1. Buka: https://vercel.com/pendtiumpraz/pesantren-coconut/settings/environment-variables
 
 2. Untuk setiap variable di atas:
    - Klik "Add New"

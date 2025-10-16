@@ -14,8 +14,8 @@ This document provides comprehensive instructions for deploying the Pondok Imam 
 ### Local Development Setup
 ```bash
 # Clone the repository
-git clone https://github.com/[username]/pondok-imam-syafii-blitar.git
-cd pondok-imam-syafii-blitar
+git clone https://github.com/[username]/pondok-pesantren-coconut.git
+cd pondok-pesantren-coconut
 
 # Install dependencies
 npm install
@@ -37,10 +37,10 @@ npm run dev
 #### Create GitHub Repository
 ```bash
 # Create repository on GitHub
-gh repo create pondok-imam-syafii-blitar --public
+gh repo create pondok-pesantren-coconut --public
 
 # Push existing code
-git remote add origin https://github.com/[username]/pondok-imam-syafii-blitar.git
+git remote add origin https://github.com/[username]/pondok-pesantren-coconut.git
 git branch -M main
 git push -u origin main
 ```

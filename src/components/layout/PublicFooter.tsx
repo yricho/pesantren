@@ -94,7 +94,7 @@ export default function PublicFooter() {
               </div>
               <div className="flex items-center space-x-3">
                 <GlobeAltIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <p className="text-sm text-gray-300">imam-syafii-blitar.vercel.app</p>
+                <p className="text-sm text-gray-300">pesantren-coconut.vercel.app</p>
               </div>
             </div>
           </div>

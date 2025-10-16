@@ -421,7 +421,7 @@ export default function RoadmapPage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <a 
-                href="https://github.com/pendtiumpraz/imam-syafii-blitar/issues/new?template=feature_request.md"
+                href="https://github.com/pendtiumpraz/pesantren-coconut/issues/new?template=feature_request.md"
                 target="_blank"
                 className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
               >
@@ -429,7 +429,7 @@ export default function RoadmapPage() {
                 Request Feature
               </a>
               <a 
-                href="https://github.com/pendtiumpraz/imam-syafii-blitar/discussions/categories/ideas"
+                href="https://github.com/pendtiumpraz/pesantren-coconut/discussions/categories/ideas"
                 target="_blank"
                 className="inline-flex items-center px-6 py-3 bg-white text-blue-600 border-2 border-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition"
               >

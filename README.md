@@ -1,6 +1,6 @@
 # 🕌 Pondok Imam Syafi'i Blitar - Management System
 
-[![Deploy Status](https://img.shields.io/badge/deploy-vercel-success)](https://imam-syafii-blitar-ilpnd0xs2-pendtiumprazs-projects.vercel.app)
+[![Deploy Status](https://img.shields.io/badge/deploy-vercel-success)](https://pesantren-coconut-ilpnd0xs2-pendtiumprazs-projects.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.5-black)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5.4-blue)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22.0-2D3748)](https://www.prisma.io/)
@@ -8,7 +8,7 @@
 
 Sistem manajemen terpadu untuk Pondok Pesantren Imam Syafi'i Blitar dengan fitur lengkap: PPDB Online, SPP & Billing otomatis, Parent Portal, Bulk Operations, Notification System (WhatsApp & Email), manajemen siswa & alumni, donasi online, unit usaha yayasan, dan perpustakaan digital.
 
-🔗 **Live Demo**: [https://imam-syafii-blitar.vercel.app](https://imam-syafii-blitar-ilpnd0xs2-pendtiumprazs-projects.vercel.app)
+🔗 **Live Demo**: [https://pesantren-coconut.vercel.app](https://pesantren-coconut-ilpnd0xs2-pendtiumprazs-projects.vercel.app)
 
 ## 🎉 Major Update v4.0.0 - Enhanced Production Build!
 
@@ -267,8 +267,8 @@ Sistem manajemen terpadu untuk Pondok Pesantren Imam Syafi'i Blitar dengan fitur
 
 ```bash
 # Clone repository
-git clone https://github.com/pendtiumpraz/imam-syafii-blitar.git
-cd imam-syafii-blitar
+git clone https://github.com/pendtiumpraz/pesantren-coconut.git
+cd pesantren-coconut
 
 # Install dependencies
 npm install
@@ -462,8 +462,8 @@ Contributions are welcome! Please follow these steps:
 
 ## 📞 Support & Contact
 
-- **GitHub Issues**: [Report bugs](https://github.com/pendtiumpraz/imam-syafii-blitar/issues)
-- **Discussions**: [Ask questions](https://github.com/pendtiumpraz/imam-syafii-blitar/discussions)
+- **GitHub Issues**: [Report bugs](https://github.com/pendtiumpraz/pesantren-coconut/issues)
+- **Discussions**: [Ask questions](https://github.com/pendtiumpraz/pesantren-coconut/discussions)
 - **Email**: admin@pondok-imam-syafii.id
 
 ## 📄 License

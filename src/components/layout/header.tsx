@@ -16,7 +16,7 @@ export function Header({ title }: { title: string }) {
         
         <div className="flex items-center space-x-6">
           {/* Connection status */}
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             {isOnline ? (
               <Wifi className="w-5 h-5 text-green-500" />
             ) : (
@@ -30,7 +30,7 @@ export function Header({ title }: { title: string }) {
               {syncStatus === 'syncing' && 'Sinkronisasi...'}
               {syncStatus === 'offline' && 'Mode Offline'}
             </span>
-          </div>
+          </div> */}
 
           {/* Notification Bell */}
           {session?.user && (
