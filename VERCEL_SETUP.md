@@ -1,7 +1,7 @@
 # Vercel Deployment Setup Guide
 
 ## Your Deployment URL
-https://imam-syafii-blitar-cf8hdwg1o-pendtiumprazs-projects.vercel.app
+https://pesantren-coconut-cf8hdwg1o-pendtiumprazs-projects.vercel.app
 
 ## Required Environment Variables in Vercel
 
@@ -35,7 +35,7 @@ You need a PostgreSQL database. Choose one of these options:
 ### 2. NEXTAUTH_URL (Required)
 Set this to your Vercel deployment URL:
 ```
-https://imam-syafii-blitar-cf8hdwg1o-pendtiumprazs-projects.vercel.app
+https://pesantren-coconut-cf8hdwg1o-pendtiumprazs-projects.vercel.app
 ```
 
 Or if you have a custom domain:
@@ -64,7 +64,7 @@ https://generate-secret.vercel.app/32
 1. **Go to your Vercel project:**
    https://vercel.com/dashboard
 
-2. **Click on your project:** `imam-syafii-blitar`
+2. **Click on your project:** `pesantren-coconut`
 
 3. **Go to Settings → Environment Variables**
 
@@ -130,8 +130,8 @@ After running the seed command, you can login with:
 ## Monitoring
 
 Check your deployment status and logs:
-- Build logs: https://vercel.com/pendtiumpraz/imam-syafii-blitar/deployments
-- Function logs: https://vercel.com/pendtiumpraz/imam-syafii-blitar/functions
+- Build logs: https://vercel.com/pendtiumpraz/pesantren-coconut/deployments
+- Function logs: https://vercel.com/pendtiumpraz/pesantren-coconut/functions
 
 ## Custom Domain (Optional)
 

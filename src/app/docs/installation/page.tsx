@@ -400,13 +400,13 @@ sudo pacman -S postgresql`}
                   
                   <CodeBlock 
                     code={`# Clone via HTTPS
-git clone https://github.com/pendtiumpraz/imam-syafii-blitar.git
+git clone https://github.com/pendtiumpraz/pesantren-coconut.git
 
 # Or clone via SSH (if you have SSH keys set up)
-git clone git@github.com:pendtiumpraz/imam-syafii-blitar.git
+git clone git@github.com:pendtiumpraz/pesantren-coconut.git
 
 # Navigate to project directory
-cd imam-syafii-blitar`}
+cd pesantren-coconut`}
                     id="clone-repo"
                   />
                   
@@ -703,7 +703,7 @@ yarn dev`}
               <div className="mt-8 p-6 bg-gray-50 rounded-lg">
                 <h4 className="font-bold mb-3">Quick Deploy to Vercel:</h4>
                 <a 
-                  href="https://vercel.com/new/clone?repository-url=https://github.com/pendtiumpraz/imam-syafii-blitar"
+                  href="https://vercel.com/new/clone?repository-url=https://github.com/pendtiumpraz/pesantren-coconut"
                   target="_blank"
                   className="inline-flex items-center px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition"
                 >
@@ -763,8 +763,8 @@ sudo apt-get install docker-compose-plugin`}
                   <div>
                     <h4 className="font-semibold mb-3">2. Clone Repository</h4>
                     <CodeBlock 
-                      code={`git clone https://github.com/pendtiumpraz/imam-syafii-blitar.git
-cd imam-syafii-blitar`}
+                      code={`git clone https://github.com/pendtiumpraz/pesantren-coconut.git
+cd pesantren-coconut`}
                       id="docker-clone"
                     />
                   </div>
@@ -881,7 +881,7 @@ ${osType === 'windows' ? 'taskkill /PID <PID> /F' : 'kill -9 <PID>'}`}
             <div className="mt-6 p-4 bg-gray-50 rounded">
               <p className="text-sm">
                 Still having issues? Check our <Link href="/docs/troubleshooting" className="text-blue-600 underline">comprehensive troubleshooting guide</Link> or 
-                ask for help in our <a href="https://github.com/pendtiumpraz/imam-syafii-blitar/discussions" className="text-blue-600 underline">GitHub Discussions</a>.
+                ask for help in our <a href="https://github.com/pendtiumpraz/pesantren-coconut/discussions" className="text-blue-600 underline">GitHub Discussions</a>.
               </p>
             </div>
           </div>

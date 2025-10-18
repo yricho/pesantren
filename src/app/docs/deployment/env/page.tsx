@@ -354,7 +354,7 @@ MIDTRANS_CLIENT_KEY=SB-Mid-client-test-key`}
                 <pre className="text-sm text-gray-300">
 {`# Production Environment  
 NODE_ENV=production
-NEXTAUTH_URL=https://imam-syafii-blitar.vercel.app
+NEXTAUTH_URL=https://pesantren-coconut.vercel.app
 NEXTAUTH_SECRET=super-secure-production-secret-key
 DATABASE_URL=postgresql://user:pass@host:5432/db?sslmode=require
 ENABLE_DEBUG_MODE=false

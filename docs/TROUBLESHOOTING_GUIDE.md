@@ -782,7 +782,7 @@ journalctl -u nginx
 
 ### 2. Where to Get Help
 
-- GitHub Issues: [Create issue](https://github.com/pendtiumpraz/imam-syafii-blitar/issues)
+- GitHub Issues: [Create issue](https://github.com/pendtiumpraz/pesantren-coconut/issues)
 - Stack Overflow: Tag with `nextjs`, `prisma`, `typescript`
 - Discord: Next.js Discord server
 - Documentation:

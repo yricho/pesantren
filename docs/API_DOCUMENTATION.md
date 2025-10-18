@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-Production: https://imam-syafii-blitar.vercel.app/api
+Production: https://pesantren-coconut.vercel.app/api
 Development: http://localhost:3030/api
 ```
 
@@ -808,6 +808,6 @@ Use these tools for testing:
 ## Support
 
 For API support:
-- Email: api-support@imam-syafii-blitar.sch.id
-- Documentation: https://docs.imam-syafii-blitar.sch.id
-- GitHub Issues: https://github.com/pendtiumpraz/imam-syafii-blitar/issues
+- Email: api-support@pesantren-coconut.sch.id
+- Documentation: https://docs.pesantren-coconut.sch.id
+- GitHub Issues: https://github.com/pendtiumpraz/pesantren-coconut/issues

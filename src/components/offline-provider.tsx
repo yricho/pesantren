@@ -44,11 +44,11 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   return (
     <OfflineContext.Provider value={{ isOnline, syncStatus }}>
       {children}
-      {!isOnline && (
+      {/* {!isOnline && (
         <div className="offline-indicator show">
           Mode Offline - Beberapa fitur mungkin tidak tersedia
         </div>
-      )}
+      )} */}
     </OfflineContext.Provider>
   )
 }

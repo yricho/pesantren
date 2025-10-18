@@ -619,5 +619,5 @@ Create `SCHEMA_CHANGELOG.md`:
 ## 📞 Support
 
 - Prisma Docs: [prisma.io/docs](https://www.prisma.io/docs)
-- GitHub Issues: [Report issues](https://github.com/pendtiumpraz/imam-syafii-blitar/issues)
-- Database Admin: admin@imam-syafii-blitar.sch.id
+- GitHub Issues: [Report issues](https://github.com/pendtiumpraz/pesantren-coconut/issues)
+- Database Admin: admin@pesantren-coconut.sch.id

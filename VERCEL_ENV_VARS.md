@@ -16,7 +16,7 @@ postgres://2611db3bbb65fe80f1c4e538c1ec0c39ec61b79a50f9d9bcfc91e4875c035d54:sk_k
 
 ### 3. NEXTAUTH_URL
 ```
-https://imam-syafii-blitar-cf8hdwg1o-pendtiumprazs-projects.vercel.app
+https://pesantren-coconut-cf8hdwg1o-pendtiumprazs-projects.vercel.app
 ```
 
 ### 4. NEXTAUTH_SECRET
@@ -32,7 +32,7 @@ xK9Yh5sNpR3wF7jL2mQ8vT1bC6nE4aG0
 
 ## How to Add in Vercel
 
-1. Go to: https://vercel.com/pendtiumpraz/imam-syafii-blitar/settings/environment-variables
+1. Go to: https://vercel.com/pendtiumpraz/pesantren-coconut/settings/environment-variables
 
 2. Add each variable:
    - Click "Add New"

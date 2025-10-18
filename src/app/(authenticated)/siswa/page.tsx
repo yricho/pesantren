@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/layout/header'
-import { 
-  Plus, Search, Filter, Users, GraduationCap, 
+import {
+  Plus, Search, Filter, Users, GraduationCap,
   Baby, School, User, Phone, Mail, MapPin,
   Calendar, Edit, Trash2, Eye, Download
 } from 'lucide-react'
@@ -67,7 +67,7 @@ export default function SiswaPage() {
     try {
       const params = new URLSearchParams()
       if (selectedType !== 'all') params.set('institutionType', selectedType)
-      
+
       const response = await fetch(`/api/students?${params}`)
       if (response.ok) {
         const data = await response.json()
@@ -86,7 +86,7 @@ export default function SiswaPage() {
       if (response.ok) {
         const data = await response.json()
         setTemplateColumns(data.templateColumns || [])
-        
+
         // Convert to validation rules format
         const rules = [
           ValidationRules.required('nis'),
@@ -114,7 +114,7 @@ export default function SiswaPage() {
     try {
       const params = new URLSearchParams()
       if (selectedType !== 'all') params.set('institutionType', selectedType)
-      
+
       const response = await fetch(`/api/export/students?${params}`)
       if (response.ok) {
         const data = await response.json()
@@ -139,7 +139,7 @@ export default function SiswaPage() {
       })
 
       const result = await response.json()
-      
+
       if (result.success && result.validRows > 0) {
         alert(`Import berhasil! ${result.validRows} siswa telah ditambahkan.`)
         fetchStudents() // Refresh data
@@ -153,7 +153,7 @@ export default function SiswaPage() {
   }
 
   const filteredStudents = (students || []).filter(student => {
-    const matchesSearch = 
+    const matchesSearch =
       student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.nis.includes(searchTerm) ||
       (student.nisn && student.nisn.includes(searchTerm))
@@ -181,7 +181,7 @@ export default function SiswaPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header title="Manajemen Siswa" />
-      
+
       <main className="p-6">
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -361,11 +361,12 @@ export default function SiswaPage() {
                     <tr key={student.id} className="hover:bg-gray-50">
                       <td className="px-4 py-4">
                         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          {student.photo ? (
+                          <User className="w-5 h-5 text-gray-500" />
+                          {/* {student.photo ? (
                             <img src={student.photo} alt={student.fullName} className="w-full h-full rounded-full object-cover" />
                           ) : (
                             <User className="w-5 h-5 text-gray-500" />
-                          )}
+                          )} */}
                         </div>
                       </td>
                       <td className="px-4 py-4">
@@ -385,11 +386,10 @@ export default function SiswaPage() {
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          student.institutionType === 'TK' ? 'bg-yellow-100 text-yellow-800' :
-                          student.institutionType === 'SD' ? 'bg-green-100 text-green-800' :
-                          'bg-purple-100 text-purple-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${student.institutionType === 'TK' ? 'bg-yellow-100 text-yellow-800' :
+                            student.institutionType === 'SD' ? 'bg-green-100 text-green-800' :
+                              'bg-purple-100 text-purple-800'
+                          }`}>
                           {student.institutionType}
                         </span>
                       </td>
@@ -406,16 +406,15 @@ export default function SiswaPage() {
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          student.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                          student.status === 'GRADUATED' ? 'bg-blue-100 text-blue-800' :
-                          student.status === 'TRANSFERRED' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${student.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                            student.status === 'GRADUATED' ? 'bg-blue-100 text-blue-800' :
+                              student.status === 'TRANSFERRED' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                          }`}>
                           {student.status === 'ACTIVE' ? 'Aktif' :
-                           student.status === 'GRADUATED' ? 'Lulus' :
-                           student.status === 'TRANSFERRED' ? 'Pindah' :
-                           'Keluar'}
+                            student.status === 'GRADUATED' ? 'Lulus' :
+                              student.status === 'TRANSFERRED' ? 'Pindah' :
+                                'Keluar'}
                         </span>
                       </td>
                       <td className="px-4 py-4">

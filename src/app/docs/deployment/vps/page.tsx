@@ -368,8 +368,8 @@ sudo systemctl reload nginx`}
 cd ~
 
 # Clone repository
-git clone https://github.com/pendtiumpraz/imam-syafii-blitar.git
-cd imam-syafii-blitar
+git clone https://github.com/pendtiumpraz/pesantren-coconut.git
+cd pesantren-coconut
 
 # Install dependencies
 npm install
@@ -594,8 +594,8 @@ crontab -e
                 <CodeBlock
                   code={`# Backup uploads and important files
 tar -czf backup_files_$(date +%Y%m%d).tar.gz \\
-  ~/imam-syafii-blitar/public/uploads \\
-  ~/imam-syafii-blitar/.env.production
+  ~/pesantren-coconut/public/uploads \\
+  ~/pesantren-coconut/.env.production
 
 # Sync to remote storage (optional)
 rsync -avz ~/backups/ remote-backup-server:/backups/`}
@@ -617,7 +617,7 @@ rsync -avz ~/backups/ remote-backup-server:/backups/`}
                 <h3 className="font-bold text-lg mb-3">Updating Application</h3>
                 <CodeBlock
                   code={`# Navigate to application directory
-cd ~/imam-syafii-blitar
+cd ~/pesantren-coconut
 
 # Pull latest changes
 git pull origin main

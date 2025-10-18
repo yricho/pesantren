@@ -642,7 +642,7 @@ export default async function handler(req, res) {
               </Link>
               
               <a 
-                href="https://github.com/pendtiumpraz/imam-syafii-blitar/issues"
+                href="https://github.com/pendtiumpraz/pesantren-coconut/issues"
                 target="_blank"
                 className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition"
               >
@@ -784,14 +784,14 @@ export default async function handler(req, res) {
                 <h3 className="font-bold mb-3">Community Support</h3>
                 <ul className="space-y-2">
                   <li>
-                    <a href="https://github.com/pendtiumpraz/imam-syafii-blitar/discussions" 
+                    <a href="https://github.com/pendtiumpraz/pesantren-coconut/discussions" 
                        className="text-blue-600 hover:underline flex items-center">
                       <Globe className="h-4 w-4 mr-2" />
                       GitHub Discussions
                     </a>
                   </li>
                   <li>
-                    <a href="https://github.com/pendtiumpraz/imam-syafii-blitar/issues" 
+                    <a href="https://github.com/pendtiumpraz/pesantren-coconut/issues" 
                        className="text-blue-600 hover:underline flex items-center">
                       <Bug className="h-4 w-4 mr-2" />
                       Report a Bug

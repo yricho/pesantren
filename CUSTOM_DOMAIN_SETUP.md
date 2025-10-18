@@ -14,7 +14,7 @@ Vercel mendukung semua jenis domain:
 
 ### 1. Tambahkan Domain di Vercel
 
-1. Buka: https://vercel.com/pendtiumpraz/imam-syafii-blitar/settings/domains
+1. Buka: https://vercel.com/pendtiumpraz/pesantren-coconut/settings/domains
 2. Klik **"Add Domain"**
 3. Masukkan domain Anda, contoh:
    - `ponpesimamsyafii.com`
@@ -110,7 +110,7 @@ Value: cname.vercel-dns.com
 
 Setelah domain aktif, update environment variable di Vercel:
 
-1. Buka: https://vercel.com/pendtiumpraz/imam-syafii-blitar/settings/environment-variables
+1. Buka: https://vercel.com/pendtiumpraz/pesantren-coconut/settings/environment-variables
 2. Edit `NEXTAUTH_URL` menjadi:
    ```
    https://ponpesimamsyafii.com
@@ -175,7 +175,7 @@ NEXTAUTH_URL=https://app.ponpesimamsyafii.or.id
    - Setelah yakin, baru arahkan domain utama
 
 2. **Jangan Hapus Vercel Domain:**
-   - Tetap bisa diakses via: imam-syafii-blitar.vercel.app
+   - Tetap bisa diakses via: pesantren-coconut.vercel.app
    - Berguna untuk troubleshooting
 
 3. **Multiple Domain:**

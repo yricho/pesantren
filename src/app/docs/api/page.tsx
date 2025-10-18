@@ -165,7 +165,7 @@ export default function APIDocPage() {
                 <div className="bg-white rounded-lg shadow-lg p-4 mt-4">
                   <h4 className="font-semibold mb-2">Base URL</h4>
                   <CodeBlock 
-                    code="Production: https://imam-syafii-blitar.vercel.app/api
+                    code="Production: https://pesantren-coconut.vercel.app/api
 Development: http://localhost:3030/api" 
                     language="text"
                     id="base-url"
@@ -923,8 +923,8 @@ Development: http://localhost:3030/api"
     "name": "Pondok Imam Syafi'i",
     "address": "Jl. Raya Blitar-Malang",
     "phone": "0342-123456",
-    "email": "info@imam-syafii-blitar.com",
-    "website": "https://imam-syafii-blitar.com",
+    "email": "info@pesantren-coconut.com",
+    "website": "https://pesantren-coconut.com",
     "facilities": [
       "Masjid",
       "Asrama",

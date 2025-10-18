@@ -346,7 +346,7 @@ export function getProfileMenu() {
             action: {
               type: 'uri',
               label: '🌐 Website',
-              uri: 'https://imam-syafii-blitar.vercel.app'
+              uri: 'https://pesantren-coconut.vercel.app'
             },
             style: 'primary',
             color: '#16A34A'

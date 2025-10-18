@@ -290,7 +290,7 @@ async function checkAdminSession(userId: string, replyToken: string): Promise<bo
 async function showActivities(replyToken: string) {
   await replyMessage(replyToken, [{
     type: 'text',
-    text: '📅 Kegiatan Pondok:\n\n• Senin-Jumat: Tahfidz Pagi (05:00-06:30)\n• Sabtu: Olahraga Bersama (06:00-08:00)\n• Minggu: Kajian Umum (08:00-10:00)\n\n📍 Info lengkap: imam-syafii-blitar.vercel.app/kegiatan'
+    text: '📅 Kegiatan Pondok:\n\n• Senin-Jumat: Tahfidz Pagi (05:00-06:30)\n• Sabtu: Olahraga Bersama (06:00-08:00)\n• Minggu: Kajian Umum (08:00-10:00)\n\n📍 Info lengkap: pesantren-coconut.vercel.app/kegiatan'
   }])
 }
 
@@ -304,14 +304,14 @@ async function showDonationInfo(replyToken: string) {
 async function showLatestNews(replyToken: string) {
   await replyMessage(replyToken, [{
     type: 'text',
-    text: '📰 Berita Terkini:\n\n1. Wisuda Tahfidz Angkatan 15\n2. Pembukaan PPDB 2024/2025\n3. Renovasi Masjid Selesai\n\n📱 Selengkapnya: imam-syafii-blitar.vercel.app/berita'
+    text: '📰 Berita Terkini:\n\n1. Wisuda Tahfidz Angkatan 15\n2. Pembukaan PPDB 2024/2025\n3. Renovasi Masjid Selesai\n\n📱 Selengkapnya: pesantren-coconut.vercel.app/berita'
   }])
 }
 
 async function showContactInfo(replyToken: string) {
   await replyMessage(replyToken, [{
     type: 'text',
-    text: '📞 Kontak Pondok:\n\n📍 Alamat:\nJl. Pendidikan No. 123\nBlitar, Jawa Timur\n\n📱 Telepon: (0342) 123456\n💬 WhatsApp: 0812-3456-7890\n📧 Email: info@pondokimamsyafii.id\n🌐 Website: imam-syafii-blitar.vercel.app'
+    text: '📞 Kontak Pondok:\n\n📍 Alamat:\nJl. Pendidikan No. 123\nBlitar, Jawa Timur\n\n📱 Telepon: (0342) 123456\n💬 WhatsApp: 0812-3456-7890\n📧 Email: info@pondokimamsyafii.id\n🌐 Website: pesantren-coconut.vercel.app'
   }])
 }
 

@@ -173,7 +173,7 @@ export default function VercelDeploymentPage() {
                         </p>
                         
                         <a
-                          href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpendtiumpraz%2Fimam-syafii-blitar&env=DATABASE_URL,NEXTAUTH_SECRET,NEXTAUTH_URL&envDescription=Required%20environment%20variables&envLink=https%3A%2F%2Fgithub.com%2Fpendtiumpraz%2Fimam-syafii-blitar%2Fblob%2Fmain%2F.env.example"
+                          href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpendtiumpraz%2Fpesantren-coconut&env=DATABASE_URL,NEXTAUTH_SECRET,NEXTAUTH_URL&envDescription=Required%20environment%20variables&envLink=https%3A%2F%2Fgithub.com%2Fpendtiumpraz%2Fpesantren-coconut%2Fblob%2Fmain%2F.env.example"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center px-8 py-4 bg-black text-white text-lg font-semibold rounded-lg hover:bg-gray-800 transition"
@@ -270,7 +270,7 @@ export default function VercelDeploymentPage() {
                       <h4 className="font-semibold mb-3">Step 3: Deploy Project</h4>
                       <CodeBlock
                         code={`# Navigate to project directory
-cd imam-syafii-blitar
+cd pesantren-coconut
 
 # Deploy to Vercel
 vercel
@@ -284,10 +284,10 @@ vercel --prod`}
                     <div>
                       <h4 className="font-semibold mb-3">Step 4: Follow Prompts</h4>
                       <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm">
-                        <div>? Set up and deploy "imam-syafii-blitar"? [Y/n] <span className="text-white">Y</span></div>
+                        <div>? Set up and deploy "pesantren-coconut"? [Y/n] <span className="text-white">Y</span></div>
                         <div>? Which scope do you want to deploy to? <span className="text-white">Your Account</span></div>
                         <div>? Link to existing project? [y/N] <span className="text-white">N</span></div>
-                        <div>? What's your project's name? <span className="text-white">imam-syafii-blitar</span></div>
+                        <div>? What's your project's name? <span className="text-white">pesantren-coconut</span></div>
                         <div>? In which directory is your code located? <span className="text-white">./</span></div>
                         <div className="text-gray-400 mt-2">🔍 Auto-detected Project Settings (Next.js):</div>
                         <div className="text-gray-400">- Build Command: next build</div>

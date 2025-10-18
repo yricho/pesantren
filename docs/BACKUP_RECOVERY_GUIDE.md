@@ -184,7 +184,7 @@ rm -rf "$CONFIG_BACKUP/$DATE"
 # full_backup.sh
 
 BACKUP_ROOT="/backup"
-APP_DIR="/var/www/imam-syafii-blitar"
+APP_DIR="/var/www/pesantren-coconut"
 DATE=$(date +%Y%m%d_%H%M%S)
 
 echo "Starting full backup at $(date)"
@@ -255,7 +255,7 @@ set -e  # Exit on error
 # Configuration
 BACKUP_DIR="/backup"
 DB_NAME="imam_syafii_db"
-APP_DIR="/var/www/imam-syafii-blitar"
+APP_DIR="/var/www/pesantren-coconut"
 S3_BUCKET="s3://backup-bucket"
 RETENTION_DAYS=30
 SLACK_WEBHOOK="https://hooks.slack.com/..."
@@ -433,7 +433,7 @@ pg_ctl start -D /var/lib/postgresql/recovery
 # restore_files.sh
 
 BACKUP_FILE=$1
-RESTORE_TO=${2:-"/var/www/imam-syafii-blitar"}
+RESTORE_TO=${2:-"/var/www/pesantren-coconut"}
 
 if [ -z "$BACKUP_FILE" ]; then
     echo "Usage: ./restore_files.sh <backup_file> [restore_path]"
@@ -492,7 +492,7 @@ echo "Restoring configuration..."
 tar -xzf /backup/config/config_${BACKUP_DATE}.tar.gz -C /
 
 # Install dependencies
-cd /var/www/imam-syafii-blitar
+cd /var/www/pesantren-coconut
 npm install
 npx prisma generate
 npm run build

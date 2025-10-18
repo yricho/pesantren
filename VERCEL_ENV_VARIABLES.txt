@@ -12,7 +12,7 @@ PRISMA_DATABASE_URL
 prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza19rTjB4aDktVkJjaVhhSmFwSkU3N2giLCJhcGlfa2V5IjoiMDFLM1RHUFNBOTJBRTVGWk5XTlFIQlNUUTAiLCJ0ZW5hbnRfaWQiOiIyNjExZGIzYmJiNjVmZTgwZjFjNGU1MzhjMWVjMGMzOWVjNjFiNzlhNTBmOWQ5YmNmYzkxZTQ4NzVjMDM1ZDU0IiwiaW50ZXJuYWxfc2VjcmV0IjoiYWFkZmE0OTYtNTVmZC00MjY4LWE2NTktODQ3ZTVkNGFhNTNkIn0.OZomtqNuLogzyvjJPWp_Jzl0XhAyNu33Rd61dWgZdZE
 
 NEXTAUTH_URL
-https://imam-syafii-blitar-ilpnd0xs2-pendtiumprazs-projects.vercel.app
+https://pesantren-coconut-ilpnd0xs2-pendtiumprazs-projects.vercel.app
 
 NEXTAUTH_SECRET
 uanFT5205gKeqayTqfDb/28VoHw26fgpXaYNirCKBcs=
@@ -51,5 +51,5 @@ Cara dapat Google OAuth:
 3. Enable Google+ API
 4. Create OAuth 2.0 Client ID
 5. Authorized redirect URIs:
-   - https://imam-syafii-blitar-ilpnd0xs2-pendtiumprazs-projects.vercel.app/api/auth/callback/google
+   - https://pesantren-coconut-ilpnd0xs2-pendtiumprazs-projects.vercel.app/api/auth/callback/google
    - http://localhost:3000/api/auth/callback/google
