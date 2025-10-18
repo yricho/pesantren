@@ -303,7 +303,8 @@ export default function ClassesPage() {
                         <option value="TK">TK</option>
                         <option value="SD">SD</option>
                         <option value="SMP">SMP</option>
-                        <option value="PONDOK">Pondok</option>
+                        <option value="SMA">SMA</option>
+                        {/*<option value="PONDOK">Pondok</option>*/}
                     </select>
 
                     <select
@@ -489,7 +490,8 @@ export default function ClassesPage() {
                                     <option value="TK">TK</option>
                                     <option value="SD">SD</option>
                                     <option value="SMP">SMP</option>
-                                    <option value="PONDOK">Pondok</option>
+                                    <option value="SMA">SMA</option>
+                                    {/*<option value="PONDOK">Pondok</option>*/}
                                 </select>
                             </div>
 

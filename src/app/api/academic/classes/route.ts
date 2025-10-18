@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate level
-    const validLevels = ['TK', 'SD', 'SMP', 'PONDOK'];
+    const validLevels = ['TK', 'SD', 'SMP', 'SMA','PONDOK'];
     if (!validLevels.includes(level)) {
       return NextResponse.json(
         { error: `Level must be one of: ${validLevels.join(', ')}` },
@@ -210,8 +210,12 @@ export async function POST(request: NextRequest) {
 
     // Check if teacher exists (if provided)
     if (teacherId) {
-      const teacher = await prisma.user.findUnique({
+        //todo
+      /*const teacher = await prisma.user.findUnique({
         where: { id: teacherId },
+      });*/
+      const teacher = await prisma.teacher.findUnique({
+            where: { id: teacherId },
       });
 
       if (!teacher) {
