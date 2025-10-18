@@ -86,7 +86,8 @@ const initialFormData: TeacherFormData = {
   certifications: [],
   employmentType: 'TETAP',
   status: 'ACTIVE',
-  institution: 'PONDOK',
+    institution: '',
+  //institution: 'PONDOK',
   achievements: [],
   isUstadz: true
 }
@@ -386,7 +387,9 @@ export default function PengajarPage() {
     active: teachers.filter(t => t.status === 'ACTIVE').length,
     tk: teachers.filter(t => t.institution === 'TK' || t.institution === 'ALL').length,
     sd: teachers.filter(t => t.institution === 'SD' || t.institution === 'ALL').length,
-    pondok: teachers.filter(t => t.institution === 'PONDOK' || t.institution === 'ALL').length
+    smp: teachers.filter(t => t.institution === 'SMP' || t.institution === 'ALL').length,
+    sma: teachers.filter(t => t.institution === 'SMA' || t.institution === 'ALL').length,
+    //pondok: teachers.filter(t => t.institution === 'PONDOK' || t.institution === 'ALL').length
   }
 
   if (loading) {
@@ -479,7 +482,9 @@ export default function PengajarPage() {
                   <option value="all">Semua Institusi</option>
                   <option value="TK">TK</option>
                   <option value="SD">SD</option>
-                  <option value="PONDOK">Pondok</option>
+                    <option value="SMP">SMP</option>
+                    <option value="SMA">SMA</option>
+                  {/*<option value="PONDOK">Pondok</option>*/}
                   <option value="ALL">Semua Jenjang</option>
                 </select>
 
@@ -681,7 +686,9 @@ export default function PengajarPage() {
                     <option value="">Pilih Institusi</option>
                     <option value="TK">TK</option>
                     <option value="SD">SD</option>
-                    <option value="PONDOK">Pondok</option>
+                    <option value="SMP">SMP</option>
+                    <option value="SMA">SMA</option>
+                    {/*<option value="PONDOK">Pondok</option>*/}
                     <option value="ALL">Semua Jenjang</option>
                   </select>
                   {formErrors.institution && <p className="text-red-500 text-sm">{formErrors.institution}</p>}
