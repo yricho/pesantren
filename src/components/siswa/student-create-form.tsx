@@ -333,7 +333,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   >
                     <option value="TK">TK</option>
                     <option value="SD">SD</option>
-                    <option value="PONDOK">PONDOK</option>
+                    <option value="SMP">SMP</option>
+                    <option value="SMA">SMA</option>
+                    {/*<option value="PONDOK">PONDOK</option>*/}
                   </select>
                 </div>
 

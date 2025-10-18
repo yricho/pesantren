@@ -41,7 +41,8 @@ interface Student {
 export default function SiswaPage() {
   const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedType, setSelectedType] = useState<'all' | 'TK' | 'SD' | 'PONDOK'>('all')
+  //const [selectedType, setSelectedType] = useState<'all' | 'TK' | 'SD' | 'PONDOK'>('all')
+  const [selectedType, setSelectedType] = useState<'all' | 'TK' | 'SD' | 'SMP' | 'SMA' >('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [showForm, setShowForm] = useState(false)
@@ -162,7 +163,9 @@ export default function SiswaPage() {
   const stats = {
     tk: (students || []).filter(s => s.institutionType === 'TK').length,
     sd: (students || []).filter(s => s.institutionType === 'SD').length,
-    pondok: (students || []).filter(s => s.institutionType === 'PONDOK').length,
+      smp: (students || []).filter(s => s.institutionType === 'SMP').length,
+      sma: (students || []).filter(s => s.institutionType === 'SMA').length,
+    //pondok: (students || []).filter(s => s.institutionType === 'PONDOK').length,
     total: (students || []).length
   }
 
@@ -218,7 +221,7 @@ export default function SiswaPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-purple-500">
+          {/*<Card className="border-l-4 border-l-purple-500">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -228,7 +231,30 @@ export default function SiswaPage() {
                 <GraduationCap className="w-8 h-8 text-purple-500" />
               </div>
             </CardContent>
-          </Card>
+          </Card>*/}
+            <Card className="border-l-4 border-l-purple-500">
+                <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-600 mb-1">SMP</p>
+                            <p className="text-2xl font-bold">{stats.smp}</p>
+                        </div>
+                        <GraduationCap className="w-8 h-8 text-purple-500" />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-purple-500">
+                <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-600 mb-1">SMA</p>
+                            <p className="text-2xl font-bold">{stats.sma}</p>
+                        </div>
+                        <GraduationCap className="w-8 h-8 text-purple-500" />
+                    </div>
+                </CardContent>
+            </Card>
         </div>
 
         {/* Controls */}
@@ -249,7 +275,8 @@ export default function SiswaPage() {
 
               {/* Filter by Institution */}
               <div className="flex gap-2">
-                {(['all', 'TK', 'SD', 'PONDOK'] as const).map((type) => (
+                {/*(['all', 'TK', 'SD', 'PONDOK'] as const).map((type) => (*/
+                    (['all', 'TK', 'SD', 'SMP', 'SMA'] as const).map((type) => (
                   <Button
                     key={type}
                     variant={selectedType === type ? 'default' : 'outline'}
