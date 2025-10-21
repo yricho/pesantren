@@ -36,7 +36,7 @@ const StudentImportSchema = z.object({
   guardianJob: z.string().optional(),
   guardianPhone: z.string().optional(),
   guardianRelation: z.string().optional(),
-  institutionType: z.enum(['TK', 'SD', 'PONDOK']),
+  institutionType: z.enum(['TK', 'SD', 'SMP', 'SMA']),
   grade: z.string().optional(),
   enrollmentDate: z.string().min(1, 'Tanggal masuk wajib diisi'),
   enrollmentYear: z.string().min(1, 'Tahun ajaran wajib diisi'),
@@ -228,7 +228,9 @@ export async function GET() {
       { key: 'enrollmentYear', header: 'Tahun Ajaran', required: true, example: '2024/2025', width: 15 },
       { key: 'previousSchool', header: 'Sekolah Asal', required: false, example: 'TK Dharma Wanita', width: 25 },
       { key: 'specialNeeds', header: 'Kebutuhan Khusus', required: false, example: '', width: 20 },
-      { key: 'status', header: 'Status', required: false, example: 'ACTIVE', width: 15 }
+      { key: 'status', header: 'Status', required: false, example: 'ACTIVE', width: 15 },
+      { key: 'graduationDate', header: 'Tanggal Lulus', required: false, example: '2024-06-30', width: 15 },
+      { key: 'createdAt', header: 'Tanggal Dibuat', required: false, example: '2024-01-01', width: 15 },
     ];
 
     return NextResponse.json({
@@ -240,7 +242,7 @@ export async function GET() {
           birthDate: 'YYYY-MM-DD atau DD/MM/YYYY',
           enrollmentDate: 'YYYY-MM-DD atau DD/MM/YYYY',
           gender: 'L/P atau MALE/FEMALE atau Laki-laki/Perempuan',
-          institutionType: 'TK, SD, atau PONDOK',
+          institutionType: 'TK, SD, SMP, atau SMA',
           status: 'ACTIVE, GRADUATED, TRANSFERRED, atau DROPPED',
           email: 'Format email yang valid (opsional)'
         }

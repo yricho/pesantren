@@ -36,7 +36,7 @@ const updateStudentSchema = z.object({
   guardianJob: z.string().optional().nullable(),
   guardianPhone: z.string().optional().nullable(),
   guardianRelation: z.string().optional().nullable(),
-  institutionType: z.enum(['TK', 'SD', 'PONDOK']),
+  institutionType: z.enum(['TK', 'SD', 'SMP', 'SMA']),
   grade: z.string().optional().nullable(),
   enrollmentDate: z.string(),
   enrollmentYear: z.string(),
