@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
 
     // Check if teacher exists (if provided)
     if (teacherId) {
-      const teacher = await prisma.user.findUnique({
+      const teacher = await prisma.teacher.findUnique({
         where: { id: teacherId },
       });
 
