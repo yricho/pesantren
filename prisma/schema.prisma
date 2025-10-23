@@ -1150,6 +1150,7 @@ model Class {
   attendances     Attendance[]
   academicYear    AcademicYear     @relation(fields: [academicYearId], references: [id])
   teacher         User?            @relation("ClassTeacher", fields: [teacherId], references: [id])
+  //teacher         Teacher?         @relation(fields: [teacherId], references: [id])
   exams           Exam[]
   reportCards     ReportCard[]     @relation("ReportCardClass")
   schedules       Schedule[]

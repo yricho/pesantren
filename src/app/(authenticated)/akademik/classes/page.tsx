@@ -144,7 +144,8 @@ export default function ClassesPage() {
               { id: "3", name: "Abdul Malik, M.Pd", email: "abdul@pondok.id" },
             ];
             setTeachers(mockTeachers);*/
-            const response = await fetch('/api/teachers')
+            //const response = await fetch('/api/teachers')
+            const response = await fetch('/api/users?role=USTADZ&isActive=true&limit=1000');
             if (response.ok) {
                 const data = await response.json()
                 setTeachers(data.teachers)
@@ -249,20 +250,14 @@ export default function ClassesPage() {
         setShowForm(true);
     };
 
-    const filteredClasses =
-        classes.length > 0 &&
-        classes.filter((classItem) => {
-            const matchesSearch =
-                classItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                classItem.grade.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesLevel = !selectedLevel || classItem.level === selectedLevel;
-            const matchesAcademicYear =
-                !selectedAcademicYear ||
-                classItem.academicYear.id === selectedAcademicYear;
+    const filteredClasses = classes.filter(classItem => {
+        const matchesSearch = classItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            classItem.grade.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesLevel = !selectedLevel || classItem.level === selectedLevel;
+        const matchesAcademicYear = !selectedAcademicYear || classItem.academicYear.id === selectedAcademicYear;
 
-            return matchesSearch && matchesLevel && matchesAcademicYear;
-        });
-
+        return matchesSearch && matchesLevel && matchesAcademicYear;
+    });
 
     return (
         <div className="p-6 space-y-6">
@@ -328,8 +323,8 @@ export default function ClassesPage() {
 
             {/* Classes List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {loading
-                    ? Array.from({ length: 6 }).map((_, index) => (
+                {loading ? (
+                    Array.from({ length: 6 }).map((_, index) => (
                         <Card key={index} className="p-4 animate-pulse">
                             <div className="h-4 bg-gray-300 rounded mb-2"></div>
                             <div className="h-3 bg-gray-200 rounded mb-4"></div>
@@ -340,7 +335,7 @@ export default function ClassesPage() {
                             <div className="h-8 bg-gray-200 rounded"></div>
                         </Card>
                     ))
-                    : filteredClasses && filteredClasses.length > 0 &&
+                ) : (
                     filteredClasses.map((classItem) => (
                         <Card key={classItem.id} className="p-4">
                             <div className="flex justify-between items-start mb-3">
@@ -351,26 +346,18 @@ export default function ClassesPage() {
                                     </p>
                                 </div>
                                 <div className="flex space-x-1">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handleEdit(classItem)}
-                                    >
+                                    <Button size="sm" variant="outline" onClick={() => handleEdit(classItem)}>
                                         <Edit className="w-4 h-4" />
                                     </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handleDelete(classItem.id)}
-                                    >
+                                    <Button size="sm" variant="outline" onClick={() => handleDelete(classItem.id)}>
                                         <Trash2 className="w-4 h-4" />
                                     </Button>
                                 </div>
                             </div>
 
                             <div className="flex flex-wrap gap-2 mb-4">
-                                <Badge variant={classItem.isActive ? "default" : "secondary"}>
-                                    {classItem.isActive ? "Aktif" : "Nonaktif"}
+                                <Badge variant={classItem.isActive ? 'default' : 'secondary'}>
+                                    {classItem.isActive ? 'Aktif' : 'Nonaktif'}
                                 </Badge>
                                 {classItem.program && (
                                     <Badge variant="outline">{classItem.program}</Badge>
@@ -383,10 +370,7 @@ export default function ClassesPage() {
                             <div className="space-y-2 mb-4">
                                 <div className="flex items-center text-sm text-gray-600">
                                     <Users className="w-4 h-4 mr-2" />
-                                    <span>
-                      {classItem._count.studentClasses} / {classItem.capacity}{" "}
-                                        siswa
-                    </span>
+                                    <span>{classItem._count.studentClasses} / {classItem.capacity} siswa</span>
                                 </div>
 
                                 {classItem.teacher && (
@@ -413,8 +397,10 @@ export default function ClassesPage() {
                                 </Button>
                             </div>
                         </Card>
-                    ))}
+                    ))
+                )}
             </div>
+
 
             {/* Add/Edit Form Modal */}
             {showForm && (
