@@ -153,7 +153,7 @@ export default function UsersPage() {
 
   // Check if user has permission
   useEffect(() => {
-    if (session && session.user.role !== 'SUPER_ADMIN') {
+    if (session && session.user.role !== 'ADMIN') {
       router.push('/dashboard')
       toast({
         title: 'Access Denied',
