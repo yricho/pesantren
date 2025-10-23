@@ -9,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function SignIn() {
   const [credentials, setCredentials] = useState({
-    username: 'admin',
-    password: 'admin123'
+    username: '',
+    password: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
