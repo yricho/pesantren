@@ -394,7 +394,7 @@ export default function ClassesPage() {
                   </div>
                 </div>
 
-                <div className="flex space-x-2">
+                {/* <div className="flex space-x-2">
                   <Button size="sm" variant="outline" className="flex-1">
                     <Eye className="w-4 h-4 mr-1" />
                     Detail
@@ -403,7 +403,7 @@ export default function ClassesPage() {
                     <UserPlus className="w-4 h-4 mr-1" />
                     Siswa
                   </Button>
-                </div>
+                </div> */}
               </Card>
             ))}
       </div>
@@ -481,7 +481,7 @@ export default function ClassesPage() {
                   <option value="TK">TK</option>
                   <option value="SD">SD</option>
                   <option value="SMP">SMP</option>
-                  <option value="PONDOK">Pondok</option>
+                  <option value="SMA">SMA</option>
                 </select>
               </div>
 
