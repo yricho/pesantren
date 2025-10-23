@@ -256,12 +256,12 @@ const menuItems: MenuItem[] = [
       }
     ]
   },*/
-  {
-    title: 'Pengguna',
-    href: '/users',
-    icon: Users,
-    adminOnly: true
-  },
+  // {
+  //   title: 'Pengguna',
+  //   href: '/users',
+  //   icon: Users,
+  //   adminOnly: true
+  // },
   /*{
     title: 'Staff',
     href: '/staff',

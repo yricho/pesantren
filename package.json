@@ -1,7 +1,7 @@
 {
   "name": "pondok-pesantren-coconut",
   "version": "1.0.0",
-  "description": "Pondok Imam Syafi'i Blitar Management Application",
+  "description": "Pondok Pesantren Management Application",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3030",

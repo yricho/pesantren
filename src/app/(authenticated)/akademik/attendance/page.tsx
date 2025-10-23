@@ -120,7 +120,7 @@ export default function AttendancePage() {
       const response = await fetch('/api/academic/classes?active=true');
       if (response.ok) {
         const data = await response.json();
-        setClasses(data);
+        setClasses(data.classes);
       }
     } catch (error) {
       console.error('Error fetching classes:', error);
@@ -132,27 +132,18 @@ export default function AttendancePage() {
       setLoading(true);
 
       const response = await fetch(`/api/students`)
-      // This would be replaced with actual API to get students in class
-      const mockStudents: Student[] = [
-        { id: '1', nis: '001', fullName: 'Ahmad Fauzi' },
-        { id: '2', nis: '002', fullName: 'Siti Aisyah' },
-        { id: '3', nis: '003', fullName: 'Muhammad Rizki' },
-        { id: '4', nis: '004', fullName: 'Fatimah Zahra' },
-        { id: '5', nis: '005', fullName: 'Abdul Rahman' },
-      ];
 
-      let students : Student[] = [];
+      let students = [];
       if (response.ok) {
           students = await response.json();
-          //setStudents(mockStudents);
-          setStudents(students);
+          setStudents(students.data);
       }
 
 
       // Initialize attendance data
       const initialAttendance: Record<string, Attendance> = {};
       //mockStudents.forEach(student => {
-      students.forEach(student => {
+      students.forEach((student: any) => {
         initialAttendance[student.id] = {
           studentId: student.id,
           status: 'HADIR',

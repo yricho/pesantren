@@ -69,7 +69,7 @@ const SUBJECT_CATEGORIES = {
   MUATAN_LOKAL: { label: "Muatan Lokal", color: "bg-purple-500" },
 };
 
-const EDUCATION_LEVELS = ["TK", "SD", "SMP", "PONDOK"];
+const EDUCATION_LEVELS = ["TK", "SD", "SMP", "SMA"];
 
 // Common Islamic subjects
 const ISLAMIC_SUBJECTS = [
@@ -118,7 +118,7 @@ export default function SubjectsPage() {
       const response = await fetch("/api/academic/subjects");
       if (response.ok) {
         const data = await response.json();
-        setSubjects(data);
+        setSubjects(data.subjects);
       }
     } catch (error) {
       console.error("Error fetching subjects:", error);

@@ -89,13 +89,13 @@ export async function GET(request: NextRequest) {
       ]
     });
 
-    if (format === 'json') {
-      return NextResponse.json({
-        success: true,
-        data: students,
-        total: students.length
-      });
-    }
+    // if (format === 'json') {
+    //   return NextResponse.json({
+    //     success: true,
+    //     data: students,
+    //     total: students.length
+    //   });
+    // }
 
     // For export formats, return processed data
     const exportData = students.map(student => ({
