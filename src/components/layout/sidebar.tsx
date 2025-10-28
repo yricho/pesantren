@@ -89,11 +89,11 @@ const menuItems: MenuItem[] = [
     icon: Heart,
     adminOnly: true
   },*/
-  {
-    title: 'Keuangan',
-    href: '/keuangan',
-    icon: DollarSign
-  },
+  // {
+  //   title: 'Keuangan',
+  //   href: '/keuangan',
+  //   icon: DollarSign
+  // },
   {
     title: 'Kegiatan',
     href: '/kegiatan',
