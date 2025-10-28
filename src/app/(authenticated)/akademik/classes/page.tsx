@@ -106,7 +106,7 @@ export default function ClassesPage() {
             const response = await fetch("/api/academic/classes");
             if (response.ok) {
                 const data = await response.json();
-                setClasses(data);
+                setClasses(data.classes);
             }
         } catch (error) {
             console.error("Error fetching classes:", error);
@@ -136,16 +136,7 @@ export default function ClassesPage() {
 
     const fetchTeachers = async () => {
         try {
-            // TODO
-            // This would be replaced with actual teacher endpoint
-            /*const mockTeachers: Teacher[] = [
-              { id: "1", name: "Ahmad Rahman, S.Pd", email: "ahmad@pondok.id" },
-              { id: "2", name: "Siti Fatimah, S.Ag", email: "siti@pondok.id" },
-              { id: "3", name: "Abdul Malik, M.Pd", email: "abdul@pondok.id" },
-            ];
-            setTeachers(mockTeachers);*/
-            //const response = await fetch('/api/teachers')
-            const response = await fetch('/api/users?role=USTADZ&isActive=true&limit=1000');
+            const response = await fetch('/api/teachers')
             if (response.ok) {
                 const data = await response.json()
                 setTeachers(data.teachers)
@@ -168,6 +159,8 @@ export default function ClassesPage() {
                 ? { id: editingClass.id, ...formData }
                 : formData;
 
+            payload.teacherId = "cmgizoh0b0000raxnpdz68h83"; //TODO: change to teacher id
+            
             const response = await fetch(url, {
                 method,
                 headers: {

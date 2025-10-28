@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { toast } from '@/components/ui/toast';
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/toast";
 import {
   ClipboardCheck,
   Plus,
@@ -20,7 +20,7 @@ import {
   FileText,
   Award,
   AlertCircle,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface Exam {
   id: string;
@@ -89,59 +89,69 @@ interface ExamFormData {
 }
 
 const EXAM_TYPES = {
-  UTS: { label: 'UTS (Ujian Tengah Semester)', color: 'bg-blue-500' },
-  UAS: { label: 'UAS (Ujian Akhir Semester)', color: 'bg-red-500' },
-  QUIZ: { label: 'Kuis', color: 'bg-green-500' },
-  PRAKTIK: { label: 'Ujian Praktik', color: 'bg-purple-500' },
-  UJIAN_HARIAN: { label: 'Ujian Harian', color: 'bg-orange-500' },
+  UTS: { label: "UTS (Ujian Tengah Semester)", color: "bg-blue-500" },
+  UAS: { label: "UAS (Ujian Akhir Semester)", color: "bg-red-500" },
+  QUIZ: { label: "Kuis", color: "bg-green-500" },
+  PRAKTIK: { label: "Ujian Praktik", color: "bg-purple-500" },
+  UJIAN_HARIAN: { label: "Ujian Harian", color: "bg-orange-500" },
 };
 
 const EXAM_STATUS = {
-  SCHEDULED: { label: 'Terjadwal', color: 'bg-blue-500', icon: Calendar },
-  ONGOING: { label: 'Berlangsung', color: 'bg-yellow-500', icon: Clock },
-  COMPLETED: { label: 'Selesai', color: 'bg-green-500', icon: Award },
-  CANCELLED: { label: 'Dibatalkan', color: 'bg-red-500', icon: AlertCircle },
+  SCHEDULED: { label: "Terjadwal", color: "bg-blue-500", icon: Calendar },
+  ONGOING: { label: "Berlangsung", color: "bg-yellow-500", icon: Clock },
+  COMPLETED: { label: "Selesai", color: "bg-green-500", icon: Award },
+  CANCELLED: { label: "Dibatalkan", color: "bg-red-500", icon: AlertCircle },
 };
 
 export default function ExamsPage() {
   const [exams, setExams] = useState<Exam[]>([]);
+  const [subjects, setSubjects] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [semesters, setSemesters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingExam, setEditingExam] = useState<Exam | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedAcademicYear, setSelectedAcademicYear] = useState("");
 
   const [formData, setFormData] = useState<ExamFormData>({
-    name: '',
-    code: '',
-    type: 'UTS',
-    subjectId: '',
-    classId: '',
-    semesterId: '',
-    teacherId: '',
-    date: '',
-    startTime: '',
-    endTime: '',
+    name: "",
+    code: "",
+    type: "",
+    subjectId: "",
+    classId: "",
+    semesterId: "",
+    teacherId: "", // TODO: use mock teacher id for testing
+    date: "",
+    startTime: "",
+    endTime: "",
     duration: 120,
-    room: '',
+    room: "",
     maxScore: 100,
-    minScore: 0,
+    minScore: 50,
     passingScore: 60,
-    instructions: '',
+    instructions: "",
     materials: [],
   });
 
   useEffect(() => {
     fetchExams();
+    fetchClasses();
+    fetchSubjects();
+    fetchSemesters();
   }, []);
 
   const fetchExams = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (selectedType) params.append('type', selectedType);
-      if (selectedStatus) params.append('status', selectedStatus);
+      if (selectedType) params.append("type", selectedType);
+      if (selectedStatus) params.append("status", selectedStatus);
 
       const response = await fetch(`/api/academic/exams?${params}`);
       if (response.ok) {
@@ -149,8 +159,61 @@ export default function ExamsPage() {
         setExams(data);
       }
     } catch (error) {
-      console.error('Error fetching exams:', error);
+      console.error("Error fetching exams:", error);
       toast.error("Error: Gagal memuat data ujian");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSubjects = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/academic/subjects");
+      if (response.ok) {
+        const data = await response.json();
+        setSubjects(data.subjects);
+      }
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+      toast.error("Error: Gagal memuat data mata pelajaran");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchClasses = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/academic/classes");
+      if (response.ok) {
+        const data = await response.json();
+        setClasses(data.classes);
+      }
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+      toast.error("Error: Gagal memuat data kelas");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSemesters = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (selectedAcademicYear)
+        params.append("academicYearId", selectedAcademicYear);
+      if (selectedStatus === "active") params.append("active", "true");
+
+      const response = await fetch(`/api/academic/semesters?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSemesters(data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching semesters:", error);
+      toast.error("Gagal memuat data semester");
     } finally {
       setLoading(false);
     }
@@ -160,26 +223,28 @@ export default function ExamsPage() {
     e.preventDefault();
 
     try {
-      const url = editingExam 
-        ? '/api/academic/exams' 
-        : '/api/academic/exams';
-      
-      const method = editingExam ? 'PUT' : 'POST';
-      const payload = editingExam 
+      const url = editingExam ? "/api/academic/exams" : "/api/academic/exams";
+
+      const method = editingExam ? "PUT" : "POST";
+      const payload = editingExam
         ? { id: editingExam.id, ...formData, materials: formData.materials }
         : { ...formData, materials: formData.materials };
+
+      payload.teacherId = "cmgizoh0b0000raxnpdz68h83"; // TODO: change to teacher id
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        toast.success(`Ujian berhasil ${editingExam ? 'diperbarui' : 'ditambahkan'}`);
-        
+        toast.success(
+          `Ujian berhasil ${editingExam ? "diperbarui" : "ditambahkan"}`
+        );
+
         fetchExams();
         resetForm();
       } else {
@@ -192,13 +257,13 @@ export default function ExamsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus ujian ini?')) {
+    if (!confirm("Apakah Anda yakin ingin menghapus ujian ini?")) {
       return;
     }
 
     try {
       const response = await fetch(`/api/academic/exams?id=${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
@@ -215,22 +280,22 @@ export default function ExamsPage() {
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      code: '',
-      type: 'UTS',
-      subjectId: '',
-      classId: '',
-      semesterId: '',
-      teacherId: '',
-      date: '',
-      startTime: '',
-      endTime: '',
+      name: "",
+      code: "",
+      type: "UTS",
+      subjectId: "",
+      classId: "",
+      semesterId: "",
+      teacherId: "",
+      date: "",
+      startTime: "",
+      endTime: "",
       duration: 120,
-      room: '',
+      room: "",
       maxScore: 100,
       minScore: 0,
       passingScore: 60,
-      instructions: '',
+      instructions: "",
       materials: [],
     });
     setEditingExam(null);
@@ -238,26 +303,29 @@ export default function ExamsPage() {
   };
 
   const handleEdit = (exam: Exam) => {
-    const materials = Array.isArray(exam.materials) ? exam.materials : 
-                     exam.materials ? JSON.parse(exam.materials) : [];
-    
+    const materials = Array.isArray(exam.materials)
+      ? exam.materials
+      : exam.materials
+        ? JSON.parse(exam.materials)
+        : [];
+
     setFormData({
       name: exam.name,
-      code: exam.code || '',
+      code: exam.code || "",
       type: exam.type,
       subjectId: exam.subject.id,
       classId: exam.class.id,
       semesterId: exam.semester.id,
       teacherId: exam.teacher.id,
-      date: exam.date.split('T')[0],
+      date: exam.date.split("T")[0],
       startTime: exam.startTime,
       endTime: exam.endTime,
       duration: exam.duration,
-      room: exam.room || '',
+      room: exam.room || "",
       maxScore: exam.maxScore,
       minScore: exam.minScore,
       passingScore: exam.passingScore,
-      instructions: exam.instructions || '',
+      instructions: exam.instructions || "",
       materials,
     });
     setEditingExam(exam);
@@ -265,38 +333,41 @@ export default function ExamsPage() {
   };
 
   const addMaterial = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      materials: [...prev.materials, ''],
+      materials: [...prev.materials, ""],
     }));
   };
 
   const updateMaterial = (index: number, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      materials: prev.materials.map((item, i) => i === index ? value : item),
+      materials: prev.materials.map((item, i) => (i === index ? value : item)),
     }));
   };
 
   const removeMaterial = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       materials: prev.materials.filter((_, i) => i !== index),
     }));
   };
 
-  const filteredExams = exams.filter(exam => {
-    const matchesSearch = exam.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         exam.subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         exam.class.name.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredExams = exams.filter((exam) => {
+    const matchesSearch =
+      exam.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      exam.subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      exam.class.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
-  const upcomingExams = filteredExams.filter(exam => 
-    new Date(exam.date) >= new Date() && exam.status === 'SCHEDULED'
+  const upcomingExams = filteredExams.filter(
+    (exam) => new Date(exam.date) >= new Date() && exam.status === "SCHEDULED"
   );
 
-  const completedExams = filteredExams.filter(exam => exam.status === 'COMPLETED');
+  const completedExams = filteredExams.filter(
+    (exam) => exam.status === "COMPLETED"
+  );
 
   return (
     <div className="p-6 space-y-6">
@@ -306,7 +377,10 @@ export default function ExamsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Ujian</h1>
           <p className="text-gray-600 mt-2">Kelola jadwal ujian dan hasil</p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="flex items-center space-x-2">
+        <Button
+          onClick={() => setShowForm(true)}
+          className="flex items-center space-x-2"
+        >
           <Plus className="w-4 h-4" />
           <span>Tambah Ujian</span>
         </Button>
@@ -357,7 +431,10 @@ export default function ExamsPage() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {filteredExams.reduce((sum, exam) => sum + exam._count.results, 0)}
+                {filteredExams.reduce(
+                  (sum, exam) => sum + exam._count.results,
+                  0
+                )}
               </p>
               <p className="text-sm text-gray-600">Total Hasil</p>
             </div>
@@ -377,7 +454,7 @@ export default function ExamsPage() {
               className="pl-10"
             />
           </div>
-          
+
           <select
             value={selectedType}
             onChange={(e) => {
@@ -388,7 +465,9 @@ export default function ExamsPage() {
           >
             <option value="">Semua Jenis</option>
             {Object.entries(EXAM_TYPES).map(([key, value]) => (
-              <option key={key} value={key}>{value.label}</option>
+              <option key={key} value={key}>
+                {value.label}
+              </option>
             ))}
           </select>
 
@@ -402,7 +481,9 @@ export default function ExamsPage() {
           >
             <option value="">Semua Status</option>
             {Object.entries(EXAM_STATUS).map(([key, value]) => (
-              <option key={key} value={key}>{value.label}</option>
+              <option key={key} value={key}>
+                {value.label}
+              </option>
             ))}
           </select>
 
@@ -431,7 +512,9 @@ export default function ExamsPage() {
           <div className="col-span-full">
             <Card className="p-8 text-center">
               <ClipboardCheck className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Belum Ada Ujian</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Belum Ada Ujian
+              </h3>
               <p className="text-gray-600 mb-4">
                 Belum ada ujian yang dijadwalkan
               </p>
@@ -444,23 +527,34 @@ export default function ExamsPage() {
         ) : (
           filteredExams.map((exam) => {
             const examType = EXAM_TYPES[exam.type as keyof typeof EXAM_TYPES];
-            const examStatus = EXAM_STATUS[exam.status as keyof typeof EXAM_STATUS];
+            const examStatus =
+              EXAM_STATUS[exam.status as keyof typeof EXAM_STATUS];
             const StatusIcon = examStatus?.icon;
-            
+
             return (
               <Card key={exam.id} className="p-4">
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h3 className="font-semibold text-lg">{exam.name}</h3>
                     {exam.code && (
-                      <p className="text-sm text-gray-600 font-mono">{exam.code}</p>
+                      <p className="text-sm text-gray-600 font-mono">
+                        {exam.code}
+                      </p>
                     )}
                   </div>
                   <div className="flex space-x-1">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(exam)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(exam)}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleDelete(exam.id)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleDelete(exam.id)}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -470,14 +564,17 @@ export default function ExamsPage() {
                   <Badge className={`${examType?.color} text-white`}>
                     {examType?.label}
                   </Badge>
-                  
+
                   <Badge className={`${examStatus?.color} text-white`}>
                     <StatusIcon className="w-3 h-3 mr-1" />
                     {examStatus?.label}
                   </Badge>
 
                   {exam.isPublished && (
-                    <Badge variant="outline" className="border-green-500 text-green-700">
+                    <Badge
+                      variant="outline"
+                      className="border-green-500 text-green-700"
+                    >
                       Dipublikasi
                     </Badge>
                   )}
@@ -488,26 +585,26 @@ export default function ExamsPage() {
                     <span className="text-gray-600">Mata Pelajaran:</span>
                     <span className="font-medium">{exam.subject.name}</span>
                   </div>
-                  
+
                   <div className="flex justify-between">
                     <span className="text-gray-600">Kelas:</span>
                     <span className="font-medium">{exam.class.name}</span>
                   </div>
-                  
+
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tanggal:</span>
                     <span className="font-medium">
-                      {new Date(exam.date).toLocaleDateString('id-ID')}
+                      {new Date(exam.date).toLocaleDateString("id-ID")}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between">
                     <span className="text-gray-600">Waktu:</span>
                     <span className="font-medium">
                       {exam.startTime} - {exam.endTime}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between">
                     <span className="text-gray-600">Durasi:</span>
                     <span className="font-medium">{exam.duration} menit</span>
@@ -522,18 +619,24 @@ export default function ExamsPage() {
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Pengawas:</span>
-                    <span className="font-medium text-xs">{exam.teacher.name}</span>
+                    <span className="font-medium text-xs">
+                      {exam.teacher.name}
+                    </span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   <div className="text-center p-2 bg-blue-50 rounded">
                     <p className="text-xs text-gray-600">Nilai Maksimal</p>
-                    <p className="font-semibold text-blue-600">{exam.maxScore}</p>
+                    <p className="font-semibold text-blue-600">
+                      {exam.maxScore}
+                    </p>
                   </div>
                   <div className="text-center p-2 bg-green-50 rounded">
                     <p className="text-xs text-gray-600">Batas Lulus</p>
-                    <p className="font-semibold text-green-600">{exam.passingScore}</p>
+                    <p className="font-semibold text-green-600">
+                      {exam.passingScore}
+                    </p>
                   </div>
                 </div>
 
@@ -558,25 +661,33 @@ export default function ExamsPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">
-              {editingExam ? 'Edit Ujian' : 'Tambah Ujian Baru'}
+              {editingExam ? "Edit Ujian" : "Tambah Ujian Baru"}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Nama Ujian *</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Nama Ujian *
+                  </label>
                   <Input
                     value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, name: e.target.value }))
+                    }
                     placeholder="contoh: UTS Matematika Semester 1"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Kode Ujian</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Kode Ujian
+                  </label>
                   <Input
                     value={formData.code}
-                    onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, code: e.target.value }))
+                    }
                     placeholder="contoh: UTS-MTK-2024-1"
                   />
                 </div>
@@ -584,53 +695,148 @@ export default function ExamsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Jenis Ujian *</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Jenis Ujian *
+                  </label>
                   <select
                     value={formData.type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, type: e.target.value }))
+
+                    }
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     {Object.entries(EXAM_TYPES).map(([key, value]) => (
-                      <option key={key} value={key}>{value.label}</option>
+                      <option key={key} value={key}>
+                        {value.label}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Ruangan</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Ruangan
+                  </label>
                   <Input
                     value={formData.room}
-                    onChange={(e) => setFormData(prev => ({ ...prev, room: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, room: e.target.value }))
+                    }
                     placeholder="contoh: A1, Lab IPA"
                   />
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-1">Kelas</label>
+                <select
+                  value={selectedClass}
+                  onChange={(e) => {
+                    setSelectedClass(e.target.value)
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      classId: e.target.value
+                    }))
+                  }}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Pilih Kelas</option>
+                  {classes.length > 0 &&
+                    classes.map((classItem: any) => (
+                      <option key={classItem.id} value={classItem.id}>
+                        {classItem.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Subjects</label>
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => {
+                    setSelectedSubject(e.target.value)
+                    setFormData((prev) => ({
+                      ...prev,
+                      subjectId: e.target.value
+                    }))
+                  }}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Pilih Mata Pelajaran</option>
+                  {subjects.length > 0 &&
+                    subjects.map((subject: any) => (
+                      <option key={subject.id} value={subject.id}>
+                        {subject.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <select
+                value={selectedSemester}
+                onChange={(e) => {
+                  setSelectedSemester(e.target.value)
+                  setFormData((prev) => ({
+                    ...prev,
+                    semesterId: e.target.value
+                  }))
+                }}
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Semester</option>
+                {semesters.map((semester: any) => (
+                  <option key={semester.id} value={semester.id}>
+                    {semester.name}
+                  </option>
+                ))}
+              </select>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Tanggal *</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Tanggal *
+                  </label>
                   <Input
                     type="date"
                     value={formData.date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, date: e.target.value }))
+                    }
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Jam Mulai *</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Jam Mulai *
+                  </label>
                   <Input
                     type="time"
                     value={formData.startTime}
-                    onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        startTime: e.target.value,
+                      }))
+                    }
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Jam Selesai *</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Jam Selesai *
+                  </label>
                   <Input
                     type="time"
                     value={formData.endTime}
-                    onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        endTime: e.target.value,
+                      }))
+                    }
                     required
                   />
                 </div>
@@ -638,51 +844,86 @@ export default function ExamsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Durasi (menit)</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Durasi (menit)
+                  </label>
                   <Input
                     type="number"
                     min="15"
                     max="300"
                     value={formData.duration}
-                    onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        duration: parseInt(e.target.value),
+                      }))
+                    }
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Nilai Maksimal</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Nilai Maksimal
+                  </label>
                   <Input
                     type="number"
                     min="10"
                     max="1000"
                     value={formData.maxScore}
-                    onChange={(e) => setFormData(prev => ({ ...prev, maxScore: parseInt(e.target.value) }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        maxScore: parseInt(e.target.value),
+                      }))
+                    }
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Nilai Minimum</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Nilai Minimum
+                  </label>
                   <Input
                     type="number"
                     min="0"
                     value={formData.minScore}
-                    onChange={(e) => setFormData(prev => ({ ...prev, minScore: parseInt(e.target.value) }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        minScore: parseInt(e.target.value),
+                      }))
+                    }
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Batas Lulus</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Batas Lulus
+                  </label>
                   <Input
                     type="number"
                     min="0"
                     max={formData.maxScore}
                     value={formData.passingScore}
-                    onChange={(e) => setFormData(prev => ({ ...prev, passingScore: parseInt(e.target.value) }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        passingScore: parseInt(e.target.value),
+                      }))
+                    }
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Petunjuk Ujian</label>
+                <label className="block text-sm font-medium mb-1">
+                  Petunjuk Ujian
+                </label>
                 <textarea
                   value={formData.instructions}
-                  onChange={(e) => setFormData(prev => ({ ...prev, instructions: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      instructions: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={4}
                   placeholder="Petunjuk dan aturan ujian..."
@@ -690,7 +931,9 @@ export default function ExamsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Materi yang Diperlukan</label>
+                <label className="block text-sm font-medium mb-1">
+                  Materi yang Diperlukan
+                </label>
                 <div className="space-y-2">
                   {formData.materials.map((material, index) => (
                     <div key={index} className="flex space-x-2">
@@ -722,17 +965,23 @@ export default function ExamsPage() {
               </div>
 
               <div className="flex space-x-3 pt-4">
-                <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={resetForm}
+                  className="flex-1"
+                >
                   Batal
                 </Button>
                 <Button type="submit" className="flex-1">
-                  {editingExam ? 'Perbarui' : 'Simpan'}
+                  {editingExam ? "Perbarui" : "Simpan"}
                 </Button>
               </div>
             </form>
           </div>
-        </div>
-      )}
-    </div>
+        </div >
+      )
+      }
+    </div >
   );
 }

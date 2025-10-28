@@ -32,7 +32,7 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
     institutionType: 'SD',
     grade: '',
     enrollmentYear: '',
-    enrollmentDate: '',
+    enrollmentDate: new Date(),
     status: 'Active',
     photo: 'https://via.placeholder.com/150',
     // Default values for required fields that might not exist in the interface

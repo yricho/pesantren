@@ -201,14 +201,16 @@ export default function SchedulesPage() {
     e.preventDefault();
 
     try {
-      const url = editingSchedule 
-        ? '/api/academic/schedules' 
+      const url = editingSchedule
+        ? '/api/academic/schedules'
         : '/api/academic/schedules';
-      
+
       const method = editingSchedule ? 'PUT' : 'POST';
-      const payload = editingSchedule 
+      const payload = editingSchedule
         ? { id: editingSchedule.id, ...formData }
         : formData;
+
+      payload.teacherId = "cmgizoh0b0000raxnpdz68h83";
 
       const response = await fetch(url, {
         method,
@@ -220,7 +222,7 @@ export default function SchedulesPage() {
 
       if (response.ok) {
         toast.success(`Jadwal berhasil ${editingSchedule ? 'diperbarui' : 'ditambahkan'}`);
-        
+
         fetchSchedules();
         resetForm();
       } else {
@@ -289,19 +291,19 @@ export default function SchedulesPage() {
   };
 
   const checkConflicts = (newSchedule: ScheduleFormData) => {
-    return schedules.filter(schedule => 
+    return schedules.filter(schedule =>
       schedule.day === newSchedule.day &&
       schedule.startTime === newSchedule.startTime &&
-      (schedule.class.id === newSchedule.classId || 
-       schedule.teacher.id === newSchedule.teacherId) &&
+      (schedule.class.id === newSchedule.classId ||
+        schedule.teacher.id === newSchedule.teacherId) &&
       (!editingSchedule || schedule.id !== editingSchedule.id)
     );
   };
 
   const filteredSchedules = schedules.filter(schedule => {
     const matchesSearch = schedule.subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         schedule.teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         schedule.class.name.toLowerCase().includes(searchTerm.toLowerCase());
+      schedule.teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      schedule.class.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -356,7 +358,7 @@ export default function SchedulesPage() {
               className="pl-10"
             />
           </div>
-          
+
           <select
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
@@ -410,7 +412,7 @@ export default function SchedulesPage() {
               <h3 className="font-semibold text-center mb-4 text-lg">
                 {day.label}
               </h3>
-              
+
               <div className="space-y-2">
                 {groupedSchedules[day.value]?.length > 0 ? (
                   groupedSchedules[day.value].map((schedule) => (
@@ -431,7 +433,7 @@ export default function SchedulesPage() {
                           </Button>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-1">
                         <p className="font-semibold text-gray-900">
                           {schedule.subject.name}

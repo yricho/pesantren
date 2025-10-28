@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { softDelete } from '@/lib/soft-delete';
+// import { softDelete } from '@/lib/soft-delete';
 
 // Helper function to check user permissions
 function hasPermission(userRole: string, action: 'read' | 'create' | 'update' | 'delete'): boolean {
@@ -41,34 +41,34 @@ export async function GET(request: NextRequest) {
         const whereConditions: any = {};
 
         // Filter out soft deleted records
-        whereConditions.isDeleted = false;
+        // whereConditions.isDeleted = false;
 
-        if (academicYearId) {
-            whereConditions.academicYearId = academicYearId;
-        }
+        // if (academicYearId) {
+        //     whereConditions.academicYearId = academicYearId;
+        // }
 
-        if (level) {
-            whereConditions.level = level;
-        }
+        // if (level) {
+        //     whereConditions.level = level;
+        // }
 
-        if (grade) {
-            whereConditions.grade = grade;
-        }
+        // if (grade) {
+        //     whereConditions.grade = grade;
+        // }
 
-        if (isActive === 'true') {
-            whereConditions.isActive = true;
-        } else if (isActive === 'false') {
-            whereConditions.isActive = false;
-        }
+        // if (isActive === 'true') {
+        //     whereConditions.isActive = true;
+        // } else if (isActive === 'false') {
+        //     whereConditions.isActive = false;
+        // }
 
-        if (search) {
-            whereConditions.OR = [
-                { name: { contains: search, mode: 'insensitive' } },
-                { room: { contains: search, mode: 'insensitive' } },
-                { description: { contains: search, mode: 'insensitive' } },
-                { teacher: { name: { contains: search, mode: 'insensitive' } } }
-            ];
-        }
+        // if (search) {
+        //     whereConditions.OR = [
+        //         { name: { contains: search, mode: 'insensitive' } },
+        //         { room: { contains: search, mode: 'insensitive' } },
+        //         { description: { contains: search, mode: 'insensitive' } },
+        //         { teacher: { name: { contains: search, mode: 'insensitive' } } }
+        //     ];
+        // }
 
         const skip = (page - 1) * limit;
 
@@ -466,7 +466,7 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
-        await softDelete(prisma.class, { id }, session.user.id);
+        // await softDelete(prisma.class, { id }, session.user.id);
 
         return NextResponse.json({ message: 'Class soft deleted successfully' });
     } catch (error) {
