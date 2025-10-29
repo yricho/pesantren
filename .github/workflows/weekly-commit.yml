@@ -6,7 +6,7 @@ on:
     # Runs every Sunday at midnight (UTC)
     # Cron syntax: minute hour day_of_month month day_of_week
     # 0 0 * * 0 means 0 minutes, 0 hours, any day of month, any month, Day 0 (Sunday)
-    - cron: '30 17 * * *'
+    - cron: '35 0 * * *'
   
   # Allow manual trigger for testing
   workflow_dispatch:
