@@ -36,7 +36,7 @@ export function StudentCreateForm({
     email: "",
     fatherName: "",
     motherName: "",
-    institutionType: level2.label,
+    institutionType: level2.name,
     grade: "",
     enrollmentYear: "",
     enrollmentDate: new Date(),
