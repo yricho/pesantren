@@ -134,11 +134,11 @@ const menuItems: MenuItem[] = [
         href: '/akademik/subjects',
         icon: BookOpen
       },
-      {
-        title: 'Input Nilai',
-        href: '/akademik/grades',
-        icon: Award
-      },
+      // {
+      //   title: 'Input Nilai',
+      //   href: '/akademik/grades',
+      //   icon: Award
+      // },
       {
         title: 'Absensi',
         href: '/akademik/attendance',
@@ -149,11 +149,11 @@ const menuItems: MenuItem[] = [
         href: '/akademik/schedules',
         icon: Clock
       },
-      {
-        title: 'Raport',
-        href: '/akademik/report-cards',
-        icon: FileText
-      },
+      // {
+      //   title: 'Raport',
+      //   href: '/akademik/report-cards',
+      //   icon: FileText
+      // },
       {
         title: 'Ujian',
         href: '/akademik/exams',
