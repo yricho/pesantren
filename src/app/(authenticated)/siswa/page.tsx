@@ -1,32 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import BulkOperationsModal from "@/components/bulk-operations/bulk-operations-modal";
 import { Header } from "@/components/layout/header";
+import { StudentCreateForm } from "@/components/siswa/student-create-form";
+import { StudentEditForm } from "@/components/siswa/student-edit-form";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { educationLevel } from "@/constant";
+import { ValidationRules } from "@/lib/bulk-operations";
+import { formatDate } from "@/lib/utils";
 import {
-  Plus,
-  Search,
-  Filter,
-  Users,
-  GraduationCap,
   Baby,
-  School,
-  User,
-  Phone,
+  Download,
+  Edit,
+  Eye,
+  GraduationCap,
   Mail,
   MapPin,
-  Calendar,
-  Edit,
-  Trash2,
-  Eye,
-  Download,
+  Phone,
+  Plus,
+  School,
+  Search,
+  User,
 } from "lucide-react";
-import { formatDate } from "@/lib/utils";
-import { StudentEditForm } from "@/components/siswa/student-edit-form";
-import BulkOperationsModal from "@/components/bulk-operations/bulk-operations-modal";
-import { ValidationRules } from "@/lib/bulk-operations";
-import { StudentCreateForm } from "@/components/siswa/student-create-form";
+import { useEffect, useState } from "react";
 
 interface Student {
   id: string;
@@ -54,7 +51,6 @@ interface Student {
 export default function SiswaPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  //const [selectedType, setSelectedType] = useState<'all' | 'TK' | 'SD' | 'PONDOK'>('all')
   const [selectedType, setSelectedType] = useState<
     "all" | "TK" | "SD" | "SMP" | "SMA"
   >("all");
@@ -69,12 +65,13 @@ export default function SiswaPage() {
   const [templateColumns, setTemplateColumns] = useState<any[]>([]);
   const [importValidationRules, setImportValidationRules] = useState<any[]>([]);
 
+  const [level1, level2, level3, level4] = educationLevel;
+
   useEffect(() => {
     fetchStudents();
   }, [selectedType]);
 
   useEffect(() => {
-    // Load template and validation rules
     fetchTemplateInfo();
   }, []);
 
@@ -211,7 +208,6 @@ export default function SiswaPage() {
     sd: (students || []).filter((s) => s.institutionType === "SD").length,
     smp: (students || []).filter((s) => s.institutionType === "SMP").length,
     sma: (students || []).filter((s) => s.institutionType === "SMA").length,
-    //pondok: (students || []).filter(s => s.institutionType === 'PONDOK').length,
     total: (students || []).length,
   };
 
@@ -246,7 +242,7 @@ export default function SiswaPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">TK</p>
+                  <p className="text-sm text-gray-600 mb-1">{level1.label}</p>
                   <p className="text-2xl font-bold">{stats.tk}</p>
                 </div>
                 <Baby className="w-8 h-8 text-yellow-500" />
@@ -258,7 +254,7 @@ export default function SiswaPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">SD</p>
+                  <p className="text-sm text-gray-600 mb-1">{level2.label}</p>
                   <p className="text-2xl font-bold">{stats.sd}</p>
                 </div>
                 <School className="w-8 h-8 text-green-500" />
@@ -266,17 +262,6 @@ export default function SiswaPage() {
             </CardContent>
           </Card>
 
-          {/*<Card className="border-l-4 border-l-purple-500">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Pondok</p>
-                  <p className="text-2xl font-bold">{stats.pondok}</p>
-                </div>
-                <GraduationCap className="w-8 h-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>*/}
           <Card className="border-l-4 border-l-purple-500">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">

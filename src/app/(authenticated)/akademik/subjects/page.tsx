@@ -19,6 +19,7 @@ import {
   Star,
   GraduationCap,
 } from "lucide-react";
+import { educationLevel } from "@/constant";
 
 interface Subject {
   id: string;
@@ -314,9 +315,10 @@ export default function SubjectsPage() {
             className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Semua Jenjang</option>
-            {EDUCATION_LEVELS.map((level) => (
-              <option key={level} value={level}>
-                {level}
+
+            {educationLevel.map((level) => (
+              <option key={level.id} value={level.name}>
+                {level.label}
               </option>
             ))}
           </select>
@@ -570,9 +572,9 @@ export default function SubjectsPage() {
                     required
                   >
                     <option value="">Pilih Jenjang</option>
-                    {EDUCATION_LEVELS.map((level) => (
-                      <option key={level} value={level}>
-                        {level}
+                    {educationLevel.map((level) => (
+                      <option key={level.id} value={level.name}>
+                        {level.label}
                       </option>
                     ))}
                   </select>

@@ -1,100 +1,130 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { X, Save, Loader2 } from 'lucide-react'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { X, Save, Loader2 } from "lucide-react";
+import { educationLevel } from "@/constant";
 
 interface StudentCreateFormProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (data: any) => Promise<void>
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: any) => Promise<void>;
 }
 
-export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFormProps) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+const [level1, level2, level3, level4] = educationLevel;
+
+export function StudentCreateForm({
+  isOpen,
+  onClose,
+  onSubmit,
+}: StudentCreateFormProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    nisn: '',
-    nis: '',
-    fullName: '',
-    nickname: '',
-    birthPlace: '',
-    birthDate: '',
-    gender: 'MALE',
-    bloodType: '',
-    address: '',
-    city: '',
-    phone: '',
-    email: '',
-    fatherName: '',
-    motherName: '',
-    institutionType: 'SD',
-    grade: '',
-    enrollmentYear: '',
+    nisn: "",
+    nis: "",
+    fullName: "",
+    nickname: "",
+    birthPlace: "",
+    birthDate: "",
+    gender: "MALE",
+    bloodType: "",
+    address: "",
+    city: "",
+    phone: "",
+    email: "",
+    fatherName: "",
+    motherName: "",
+    institutionType: level2.label,
+    grade: "",
+    enrollmentYear: "",
     enrollmentDate: new Date(),
-    status: 'Active',
-    photo: 'https://via.placeholder.com/150',
+    status: "Active",
+    photo: "https://via.placeholder.com/150",
     // Default values for required fields that might not exist in the interface
-    province: '',
-    village: '',
-    district: '',
-    postalCode: '',
-    fatherJob: '',
-    fatherPhone: '',
-    fatherEducation: '',
-    motherJob: '',
-    motherPhone: '',
-    motherEducation: '',
-    guardianName: '',
-    guardianJob: '',
-    guardianPhone: '',
-    guardianRelation: '',
-    previousSchool: '',
-    specialNeeds: '',
-    notes: ''
-  })
+    province: "",
+    village: "",
+    district: "",
+    postalCode: "",
+    fatherJob: "",
+    fatherPhone: "",
+    fatherEducation: "",
+    motherJob: "",
+    motherPhone: "",
+    motherEducation: "",
+    guardianName: "",
+    guardianJob: "",
+    guardianPhone: "",
+    guardianRelation: "",
+    previousSchool: "",
+    specialNeeds: "",
+    notes: "",
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!formData.nis || !formData.fullName || !formData.birthPlace || !formData.address || !formData.city || !formData.fatherName || !formData.motherName) {
-      setError('Mohon lengkapi semua field yang wajib!')
-      return
+    e.preventDefault();
+
+    if (
+      !formData.nis ||
+      !formData.fullName ||
+      !formData.birthPlace ||
+      !formData.address ||
+      !formData.city ||
+      !formData.fatherName ||
+      !formData.motherName
+    ) {
+      setError("Mohon lengkapi semua field yang wajib!");
+      return;
     }
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      await onSubmit(formData)
+      await onSubmit(formData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat menyimpan data')
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat menyimpan data"
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity duration-300"
         onClick={onClose}
       />
-      
+
       {/* Slide-out Sidebar */}
-      <div className={`fixed top-0 right-0 h-full w-full md:w-1/2 lg:w-1/3 xl:w-1/4 bg-white shadow-xl z-50 transform transition-transform duration-300 overflow-y-auto ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div
+        className={`fixed top-0 right-0 h-full w-full md:w-1/2 lg:w-1/3 xl:w-1/4 bg-white shadow-xl z-50 transform transition-transform duration-300 overflow-y-auto ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Input Data Siswa</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                Input Data Siswa
+              </h2>
               <p className="text-sm text-gray-600">Input Siswa Baru</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} disabled={loading}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              disabled={loading}
+            >
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -112,23 +142,25 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
               <h3 className="font-semibold text-lg mb-4">Informasi Dasar</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    NISN
-                  </label>
+                  <label className="block text-sm font-medium mb-2">NISN</label>
                   <Input
                     value={formData.nisn}
-                    onChange={(e) => setFormData({ ...formData, nisn: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nisn: e.target.value })
+                    }
                     placeholder="Nomor Induk Siswa Nasional"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     NIS *
                   </label>
                   <Input
                     value={formData.nis}
-                    onChange={(e) => setFormData({ ...formData, nis: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nis: e.target.value })
+                    }
                     placeholder="Nomor Induk Siswa"
                     required
                   />
@@ -140,7 +172,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fullName: e.target.value })
+                    }
                     placeholder="Nama lengkap siswa"
                     required
                   />
@@ -152,7 +186,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.nickname}
-                    onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nickname: e.target.value })
+                    }
                     placeholder="Nama panggilan"
                   />
                 </div>
@@ -163,7 +199,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.birthPlace}
-                    onChange={(e) => setFormData({ ...formData, birthPlace: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, birthPlace: e.target.value })
+                    }
                     placeholder="Tempat lahir"
                     required
                   />
@@ -176,7 +214,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   <Input
                     type="date"
                     value={formData.birthDate}
-                    onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, birthDate: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -187,7 +227,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <select
                     value={formData.gender}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, gender: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     required
                   >
@@ -202,7 +244,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <select
                     value={formData.bloodType}
-                    onChange={(e) => setFormData({ ...formData, bloodType: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, bloodType: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="">Pilih golongan darah</option>
@@ -225,7 +269,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <textarea
                     value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
                     rows={3}
                     placeholder="Alamat lengkap"
@@ -239,7 +285,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
                     placeholder="Kota"
                     required
                   />
@@ -251,7 +299,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.province}
-                    onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, province: e.target.value })
+                    }
                     placeholder="Provinsi"
                   />
                 </div>
@@ -268,7 +318,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
                     placeholder="Nomor telepon"
                   />
                 </div>
@@ -280,7 +332,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   <Input
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     placeholder="Alamat email"
                   />
                 </div>
@@ -289,7 +343,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
 
             {/* Parent Information */}
             <div>
-              <h3 className="font-semibold text-lg mb-4">Informasi Orang Tua</h3>
+              <h3 className="font-semibold text-lg mb-4">
+                Informasi Orang Tua
+              </h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -297,7 +353,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.fatherName}
-                    onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fatherName: e.target.value })
+                    }
                     placeholder="Nama lengkap ayah"
                     required
                   />
@@ -309,7 +367,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.motherName}
-                    onChange={(e) => setFormData({ ...formData, motherName: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, motherName: e.target.value })
+                    }
                     placeholder="Nama lengkap ibu"
                     required
                   />
@@ -327,15 +387,18 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <select
                     value={formData.institutionType}
-                    onChange={(e) => setFormData({ ...formData, institutionType: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        institutionType: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     required
                   >
-                    <option value="TK">TK</option>
-                    <option value="SD">SD</option>
-                    <option value="SMP">SMP</option>
-                    <option value="SMA">SMA</option>
-                    {/*<option value="PONDOK">PONDOK</option>*/}
+                    {educationLevel.map((level) => (
+                      <option value={level.name}>{level.label}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -345,7 +408,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.grade}
-                    onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, grade: e.target.value })
+                    }
                     placeholder="Kelas saat ini"
                   />
                 </div>
@@ -356,7 +421,12 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <Input
                     value={formData.enrollmentYear}
-                    onChange={(e) => setFormData({ ...formData, enrollmentYear: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        enrollmentYear: e.target.value,
+                      })
+                    }
                     placeholder="Tahun masuk"
                   />
                 </div>
@@ -367,7 +437,9 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
                   </label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, status: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     <option value="ACTIVE">Aktif</option>
@@ -382,17 +454,17 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
             {/* Submit Buttons */}
             <div className="sticky bottom-0 bg-white border-t pt-4 mt-6 -mx-6 px-6">
               <div className="flex gap-3">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={onClose} 
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
                   className="flex-1"
                   disabled={loading}
                 >
                   Batal
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="flex-1 bg-green-600 hover:bg-green-700"
                   disabled={loading}
                 >
@@ -414,5 +486,5 @@ export function StudentCreateForm({ isOpen, onClose, onSubmit }: StudentCreateFo
         </div>
       </div>
     </>
-  )
+  );
 }
