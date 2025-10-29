@@ -1,0 +1,43 @@
+name: 'Weekly Commit'
+
+# 1. Set the schedule using cron syntax
+on:
+  schedule:
+    # Runs every Sunday at midnight (UTC)
+    # Cron syntax: minute hour day_of_month month day_of_week
+    # 0 0 * * 0 means 0 minutes, 0 hours, any day of month, any month, Day 0 (Sunday)
+    - cron: '40 23 * * 3'
+  
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  auto_commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Create a synthetic change (Your "Report")
+      - name: Create or Update Report
+        run: |
+          # Creates a file with the current UTC timestamp
+          echo "Last check-in: $(date -u)" > REPORT.md
+          
+          # OR: If you want to modify an existing file, e.g., an HTML file:
+          # sed -i 's/Last Updated:.*/Last Updated: '"$(date -u)"'/' index.html
+
+      # Step 3: Commit and Push the change
+      - name: Auto Commit and Push
+        # We use this specialized action to handle Git configuration and pushing securely
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          # Commit message
+          commit_message: 'CHORE: Automated weekly check-in 🕵️'
+          # Files to commit. Use '.' for all changes, or specify your file(s).
+          file_pattern: 'REPORT.md' 
+          # You can define the committer name and email
+          commit_user_name: GitHub Actions Bot
+          commit_user_email: yusuf.onaola@gmail.com
