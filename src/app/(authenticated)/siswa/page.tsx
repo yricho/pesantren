@@ -51,9 +51,7 @@ interface Student {
 export default function SiswaPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<
-    "all" | "TK" | "SD" | "SMP" | "SMA"
-  >("all");
+  const [selectedType, setSelectedType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -79,6 +77,8 @@ export default function SiswaPage() {
     try {
       const params = new URLSearchParams();
       if (selectedType !== "all") params.set("institutionType", selectedType);
+
+      params.set("status", "ACTIVE");
 
       const response = await fetch(`/api/students?${params}`);
       if (response.ok) {
@@ -219,6 +219,11 @@ export default function SiswaPage() {
     );
   }
 
+  const renderInstitutionType = (type: string) => {
+    const level = educationLevel.find((level) => level.name === type);
+    return level ? level.label : type;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header title="Manajemen Siswa" />
@@ -305,24 +310,39 @@ export default function SiswaPage() {
 
               {/* Filter by Institution */}
               <div className="flex gap-2">
-                {
-                  /*(['all', 'TK', 'SD', 'PONDOK'] as const).map((type) => (*/
-                  (["all", "TK", "SD", "SMP", "SMA"] as const).map((type) => (
+                <Button
+                  key={"all"}
+                  variant={selectedType === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedType("all")}
+                  className={
+                    selectedType === "all"
+                      ? "bg-green-600 hover:bg-green-700"
+                      : ""
+                  }
+                >
+                  Semua
+                </Button>
+
+                {educationLevel.map((level) => {
+                  return (
                     <Button
-                      key={type}
-                      variant={selectedType === type ? "default" : "outline"}
+                      key={level.name}
+                      variant={
+                        selectedType === level.name ? "default" : "outline"
+                      }
                       size="sm"
-                      onClick={() => setSelectedType(type)}
+                      onClick={() => setSelectedType(level.name)}
                       className={
-                        selectedType === type
+                        selectedType === level.name
                           ? "bg-green-600 hover:bg-green-700"
                           : ""
                       }
                     >
-                      {type === "all" ? "Semua" : type}
+                      {level.label}
                     </Button>
-                  ))
-                }
+                  );
+                })}
               </div>
             </div>
 
@@ -371,9 +391,9 @@ export default function SiswaPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Orang Tua
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
-                  </th>
+                  </th> */}
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Aksi
                   </th>
@@ -436,7 +456,7 @@ export default function SiswaPage() {
                               : "bg-purple-100 text-purple-800"
                           }`}
                         >
-                          {student.institutionType}
+                          {renderInstitutionType(student.institutionType)}
                         </span>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
@@ -455,7 +475,7 @@ export default function SiswaPage() {
                           </p>
                         </div>
                       </td>
-                      <td className="px-4 py-4">
+                      {/* <td className="px-4 py-4">
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded-full ${
                             student.status === "ACTIVE"
@@ -475,7 +495,7 @@ export default function SiswaPage() {
                             ? "Pindah"
                             : "Keluar"}
                         </span>
-                      </td>
+                      </td> */}
                       <td className="px-4 py-4">
                         <div className="flex gap-1">
                           <Button
