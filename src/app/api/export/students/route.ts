@@ -6,9 +6,8 @@ import fs from "fs/promises"; // Use fs/promises for async file operations
 import path from "path";
 import ExcelJS from "exceljs";
 
-const dateExport = new Date();
 const saveDir = path.join(process.cwd(), "exports");
-const filename = `students_${dateExport.toISOString().split("T")[0]}.xlsx`;
+const filename = `students_backup.xlsx`;
 const filePath = path.join(saveDir, filename);
 
 export async function GET(request: NextRequest) {
