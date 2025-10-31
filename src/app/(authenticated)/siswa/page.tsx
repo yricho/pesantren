@@ -1,29 +1,39 @@
 "use client";
 
-import BulkOperationsModal from "@/components/bulk-operations/bulk-operations-modal";
-import { Header } from "@/components/layout/header";
-import { StudentCreateForm } from "@/components/siswa/student-create-form";
-import { StudentEditForm } from "@/components/siswa/student-edit-form";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { educationLevel } from "@/constant";
-import { ValidationRules } from "@/lib/bulk-operations";
-import { formatDate } from "@/lib/utils";
+import { Header } from "@/components/layout/header";
 import {
-  Baby,
-  Download,
-  Edit,
-  Eye,
+  Plus,
+  Search,
+  Filter,
+  Users,
   GraduationCap,
+  Baby,
+  School,
+  User,
+  Phone,
   Mail,
   MapPin,
-  Phone,
-  Plus,
-  School,
-  Search,
-  User,
+  Calendar,
+  Edit,
+  Trash2,
+  Eye,
+  Download,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { formatDate } from "@/lib/utils";
+import { StudentEditForm } from "@/components/siswa/student-edit-form";
+import BulkOperationsModal from "@/components/bulk-operations/bulk-operations-modal";
+import { ValidationRules } from "@/lib/bulk-operations";
+import { StudentCreateForm } from "@/components/siswa/student-create-form";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink, PaginationNext,
+    PaginationPrevious
+} from "@/components/ui/pagination";
 
 interface Student {
   id: string;
@@ -51,7 +61,10 @@ interface Student {
 export default function SiswaPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState("all");
+  //const [selectedType, setSelectedType] = useState<'all' | 'TK' | 'SD' | 'PONDOK'>('all')
+  const [selectedType, setSelectedType] = useState<
+    "all" | "TK" | "SD" | "SMP" | "SMA"
+  >("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -63,13 +76,16 @@ export default function SiswaPage() {
   const [templateColumns, setTemplateColumns] = useState<any[]>([]);
   const [importValidationRules, setImportValidationRules] = useState<any[]>([]);
 
-  const [level1, level2, level3, level4] = educationLevel;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
 
   useEffect(() => {
     fetchStudents();
-  }, [selectedType]);
+  }, [selectedType, currentPage]);
 
   useEffect(() => {
+    // Load template and validation rules
     fetchTemplateInfo();
   }, []);
 
@@ -79,11 +95,14 @@ export default function SiswaPage() {
       if (selectedType !== "all") params.set("institutionType", selectedType);
 
       params.set("status", "ACTIVE");
+      params.set("pages", String(currentPage+1));
 
       const response = await fetch(`/api/students?${params}`);
       if (response.ok) {
         const data = await response.json();
         setStudents(data.data);
+        setTotalPages(data.meta.totalPages);
+        //
       }
     } catch (error) {
       console.error("Error fetching students:", error);
@@ -208,8 +227,17 @@ export default function SiswaPage() {
     sd: (students || []).filter((s) => s.institutionType === "SD").length,
     smp: (students || []).filter((s) => s.institutionType === "SMP").length,
     sma: (students || []).filter((s) => s.institutionType === "SMA").length,
+    //pondok: (students || []).filter(s => s.institutionType === 'PONDOK').length,
     total: (students || []).length,
   };
+
+
+  const handlePageChange = (page : number) =>{
+      if (page >= 1 && page <= totalPages)  {
+          setCurrentPage(page);
+      }
+  }
+
 
   if (loading) {
     return (
@@ -218,11 +246,6 @@ export default function SiswaPage() {
       </div>
     );
   }
-
-  const renderInstitutionType = (type: string) => {
-    const level = educationLevel.find((level) => level.name === type);
-    return level ? level.label : type;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -247,7 +270,7 @@ export default function SiswaPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">{level1.label}</p>
+                  <p className="text-sm text-gray-600 mb-1">TK</p>
                   <p className="text-2xl font-bold">{stats.tk}</p>
                 </div>
                 <Baby className="w-8 h-8 text-yellow-500" />
@@ -259,13 +282,25 @@ export default function SiswaPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">{level2.label}</p>
+                  <p className="text-sm text-gray-600 mb-1">SD</p>
                   <p className="text-2xl font-bold">{stats.sd}</p>
                 </div>
                 <School className="w-8 h-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
+
+          {/*<Card className="border-l-4 border-l-purple-500">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Pondok</p>
+                  <p className="text-2xl font-bold">{stats.pondok}</p>
+                </div>
+                <GraduationCap className="w-8 h-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>*/}
 
           <Card className="border-l-4 border-l-purple-500">
             <CardContent className="pt-6">
@@ -310,39 +345,24 @@ export default function SiswaPage() {
 
               {/* Filter by Institution */}
               <div className="flex gap-2">
-                <Button
-                  key={"all"}
-                  variant={selectedType === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType("all")}
-                  className={
-                    selectedType === "all"
-                      ? "bg-green-600 hover:bg-green-700"
-                      : ""
-                  }
-                >
-                  Semua
-                </Button>
-
-                {educationLevel.map((level) => {
-                  return (
+                {
+                  /*(['all', 'TK', 'SD', 'PONDOK'] as const).map((type) => (*/
+                  (["all", "TK", "SD", "SMP", "SMA"] as const).map((type) => (
                     <Button
-                      key={level.name}
-                      variant={
-                        selectedType === level.name ? "default" : "outline"
-                      }
+                      key={type}
+                      variant={selectedType === type ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setSelectedType(level.name)}
+                      onClick={() => setSelectedType(type)}
                       className={
-                        selectedType === level.name
+                        selectedType === type
                           ? "bg-green-600 hover:bg-green-700"
                           : ""
                       }
                     >
-                      {level.label}
+                      {type === "all" ? "Semua" : type}
                     </Button>
-                  );
-                })}
+                  ))
+                }
               </div>
             </div>
 
@@ -391,9 +411,9 @@ export default function SiswaPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Orang Tua
                   </th>
-                  {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
-                  </th> */}
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Aksi
                   </th>
@@ -456,7 +476,7 @@ export default function SiswaPage() {
                               : "bg-purple-100 text-purple-800"
                           }`}
                         >
-                          {renderInstitutionType(student.institutionType)}
+                          {student.institutionType}
                         </span>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
@@ -475,7 +495,7 @@ export default function SiswaPage() {
                           </p>
                         </div>
                       </td>
-                      {/* <td className="px-4 py-4">
+                      <td className="px-4 py-4">
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded-full ${
                             student.status === "ACTIVE"
@@ -495,7 +515,7 @@ export default function SiswaPage() {
                             ? "Pindah"
                             : "Keluar"}
                         </span>
-                      </td> */}
+                      </td>
                       <td className="px-4 py-4">
                         <div className="flex gap-1">
                           <Button
@@ -532,6 +552,50 @@ export default function SiswaPage() {
               </tbody>
             </table>
           </div>
+
+            {/* Pagination */}
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <PaginationPrevious
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage > 1) handlePageChange(currentPage - 1);
+                            }}
+                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                    </PaginationItem>
+
+                    {/* Simple page links (can be enhanced with ellipsis logic) */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <PaginationItem key={page}>
+                            <PaginationLink
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePageChange(page);
+                                }}
+                                isActive={currentPage === page}
+                            >
+                                {page}
+                            </PaginationLink>
+                        </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                        <PaginationNext
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                            }}
+                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
+            {/* end pagination */}
         </div>
 
         {/* Student Detail Modal */}
