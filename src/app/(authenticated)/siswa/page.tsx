@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 
 interface Student {
   id: string;
+  nik?: string;
   nisn?: string | null;
   nis: string;
   fullName: string;
@@ -79,7 +80,7 @@ export default function SiswaPage() {
       if (selectedType !== "all") params.set("institutionType", selectedType);
 
       params.set("status", "ACTIVE");
-
+    
       const response = await fetch(`/api/students?${params}`);
       if (response.ok) {
         const data = await response.json();
@@ -102,6 +103,7 @@ export default function SiswaPage() {
 
         // Convert to validation rules format
         const rules = [
+          ValidationRules.required("nik"),
           ValidationRules.required("nisn"),
           ValidationRules.required("nis"),
           ValidationRules.required("fullName"),
@@ -371,7 +373,7 @@ export default function SiswaPage() {
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Foto
+                    NIK
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     NIS / NISN
@@ -412,14 +414,21 @@ export default function SiswaPage() {
                 ) : (
                   (filteredStudents || []).map((student) => (
                     <tr key={student.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4">
+                      {/* <td className="px-4 py-4">
                         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
                           <User className="w-5 h-5 text-gray-500" />
-                          {/* {student.photo ? (
+                          {student.photo ? (
                             <img src={student.photo} alt={student.fullName} className="w-full h-full rounded-full object-cover" />
                           ) : (
                             <User className="w-5 h-5 text-gray-500" />
-                          )} */}
+                          )}
+                        </div>
+                      </td> */}
+                      <td className="px-4 py-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {student.nik}
+                          </p>
                         </div>
                       </td>
                       <td className="px-4 py-4">

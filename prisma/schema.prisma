@@ -480,6 +480,7 @@ model Setting {
 
 model Student {
   id                  String               @id @default(cuid())
+  nik                 String?              @unique
   nisn                String?              @unique
   nis                 String               @unique
   fullName            String

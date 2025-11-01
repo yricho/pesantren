@@ -22,6 +22,7 @@ export function StudentCreateForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    nik: "",
     nisn: "",
     nis: "",
     fullName: "",
@@ -66,6 +67,7 @@ export function StudentCreateForm({
     e.preventDefault();
 
     if (
+      !formData.nik ||
       !formData.nis ||
       !formData.fullName ||
       !formData.birthPlace ||
@@ -141,6 +143,17 @@ export function StudentCreateForm({
             <div>
               <h3 className="font-semibold text-lg mb-4">Informasi Dasar</h3>
               <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">NIK</label>
+                  <Input
+                    value={formData.nik}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nik: e.target.value })
+                    }
+                    placeholder="Nomor Induk Kependudukan"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">NISN</label>
                   <Input

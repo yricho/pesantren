@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 // Schema for student import validation
 const StudentImportSchema = z.object({
+  nik: z.string().optional(),
   nisn: z.string().optional(),
   nis: z.string().min(1, 'NIS wajib diisi'),
   fullName: z.string().min(1, 'Nama lengkap wajib diisi'),
@@ -114,6 +115,7 @@ export async function POST(request: NextRequest) {
           // Create new student
           const newStudent = await prisma.student.create({
             data: {
+              nik: validatedData.nik,
               nisn: validatedData.nisn,
               nis: validatedData.nis,
               fullName: validatedData.fullName,
@@ -192,6 +194,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const templateColumns = [
+      { key: 'nik', header: 'NIK', required: false, example: '817199009900', width: 15 },
       { key: 'nisn', header: 'NISN', required: false, example: '0012345678', width: 15 },
       { key: 'nis', header: 'NIS', required: true, example: '20240001', width: 15 },
       { key: 'fullName', header: 'Nama Lengkap', required: true, example: 'Ahmad Fadli Rahman', width: 25 },

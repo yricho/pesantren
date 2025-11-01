@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 const updateStudentSchema = z.object({
+  nik: z.string().optional().nullable(),
   nisn: z.string().optional().nullable(),
   nis: z.string().min(1, 'NIS is required'),
   fullName: z.string().min(1, 'Name is required'),
@@ -89,6 +90,8 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+
+    console.log(params,"<----")
     const { default: prisma } = await import('@/lib/prisma');
     const session = await getServerSession(authOptions);
     

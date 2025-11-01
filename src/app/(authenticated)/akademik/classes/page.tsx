@@ -48,6 +48,7 @@ interface Class {
     isActive: boolean;
   };
   teacher?: Teacher;
+  teacherId?: string;
   _count: {
     studentClasses: number;
     teacherSubjects: number;
@@ -160,8 +161,6 @@ export default function ClassesPage() {
         ? { id: editingClass.id, ...formData }
         : formData;
 
-      payload.teacherId = "cmgizoh0b0000raxnpdz68h83"; //TODO: change to teacher id
-
       const response = await fetch(url, {
         method,
         headers: {
@@ -232,7 +231,7 @@ export default function ClassesPage() {
       grade: classItem.grade,
       section: classItem.section || "",
       academicYearId: classItem.academicYear.id,
-      teacherId: classItem.teacher?.id || "",
+      teacherId: classItem.teacherId || "",
       capacity: classItem.capacity,
       room: classItem.room || "",
       level: classItem.level,

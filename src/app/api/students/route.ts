@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 const createStudentSchema = z.object({
+  nik: z.string().optional().nullable(),
   nisn: z.string().optional().nullable(),
   nis: z.string().min(1, 'NIS is required'),
   fullName: z.string().min(1, 'Name is required'),

@@ -210,8 +210,6 @@ export default function SchedulesPage() {
         ? { id: editingSchedule.id, ...formData }
         : formData;
 
-      payload.teacherId = "cmgizoh0b0000raxnpdz68h83";
-
       const response = await fetch(url, {
         method,
         headers: {

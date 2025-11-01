@@ -71,7 +71,7 @@ export async function exportToExcel<T>(
       const cell = row.getCell(colIndex + 1);
       if (col.type === "date" && item[col.key]) {
         cell.value = new Date(item[col.key] as any);
-        cell.numFmt = "dd/mm/yyyy";
+        cell.numFmt = "yyyy/mm/dd";
       } else if (col.type === "number" && item[col.key]) {
         cell.value = Number(item[col.key]);
         cell.numFmt = "#,##0.00";
@@ -189,7 +189,7 @@ export async function generateExcelTemplate(
 
   // Style example row
   dataSheet.getRow(2).font = { italic: true, color: { argb: "FF666666" } };
-
+  
   // Set column widths
   columns.forEach((col, index) => {
     dataSheet.getColumn(index + 1).width = col.width || 15;
