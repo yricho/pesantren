@@ -95,7 +95,7 @@ export default function SiswaPage() {
       if (selectedType !== "all") params.set("institutionType", selectedType);
 
       params.set("status", "ACTIVE");
-      params.set("pages", String(currentPage+1));
+      params.set("page", String(currentPage));
 
       const response = await fetch(`/api/students?${params}`);
       if (response.ok) {
@@ -554,47 +554,50 @@ export default function SiswaPage() {
           </div>
 
             {/* Pagination */}
-            <Pagination>
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (currentPage > 1) handlePageChange(currentPage - 1);
-                            }}
-                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                        />
-                    </PaginationItem>
-
-                    {/* Simple page links (can be enhanced with ellipsis logic) */}
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <PaginationItem key={page}>
-                            <PaginationLink
+            <div className="m-2">
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
                                 href="#"
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    handlePageChange(page);
+                                    if (currentPage > 1) handlePageChange(currentPage - 1);
                                 }}
-                                isActive={currentPage === page}
-                            >
-                                {page}
-                            </PaginationLink>
+                                className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            />
                         </PaginationItem>
-                    ))}
 
-                    <PaginationItem>
-                        <PaginationNext
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (currentPage < totalPages) handlePageChange(currentPage + 1);
-                            }}
-                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                        />
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
+                        {/* Simple page links (can be enhanced with ellipsis logic) */}
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <PaginationItem key={page}>
+                                <PaginationLink
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handlePageChange(page);
+                                    }}
+                                    isActive={currentPage === page}
+                                >
+                                    {page}
+                                </PaginationLink>
+                            </PaginationItem>
+                        ))}
+
+                        <PaginationItem>
+                            <PaginationNext
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                                }}
+                                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            </div>
+
             {/* end pagination */}
         </div>
 
